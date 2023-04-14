@@ -20,7 +20,7 @@ public partial struct RaptureAtkModule
     [MemberFunction("E8 ?? ?? ?? ?? 0F B6 44 24 ?? 48 89 9F")]
     public partial bool ChangeUiMode(uint uiMode);
 
-    [StructLayout(LayoutKind.Explicit, Size = 0x248)]
+    [StructLayout(LayoutKind.Explicit, Size = 0x248 - 0x10)] //CN server exclusive, need confirm
     public struct NamePlateInfo
     {
         [FieldOffset(0x00)] public GameObjectID ObjectID;
