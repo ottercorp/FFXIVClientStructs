@@ -8,9 +8,9 @@ namespace FFXIVClientStructs.FFXIV.Client.UI.Agent;
 //     Component::GUI::AtkModuleInterface::AtkEventInterface
 
 // size = 0x4600
-// ctor E8 ? ? ? ? EB 03 49 8B C4 45 33 C9 48 89 46 40
+// ctor E8 ?? ?? ?? ?? EB 03 49 8B C4 45 33 C9 48 89 46 40
 [Agent(AgentId.Hud)]
-[StructLayout(LayoutKind.Explicit, Size = 0x47E0)]
+[StructLayout(LayoutKind.Explicit, Size = 0x4BA0)]
 public unsafe partial struct AgentHUD
 {
     [FieldOffset(0x0)] public AgentInterface AgentInterface;
@@ -22,13 +22,16 @@ public unsafe partial struct AgentHUD
     //[FieldOffset(0x9DC)] public uint CurrentBattleCharaTargetLevel;
 
     [FieldOffset(0xCB8)] public int CompanionSummonTimer;
+    
+    [FixedSizeArray<HudPartyMember>(10)]
     [FieldOffset(0xCC8)] public fixed byte PartyMemberList[0x20 * 10];
-    [FieldOffset(0xE08)] public short PartyMemberCount;
-    [FieldOffset(0xE10)] public uint PartyTitleAddonId;
-    [FieldOffset(0xE14)] public fixed uint RaidMemberIds[40];
-    [FieldOffset(0xEB4)] public int RaidGroupSize;
+    
+    [FieldOffset(0x12B8)] public short PartyMemberCount;
+    [FieldOffset(0x12C0)] public uint PartyTitleAddonId;
+    [FieldOffset(0x12C4)] public fixed uint RaidMemberIds[40];
+    [FieldOffset(0x1364)] public int RaidGroupSize;
 
-    [FieldOffset(0xF40)] public HudPartyMemberEnmity* PartyEnmityList;
+    [FieldOffset(0x13F0)] public HudPartyMemberEnmity* PartyEnmityList;
 
     [MemberFunction("48 85 D2 74 7F 48 89 5C 24")]
     public partial void OpenContextMenuFromTarget(GameObject* gameObject);

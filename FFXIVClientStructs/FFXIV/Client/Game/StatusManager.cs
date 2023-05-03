@@ -5,6 +5,7 @@ public unsafe partial struct StatusManager
 {
     // This field is often null and cannot be relied on to retrieve the owning Character object
     [FieldOffset(0x0)] public Character.Character* Owner;
+    [FixedSizeArray<Status>(30)]
     [FieldOffset(0x8)] public fixed byte Status[0xC * 30]; // Client::Game::Status array
     [FieldOffset(0x170)] public uint Unk_170;
     [FieldOffset(0x174)] public ushort Unk_174;
@@ -25,4 +26,10 @@ public unsafe partial struct StatusManager
 
     [MemberFunction("E8 ?? ?? ?? ?? 3B 44 24 28")]
     public partial uint GetSourceId(int statusIndex);
+
+    [MemberFunction("E8 ?? ?? ?? ?? 49 8B CE E8 ?? ?? ?? ?? 84 C0 74 4E")]
+    public partial void AddStatus(ushort statusId, ushort param = 0, void* u3 = null);
+
+    [MemberFunction("E8 ?? ?? ?? ?? 83 FF 1E")]
+    public partial void RemoveStatus(int statusIndex, byte u2 = 0); // u2 always appears to be 0
 }

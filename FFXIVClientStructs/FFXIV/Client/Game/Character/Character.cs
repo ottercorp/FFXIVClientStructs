@@ -1,15 +1,16 @@
 using FFXIVClientStructs.FFXIV.Client.Game.Object;
-using FFXIVClientStructs.FFXIV.Client.Graphics;
 using FFXIVClientStructs.FFXIV.Client.Graphics.Vfx;
+using FFXIVClientStructs.FFXIV.Common.Math;
 
 namespace FFXIVClientStructs.FFXIV.Client.Game.Character;
 // Client::Game::Character::Character
 //   Client::Game::Object::GameObject
 //   Client::Graphics::Vfx::VfxDataListenner
 
-// size = 0x19F0
+// size = 0x1B20
 // ctor E8 ?? ?? ?? ?? 4C 8B D0 4C 63 F7
-[StructLayout(LayoutKind.Explicit, Size = 0x1B00)]
+[StructLayout(LayoutKind.Explicit, Size = 0x1B20)]
+[VTableAddress("48 8d 05 ?? ?? ?? ?? 48 8b d9 48 89 01 48 8d 05 ?? ?? ?? ?? 48 89 81 a0 01 00 00 48 8d 05 ?? ?? ?? ??", 3)]
 public unsafe partial struct Character
 {
     [FieldOffset(0x0)] public GameObject GameObject;
@@ -46,30 +47,37 @@ public unsafe partial struct Character
     [FieldOffset(0x818)] public fixed byte EquipSlotData[4 * 10];
     [FieldOffset(0x840)] public fixed byte CustomizeData[0x1A];
 
-    [FieldOffset(0xC60)] public uint PlayerTargetObjectID;
+    [FieldOffset(0x8F0)] public ActionTimelineManager ActionTimelineManager;
 
-    [FieldOffset(0x1770)] public Balloon Balloon;
+    [FieldOffset(0xC80)] public uint PlayerTargetObjectID;
 
-    [FieldOffset(0x1978)] public VfxData* VfxData;
-    [FieldOffset(0x1980)] public VfxData* VfxData2;
-    [FieldOffset(0x19A8)] public VfxData* Omen;
+    [FieldOffset(0x1790)] public Balloon Balloon;
 
-    [FieldOffset(0x1A30)] public Companion* CompanionObject; // minion
-    [FieldOffset(0x1A48)] public fixed byte FreeCompanyTag[6];
-    [FieldOffset(0x1A68)] public uint TargetObjectID;
+    [FieldOffset(0x1998)] public VfxData* VfxData; 
+    [FieldOffset(0x19A0)] public VfxData* VfxData2;
+    [FieldOffset(0x19C8)] public VfxData* Omen; 
 
-    [FieldOffset(0x1AAC)] public uint NameID;
+    [FieldOffset(0x1A50)] public Companion* CompanionObject; // minion
+    [FieldOffset(0x1A68)] public fixed byte FreeCompanyTag[6];
+    [FieldOffset(0x1A88)] public ulong TargetObjectID;
 
-    [FieldOffset(0x1AC8)] public ushort CurrentWorld;
-    [FieldOffset(0x1ACA)] public ushort HomeWorld;
-    [FieldOffset(0x1AD4)] public byte EventState; // or something
-    [FieldOffset(0x1AD6)] public byte OnlineStatus;
-    [FieldOffset(0x1AEB)] public byte ShieldValue;
-    [FieldOffset(0x1AEF)] public byte StatusFlags;
-    [FieldOffset(0x1ABC)] public uint CompanionOwnerID;
+    [FieldOffset(0x1AD8)] public uint NameID;
+
+    [FieldOffset(0x1AF4)] public ushort CurrentWorld;
+    [FieldOffset(0x1AF6)] public ushort HomeWorld;
+    [FieldOffset(0x1AF8)] public ushort TitleID;
+    [FieldOffset(0x1B00)] public byte EventState; // Leave for backwards compat. See Mode.
+    [FieldOffset(0x1B00)] public CharacterModes Mode;
+    [FieldOffset(0x1B01)] public byte ModeParam; // Different purpose depending on mode. See CharacterModes for more info.
+    [FieldOffset(0x1B02)] public byte OnlineStatus;
+    [FieldOffset(0x1B03)] public byte Battalion; // used for determining friend/enemy state
+    [FieldOffset(0x1B17)] public byte ShieldValue;
+    [FieldOffset(0x1B1B)] public byte StatusFlags;
+    [FieldOffset(0x1B1F)] public byte StatusFlags4; // 0x80 flagged when permanent wetness in GPose is toggled.
+    [FieldOffset(0x1AE8)] public uint CompanionOwnerID;
 
     [MemberFunction("E8 ?? ?? ?? ?? 49 3B C7 0F 84")]
-    public partial uint GetTargetId();
+    public partial ulong GetTargetId();
 
     // Seemingly used for cutscenes and GPose.
     [MemberFunction("E8 ?? ?? ?? ?? 0F B6 9F ?? ?? ?? ?? 48 8D 8F")]
@@ -78,16 +86,19 @@ public unsafe partial struct Character
     [MemberFunction("E8 ?? ?? ?? ?? 4C 8B 7F 48")]
     public partial bool IsMounted();
 
-    [VirtualFunction(79)]
+    [MemberFunction("E8 ?? ?? ?? ?? 48 8B 4F ?? E8 ?? ?? ?? ?? 48 8B 4C 24 ??")]
+    public partial void SetMode(CharacterModes mode, byte modeParam);
+
+    [VirtualFunction(78)]
     public partial StatusManager* GetStatusManager();
 
-    [VirtualFunction(81)]
+    [VirtualFunction(80)]
     public partial CastInfo* GetCastInfo();
 
-    [VirtualFunction(85)]
+    [VirtualFunction(84)]
     public partial ForayInfo* GetForayInfo();
 
-    [VirtualFunction(87)]
+    [VirtualFunction(86)]
     public partial bool IsMount();
     
     [StructLayout(LayoutKind.Explicit, Size = 0x170)]
@@ -170,5 +181,18 @@ public unsafe partial struct Character
         Earth = 4,
         Lightning = 5,
         Water = 6
+    }
+
+    // Seems similar to ConditionFlag in Dalamud but not all flags are valid on the character
+    public enum CharacterModes : byte 
+    {
+        None = 0, // Mode is never used
+        Normal = 1, // Param always 0
+        EmoteLoop = 3, // Param is an EmoteMode entry
+        Mounted = 4, // Param always 0
+        AnimLock = 8, // Param always 0
+        Carrying = 9, // Param is a Carry entry
+        InPositionLoop = 11, // Param is an EmoteMode entry
+        Performance = 16, // Unknown
     }
 }

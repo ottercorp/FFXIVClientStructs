@@ -5,7 +5,9 @@
 [StructLayout(LayoutKind.Explicit, Size = 0x3D70)]
 public unsafe partial struct GroupManager
 {
+    [FixedSizeArray<PartyMember>(8)]
     [FieldOffset(0x0)] public fixed byte PartyMembers[0x230 * 8]; // PartyMember type
+    [FixedSizeArray<PartyMember>(20)]
     [FieldOffset(0x1180)] public fixed byte AllianceMembers[0x230 * 20]; // PartyMember type
     [FieldOffset(0x3D40)] public uint Unk_3D40;
     [FieldOffset(0x3D44)] public ushort Unk_3D44;
@@ -14,11 +16,12 @@ public unsafe partial struct GroupManager
     [FieldOffset(0x3D58)] public uint PartyLeaderIndex; // index of party leader in array
     [FieldOffset(0x3D5C)] public byte MemberCount;
     [FieldOffset(0x3D5D)] public byte Unk_3D5D;
-    [FieldOffset(0x3D5E)] public bool IsAlliance;
+    //[FieldOffset(0x3D5E)] public bool IsAlliance;
     [FieldOffset(0x3D5F)] public byte Unk_3D5F; // some sort of count
     [FieldOffset(0x3D60)] public byte Unk_3D60;
+    [FieldOffset(0x3D61)] public byte AllianceFlags; // 0x01 == is alliance; 0x02 == alliance with 5 4-man groups rather than 2 8-man
 
-    [StaticAddress("33 D2 48 8D 0D ?? ?? ?? ?? 33 DB", 2)]
+    [StaticAddress("33 D2 48 8D 0D ?? ?? ?? ?? 33 DB", 5)]
     public static partial GroupManager* Instance();
 
     [MemberFunction("E8 ?? ?? ?? ?? EB B8 E8")]

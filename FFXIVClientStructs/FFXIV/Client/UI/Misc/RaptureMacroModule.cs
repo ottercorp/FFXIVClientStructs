@@ -1,10 +1,12 @@
-﻿using FFXIVClientStructs.FFXIV.Client.System.Framework;
+using FFXIVClientStructs.FFXIV.Client.System.Framework;
 using FFXIVClientStructs.FFXIV.Client.System.String;
+using FFXIVClientStructs.FFXIV.Client.UI.Misc.UserFileManager;
 
 namespace FFXIVClientStructs.FFXIV.Client.UI.Misc;
 
 // Client::UI::Misc::RaptureMacroModule
-// ctor E8 ?? ?? ?? ?? 48 8D 8F ?? ?? ?? ?? 4C 8B C7 49 8B D5 E8 ?? ?? ?? ?? 48 8D 8F ?? ?? ?? ?? 4C 8B C7
+//   Client::UI::Misc::UserFileManager::UserFileEvent
+// ctor "E8 ?? ?? ?? ?? 48 8D 8F ?? ?? ?? ?? 4C 8B C7 49 8B D4 E8 ?? ?? ?? ?? 48 8D 8F ?? ?? ?? ?? 4C 8B C7"
 [StructLayout(LayoutKind.Explicit, Size = 0x51AA8)]
 public unsafe partial struct RaptureMacroModule
 {
@@ -58,21 +60,30 @@ public unsafe partial struct RaptureMacroModule
         }
     }
 
+    [FieldOffset(0)] public UserFileEvent UserFileEvent;
     [FieldOffset(0x58)] public MacroPage Individual;
     [FieldOffset(0x28D78)] public MacroPage Shared;
 
-    [MemberFunction("E8 ? ? ? ? 32 DB 83 C6 F9")]
+    [MemberFunction("E8 ?? ?? ?? ?? 32 DB 83 C6 F9")]
     public partial Macro* GetMacro(uint set, uint index);
 
-    [MemberFunction("E8 ? ? ? ? 48 8D 4C 24 ? E8 ? ? ? ? 44 8B 83 ? ? ? ?")]
+    [MemberFunction("E8 ?? ?? ?? ?? 48 8D 4C 24 ?? E8 ?? ?? ?? ?? 44 8B 83 ?? ?? ?? ??")]
     public partial void ReplaceMacroLines(Macro* macro, Utf8String* lines);
 
-    [MemberFunction("E8 ? ? ? ? 44 8B 87 ? ? ? ? B2 01")]
+    [MemberFunction("E8 ?? ?? ?? ?? 44 8B 87 ?? ?? ?? ?? B2 01")]
     public partial void AppendMacroLines(Macro* macro, Utf8String* lines);
 
-    [MemberFunction("E8 ? ? ? ? 83 F8 0F B9 ? ? ? ?")]
+    [MemberFunction("E8 ?? ?? ?? ?? 83 F8 0F B9 ?? ?? ?? ??")]
     public partial uint GetLineCount(Macro* macro);
 
-    [MemberFunction("E8 ? ? ? ? 48 8D 4C 24 ? E8 ? ? ? ? 48 8D 8C 24 ? ? ? ? E8 ? ? ? ? 41 FE C7")]
+    [MemberFunction("E8 ?? ?? ?? ?? 48 8D 4C 24 ?? E8 ?? ?? ?? ?? 48 8D 8C 24 ?? ?? ?? ?? E8 ?? ?? ?? ?? 41 FE C7")]
     public partial void SetMacroLines(Macro* macro, int lineStartIndex, Utf8String* lines);
+
+    /// <summary>
+    /// Sets a flag to mark the macro file as needing a save. Fires on any macro update, generally prior to saving.
+    /// </summary>
+    /// <param name="needsSave">A boolean denoting if the specified set needs to be saved.</param>
+    /// <param name="set">The macro page ID that needs saving.</param>
+    [MemberFunction("45 85 C0 75 04 88 51 3D")]
+    public partial void SetSavePendingFlag(bool needsSave, uint set);
 }

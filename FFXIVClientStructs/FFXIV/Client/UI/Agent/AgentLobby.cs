@@ -4,7 +4,7 @@ using FFXIVClientStructs.FFXIV.Component.GUI;
 namespace FFXIVClientStructs.FFXIV.Client.UI.Agent;
 
 [Agent(AgentId.Lobby)]
-[StructLayout(LayoutKind.Explicit, Size = 0x1AE8)]
+[StructLayout(LayoutKind.Explicit, Size = 0x1C58)]
 public unsafe struct AgentLobby
 {
     public static AgentLobby* Instance()
@@ -17,5 +17,5 @@ public unsafe struct AgentLobby
     [FieldOffset(0xEC0)] public ulong SelectedCharacterId;
     [FieldOffset(0xEC8)] public byte DataCenter;
     [FieldOffset(0xECC)] public ushort WorldId;
-    [FieldOffset(0xEE8)] public uint IdleTime;
+    [FieldOffset(0xF98)] public uint IdleTime;
 }

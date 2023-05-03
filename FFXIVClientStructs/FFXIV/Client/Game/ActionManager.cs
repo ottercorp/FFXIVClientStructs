@@ -1,14 +1,22 @@
-﻿using FFXIVClientStructs.FFXIV.Client.Game.Object;
-using FFXIVClientStructs.FFXIV.Client.Graphics;
+using FFXIVClientStructs.FFXIV.Client.Game.Object;
+using FFXIVClientStructs.FFXIV.Common.Math;
 
 namespace FFXIVClientStructs.FFXIV.Client.Game;
 
-[StructLayout(LayoutKind.Explicit, Size = 0x810)]
+[StructLayout(LayoutKind.Explicit, Size = 0x7F0)]
 public unsafe partial struct ActionManager
 {
+    [FieldOffset(0x60)] public ComboDetail Combo;
+
+    [FieldOffset(0x68)] public bool ActionQueued;
+    [FieldOffset(0x6C)] public ActionType QueuedActionType;
+    [FieldOffset(0x70)] public uint QueuedActionId;
+    [FieldOffset(0x78)] public GameObjectID QueuedTargetId;
+    [FieldOffset(0x80)] public uint QueueType;
+
     [FieldOffset(0x13C)] public fixed uint BlueMageActions[24];
 
-    [StaticAddress("48 8D 0D ?? ?? ?? ?? F3 0F 10 13")]
+    [StaticAddress("48 8D 0D ?? ?? ?? ?? F3 0F 10 13", 3)]
     public static partial ActionManager* Instance();
 
     [MemberFunction("E8 ?? ?? ?? ?? EB 64 B1 01")]
@@ -17,8 +25,8 @@ public unsafe partial struct ActionManager
     [MemberFunction("E8 ?? ?? ?? ?? 3C 01 0F 85 ?? ?? ?? ?? EB 46")]
     public partial bool UseActionLocation(ActionType actionType, uint actionID, long targetID = 0xE000_0000, Vector3* location = null, uint a4 = 0);
 
-    [MemberFunction("E8 ?? ?? ?? ?? 83 BC 24 ?? ?? ?? ?? ?? 8B F0")]
-    public partial uint GetActionStatus(ActionType actionType, uint actionID, long targetID = 0xE000_0000, uint a4 = 1, uint a5 = 1);
+    [MemberFunction("E8 ?? ?? ?? ?? 3D ?? ?? ?? ?? 74 42")]
+    public partial uint GetActionStatus(ActionType actionType, uint actionID, long targetID = 0xE000_0000, bool checkRecastActive = true, bool checkCastingActive = true, uint* outOptExtraInfo = null);
 
     [MemberFunction("E8 ?? ?? ?? ?? 8B F8 3B DF")]
     public partial uint GetAdjustedActionId(uint actionID);
@@ -29,7 +37,7 @@ public unsafe partial struct ActionManager
     [MemberFunction("E8 ?? ?? ?? ?? F3 0F 5C F0 49 8B CD")]
     public partial float GetRecastTimeElapsed(ActionType actionType, uint actionID);
 
-    [MemberFunction("E8 ?? ?? ?? ?? 3C 01 74 45")]
+    [MemberFunction("E8 ?? ?? ?? ?? 3C 01 74 19 FF C3")]
     public partial bool IsRecastTimerActive(ActionType actionType, uint actionID);
 
     [MemberFunction("E8 ?? ?? ?? ?? 8B D0 48 8B CD 8B F0")]
@@ -41,22 +49,22 @@ public unsafe partial struct ActionManager
     [MemberFunction("E8 ?? ?? ?? ?? 85 C0 75 ?? 83 FF ?? 0F 85")]
     public partial uint CheckActionResources(ActionType actionType, uint actionId, void* actionData = null);
 
-    [MemberFunction("E8 ?? ?? ?? ?? F3 0F 11 43 ?? 80 3B 00", IsStatic = true)]
+    [MemberFunction("E8 ?? ?? ?? ?? F3 0F 11 43 ?? 80 3B 00")]
     public static partial float GetActionRange(uint actionId);
 
-    [MemberFunction("E8 ?? ?? ?? ?? 85 C0 75 02 33 C0", IsStatic = true)]
+    [MemberFunction("E8 ?? ?? ?? ?? 85 C0 75 02 33 C0")]
     public static partial uint GetActionInRangeOrLoS(uint actionId, GameObject* sourceObject, GameObject* targetObject);
 
-    [MemberFunction("E8 ?? ?? ?? ?? 48 8B 5C 24 ?? 48 83 C4 30 5F C3 33 D2", IsStatic = true)]
+    [MemberFunction("E8 ?? ?? ?? ?? 48 8B 5C 24 ?? 48 83 C4 30 5F C3 33 D2")]
     public static partial int GetActionCost(ActionType actionType, uint actionId, byte a3, byte a4, byte a5, byte a6);
 
-    [MemberFunction("E8 ?? ?? ?? ?? 8B D6 41 8B CF", IsStatic = true)]
+    [MemberFunction("E8 ?? ?? ?? ?? 8B D6 41 8B CF")]
     public static partial int GetAdjustedRecastTime(ActionType actionType, uint actionID, byte a3 = 1);
 
-    [MemberFunction("E8 ?? ?? ?? ?? 85 C0 0F 84 ?? ?? ?? ?? 33 C9", IsStatic = true)]
+    [MemberFunction("E8 ?? ?? ?? ?? 85 C0 0F 84 ?? ?? ?? ?? 33 C9")]
     public static partial int GetAdjustedCastTime(ActionType actionType, uint actionID, byte a3 = 1, byte* a4 = null);
 
-    [MemberFunction("E8 ?? ?? ?? ?? 33 DB 8B C8", IsStatic = true)]
+    [MemberFunction("E8 ?? ?? ?? ?? 33 DB 8B C8")]
     public static partial ushort GetMaxCharges(uint actionId, uint level); // 0 for current level
 
     [MemberFunction("48 8B C4 48 89 68 ?? 48 89 70 ?? 41 56 48 83 EC")]
@@ -70,6 +78,9 @@ public unsafe partial struct ActionManager
 
     [MemberFunction("40 53 55 57 48 81 EC ?? ?? ?? ?? 48 8B 05 ?? ?? ?? ?? 48 33 C4 48 89 84 24 ?? ?? ?? ?? 33 DB")]
     public partial bool SetBlueMageActions(uint* actionArray);
+    
+    [MemberFunction("48 89 5C 24 ?? 57 48 83 EC 20 48 8B DA 8B F9 E8 ?? ?? ?? ?? 4C 8B C3")]
+    public static partial bool CanUseActionOnTarget(uint actionId, GameObject* target);
 }
 
 [StructLayout(LayoutKind.Explicit, Size = 0x14)]
@@ -79,6 +90,12 @@ public struct RecastDetail
     [FieldOffset(0x4)] public uint ActionID;
     [FieldOffset(0x8)] public float Elapsed;
     [FieldOffset(0xC)] public float Total;
+}
+
+[StructLayout(LayoutKind.Explicit, Size = 0x8)]
+public struct ComboDetail {
+    [FieldOffset(0x00)] public float Timer;
+    [FieldOffset(0x04)] public uint Action;
 }
 
 public enum ActionType : byte

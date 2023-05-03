@@ -1,11 +1,10 @@
-﻿using System.ComponentModel.Design.Serialization;
-
-namespace FFXIVClientStructs.FFXIV.Client.Graphics.Render;
+﻿namespace FFXIVClientStructs.FFXIV.Client.Graphics.Render;
 // Client::Graphics::Render::RenderTargetManager
 //   Client::Graphics::Singleton
 //   Client::Graphics::Kernel::Notifier
 
-[StructLayout(LayoutKind.Explicit, Size = 0x460)]
+// WARNING: THIS IS OUT OF DATE
+[StructLayout(LayoutKind.Explicit, Size = 0x480)]
 public unsafe partial struct RenderTargetManager
 {
     [FieldOffset(0x0)] public void* vtbl;
@@ -13,6 +12,7 @@ public unsafe partial struct RenderTargetManager
     [FieldOffset(0x8)] public Notifier Notifier;
 
     // the first 65 fields seem to be render target pointers
+    [FixedSizeArray<Pointer<Texture>>(65)]
     [FieldOffset(0x20)] public fixed byte RenderTargetArray[8 * 65];
 
     // specific ones i can name
@@ -40,9 +40,10 @@ public unsafe partial struct RenderTargetManager
     [FieldOffset(0x264)] public uint FarShadowMap_Height;
     [FieldOffset(0x268)] public bool UnkBool_1;
 
+    [FixedSizeArray<Pointer<Texture>>(49)]
     [FieldOffset(0x270)] public fixed byte RenderTargetArray2[8 * 49];
 
-    [StaticAddress("48 8B 0D ? ? ? ? 48 8B B1 ? ? ? ?", isPointer: true)]
+    [StaticAddress("48 8B 0D ?? ?? ?? ?? 48 8B B1 ?? ?? ?? ??", 3, isPointer: true)]
     public static partial RenderTargetManager* Instance();
     
 }

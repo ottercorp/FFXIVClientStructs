@@ -1,6 +1,6 @@
 namespace FFXIVClientStructs.FFXIV.Client.Game.UI;
 
-// ctor E8 ? ? ? ? 48 89 B3 ? ? ? ? 48 8D 05 ? ? ? ? 48 89 B3 ? ? ? ? 
+// ctor E8 ?? ?? ?? ?? 48 89 B3 ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? 48 89 B3 ?? ?? ?? ?? 
 [StructLayout(LayoutKind.Explicit, Size = 0xED8)]
 public unsafe partial struct Buddy
 {
@@ -23,6 +23,7 @@ public unsafe partial struct Buddy
 
     [FieldOffset(0x0)] public BuddyMember Companion;
     [FieldOffset(0x198)] public BuddyMember Pet;
+    [FixedSizeArray<BuddyMember>(7)]
     [FieldOffset(0x330)] public fixed byte BattleBuddies[0x198 * 7]; // BuddyMember array for Squadron/Trust
     [FieldOffset(0xE58)] public BuddyMember* CompanionPtr;
     [FieldOffset(0xE58)] private fixed byte BuddyEquipUnlock[1];
@@ -48,6 +49,6 @@ public unsafe partial struct Buddy
         }
     }
     
-    [MemberFunction("E9 ?? ?? ?? ?? 0F B7 50 02 41 B8", IsPrivate = true, IsStatic = true)]
+    [MemberFunction("E9 ?? ?? ?? ?? 0F B7 50 02 41 B8")]
     private static partial bool IsBuddyEquipUnlockedInternal(void* ptr, uint buddyEquipId);
 }

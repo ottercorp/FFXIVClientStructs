@@ -1,11 +1,11 @@
-﻿using System;
-using FFXIVClientStructs.FFXIV.Component.GUI;
+﻿using FFXIVClientStructs.FFXIV.Component.GUI;
 
 namespace FFXIVClientStructs.FFXIV.Client.UI;
 
 // Client::UI::AddonAOZNotebook
 //   Component::GUI::AtkUnitBase
 //     Component::GUI::AtkEventListener
+[Addon("AOZNotebook")]
 [StructLayout(LayoutKind.Explicit, Size = 0xCD0)]
 public unsafe struct AddonAOZNotebook
 {

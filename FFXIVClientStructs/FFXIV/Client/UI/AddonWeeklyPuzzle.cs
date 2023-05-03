@@ -1,5 +1,4 @@
-﻿using System;
-using FFXIVClientStructs.FFXIV.Client.System.String;
+﻿using FFXIVClientStructs.FFXIV.Client.System.String;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 
 namespace FFXIVClientStructs.FFXIV.Client.UI;
@@ -7,6 +6,7 @@ namespace FFXIVClientStructs.FFXIV.Client.UI;
 // Component::GUI::AddonWeeklyPuzzle
 //   Component::GUI::AtkUnitBase
 //     Component::GUI::AtkEventListener
+[Addon("WeeklyPuzzle")]
 [StructLayout(LayoutKind.Explicit, Size = 0xD00)]
 public unsafe struct AddonWeeklyPuzzle
 {

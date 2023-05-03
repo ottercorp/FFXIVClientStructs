@@ -1,5 +1,4 @@
-﻿using System;
-using System.Text;
+﻿using FFXIVClientStructs.FFXIV.Client.System.Framework;
 using FFXIVClientStructs.FFXIV.Client.System.String;
 using FFXIVClientStructs.FFXIV.Common.Log;
 using FFXIVClientStructs.FFXIV.Component.Excel;
@@ -7,10 +6,13 @@ using FFXIVClientStructs.FFXIV.Component.Excel;
 namespace FFXIVClientStructs.FFXIV.Client.UI.Misc;
 
 // Client::UI::Misc::RaptureLogModule
-// ctor E8 ?? ?? ?? ?? 4C 8D AF ?? ?? ?? ?? 49 8B CD
+//   Component::Log::LogModule
+// ctor "E8 ?? ?? ?? ?? 4C 8D A7 ?? ?? ?? ?? 49 8B CC E8 ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ??"
 [StructLayout(LayoutKind.Explicit, Size = 0x3480)]
 public unsafe partial struct RaptureLogModule
 {
+    public static RaptureLogModule* Instance() => Framework.Instance()->GetUiModule()->GetRaptureLogModule();
+
     [FieldOffset(0x00)] public LogModule LogModule;
 
     [FieldOffset(0xE8)] public ExcelModuleInterface* ExcelModuleInterface;

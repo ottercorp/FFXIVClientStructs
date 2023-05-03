@@ -3,7 +3,7 @@ using FFXIVClientStructs.FFXIV.Client.Game.Object;
 namespace FFXIVClientStructs.FFXIV.Client.Game.Control;
 // Client::Game::Control::TargetSystem
 
-[StructLayout(LayoutKind.Explicit, Size = 0x5290)]
+[StructLayout(LayoutKind.Explicit, Size = 0x52F0)]
 public unsafe partial struct TargetSystem
 {
     [FieldOffset(0x80)] public GameObject* Target;
@@ -13,18 +13,17 @@ public unsafe partial struct TargetSystem
     [FieldOffset(0xE0)] public GameObject* MouseOverNameplateTarget;
     [FieldOffset(0xF8)] public GameObject* FocusTarget;
     [FieldOffset(0x110)] public GameObject* PreviousTarget;
-    [FieldOffset(0x140)] public uint TargetObjectId;
-
+    [FieldOffset(0x140)] public GameObjectID TargetObjectId;
     [FieldOffset(0x148)] public GameObjectArray ObjectFilterArray0;
 
-    [FieldOffset(0x1A00)] public GameObjectArray ObjectFilterArray1;
-    [FieldOffset(0x2CA8)] public GameObjectArray ObjectFilterArray2;
-    [FieldOffset(0x3F50)] public GameObjectArray ObjectFilterArray3;
+    [FieldOffset(0x1A18)] public GameObjectArray ObjectFilterArray1;
+    [FieldOffset(0x2CD8)] public GameObjectArray ObjectFilterArray2;
+    [FieldOffset(0x3F98)] public GameObjectArray ObjectFilterArray3;
 
-    [StaticAddress("48 8D 0D ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 3B C6 0F 95 C0")]
+    [StaticAddress("48 8D 0D ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 3B C6 0F 95 C0", 3)]
     public static partial TargetSystem* Instance();
 
-    [MemberFunction("E8 ?? ?? ?? ?? 48 3B D8 74 51")]
+    [MemberFunction("E8 ?? ?? ?? ?? 4C 8B F8 EB 13")]
     public partial uint GetCurrentTargetID();
 
     [MemberFunction("E8 ?? ?? ?? ?? 48 3B C6 0F 94 C0")]
@@ -32,6 +31,9 @@ public unsafe partial struct TargetSystem
 
     [MemberFunction("48 85 D2 74 2C 4C 63 89")]
     public partial bool IsObjectInViewRange(GameObject* obj);
+
+    [MemberFunction("40 53 48 81 EC ?? ?? ?? ?? 83 BA")]
+    public partial bool IsObjectOnScreen(GameObject* obj);
 
     [MemberFunction("E9 ?? ?? ?? ?? 48 8B 01 FF 50 08")]
     public partial ulong InteractWithObject(GameObject* obj, bool checkLineOfSight = true);
@@ -53,11 +55,11 @@ public unsafe partial struct TargetSystem
     }
 }
 
-[StructLayout(LayoutKind.Explicit, Size = 0x12A8)]
+[StructLayout(LayoutKind.Explicit, Size = 0x12C0)]
 public unsafe struct GameObjectArray
 {
     [FieldOffset(0x00)] public int Length;
-    [FieldOffset(0x08)] public fixed long Objects[596];
+    [FieldOffset(0x08)] public fixed long Objects[599];
 
     public GameObject* this[int index]
     {
