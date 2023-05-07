@@ -1,6 +1,6 @@
 using FFXIVClientStructs.FFXIV.Client.Game.Event;
-using FFXIVClientStructs.FFXIV.Client.Graphics;
 using FFXIVClientStructs.FFXIV.Client.Graphics.Scene;
+using FFXIVClientStructs.FFXIV.Common.Math;
 
 namespace FFXIVClientStructs.FFXIV.Client.Game.Object;
 
@@ -30,10 +30,13 @@ public struct GameObjectID
 // base class for game objects in the world
 
 // size = 0x1A0
-// ctor E8 ? ? ? ? 48 8D 8E ? ? ? ? 48 89 AE ? ? ? ? 48 8B D7 
+// ctor E8 ?? ?? ?? ?? 48 8D 8E ?? ?? ?? ?? 48 89 AE ?? ?? ?? ?? 48 8B D7 
 [StructLayout(LayoutKind.Explicit, Size = 0x1A0)]
+[VTableAddress("48 8d 05 ?? ?? ?? ?? c7 81 80 00 00 00 00 00 00 00", 3)]
 public unsafe partial struct GameObject
 {
+    [FieldOffset(0x10)] public Vector3 DefaultPosition;
+    [FieldOffset(0x20)] public float DefaultRotation;
     [FieldOffset(0x30)] public fixed byte Name[64];
     [FieldOffset(0x74)] public uint ObjectID;
     [FieldOffset(0x80)] public uint DataID;
@@ -45,16 +48,19 @@ public unsafe partial struct GameObject
     [FieldOffset(0x90)] public byte YalmDistanceFromPlayerX;
     [FieldOffset(0x91)] public byte TargetStatus; // Goes from 6 to 2 when selecting a target and flashing a highlight
     [FieldOffset(0x92)] public byte YalmDistanceFromPlayerZ;
-    [FieldOffset(0xA0)] public Vector3 Position;
-    [FieldOffset(0xB0)] public float Rotation;
-    [FieldOffset(0xB4)] public float Scale;
-    [FieldOffset(0xB8)] public float Height;
-    [FieldOffset(0xBC)] public float VfxScale;
-    [FieldOffset(0xC0)] public float HitboxRadius;
-    [FieldOffset(0xE8)] public uint FateId;
-    [FieldOffset(0xF0)] public DrawObject* DrawObject;
-    [FieldOffset(0x104)] public int RenderFlags;
-    [FieldOffset(0x148)] public LuaActor* LuaActor;
+    [FieldOffset(0x95)] public ObjectTargetableFlags TargetableStatus; // Determines whether the game object can be targeted by the user
+    [FieldOffset(0xB0)] public Vector3 Position;
+    [FieldOffset(0xC0)] public float Rotation;
+    [FieldOffset(0xC4)] public float Scale;
+    [FieldOffset(0xC8)] public float Height;
+    [FieldOffset(0xCC)] public float VfxScale;
+    [FieldOffset(0xD0)] public float HitboxRadius;
+    [FieldOffset(0xF4)] public EventId EventId;
+    [FieldOffset(0xF8)] public uint FateId;
+    [FieldOffset(0x100)] public DrawObject* DrawObject;
+    [FieldOffset(0x110)] public uint NamePlateIconId;
+    [FieldOffset(0x114)] public int RenderFlags;
+    [FieldOffset(0x158)] public LuaActor* LuaActor;
 
     [VirtualFunction(1)]
     public partial GameObjectID GetObjectID();
@@ -84,16 +90,16 @@ public unsafe partial struct GameObject
     [VirtualFunction(27)]
     public partial DrawObject* GetDrawObject();
 
-    [VirtualFunction(48)]
+    [VirtualFunction(47)]
     public partial uint GetNpcID();
 
-    [VirtualFunction(57)]
+    [VirtualFunction(56)]
     public partial bool IsDead();
 
-    [VirtualFunction(58)]
+    [VirtualFunction(57)]
     public partial bool IsNotMounted();
     
-    [VirtualFunction(61)]
+    [VirtualFunction(60)]
     public partial bool IsCharacter();
 }
 
@@ -113,6 +119,14 @@ public enum ObjectKind : byte
     AreaObject = 11,
     HousingEventObject = 12,
     Cutscene = 13,
-    CardStand = 14,
-    Ornament = 15
+    MjiObject = 14,
+    Ornament = 15,
+    CardStand = 16
+}
+
+[Flags]
+public enum ObjectTargetableFlags : byte
+{
+    IsTargetable = 2,
+    Unk1 = 4, // This flag is used but purpose is unclear
 }

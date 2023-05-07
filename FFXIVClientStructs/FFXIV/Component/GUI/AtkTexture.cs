@@ -1,4 +1,5 @@
 ﻿using FFXIVClientStructs.FFXIV.Client.Graphics.Render;
+using FFXIVClientStructs.FFXIV.Client.System.Memory;
 
 namespace FFXIVClientStructs.FFXIV.Component.GUI;
 
@@ -14,7 +15,7 @@ public enum TextureType : byte
 // size = 0x18
 // no explicit ctor
 [StructLayout(LayoutKind.Explicit, Size = 0x18)]
-public unsafe partial struct AtkTexture
+public unsafe partial struct AtkTexture : ICreatable
 {
     [FieldOffset(0x0)] public void* vtbl;
 
@@ -28,10 +29,10 @@ public unsafe partial struct AtkTexture
     [MemberFunction("E8 ?? ?? ?? ?? 48 8B 87 ?? ?? ?? ?? 48 8D 0D ?? ?? ?? ?? 4C 89 BF")]
     public partial void Ctor();
 
-    [MemberFunction("E8 ? ? ? ? 41 8D 84 24 ? ? ? ? ")]
+    [MemberFunction("E8 ?? ?? ?? ?? 41 8D 84 24 ?? ?? ?? ??")]
     public partial int LoadIconTexture(int iconId, int version);
 
-    [MemberFunction("E8 ? ? ? ? C6 43 10 02")]
+    [MemberFunction("E8 ?? ?? ?? ?? C6 43 10 02")]
     public partial int ReleaseTexture();
 
     [MemberFunction("80 79 10 01 75 44")]
@@ -40,7 +41,7 @@ public unsafe partial struct AtkTexture
     [MemberFunction("0F B6 41 11 48 8B D1")]
     public partial bool IsTextureReady();
 
-    [MemberFunction("E8 ?? ?? ?? ?? 48 8B 4B ?? 48 85 C9 74 ?? 48 8B D0")]
+    [MemberFunction("E8 ?? ?? ?? ?? 8B 57 ?? 4C 8B C0 48 8B CB E8 ?? ?? ?? ?? 48 8B 5C 24 ?? B0")]
     public partial Texture* GetKernelTexture();
 
     [VirtualFunction(0)]

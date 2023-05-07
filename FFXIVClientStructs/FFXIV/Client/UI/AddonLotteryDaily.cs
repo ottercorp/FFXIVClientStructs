@@ -1,11 +1,11 @@
-﻿using System;
-using FFXIVClientStructs.FFXIV.Component.GUI;
+﻿using FFXIVClientStructs.FFXIV.Component.GUI;
 
 namespace FFXIVClientStructs.FFXIV.Client.UI;
 
 // Client::UI::AddonLotteryDaily
 //   Component::GUI::AtkUnitBase
 //     Component::GUI::AtkEventListener
+[Addon("LotteryDaily")]
 [StructLayout(LayoutKind.Explicit, Size = 0x408)]
 public unsafe struct AddonLotteryDaily
 {

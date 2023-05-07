@@ -35,15 +35,25 @@ public enum ComponentType : byte
 // base class for UI components that are more complicated than a single node
 
 // size = 0xC0
-// common CreateAtkComponent function 8B FA 33 DB E8 ? ? ? ? 
+// common CreateAtkComponent function 8B FA 33 DB E8 ?? ?? ?? ?? 
 // type 0
 [StructLayout(LayoutKind.Explicit, Size = 0xC0)]
 public unsafe partial struct AtkComponentBase
 {
     [FieldOffset(0x00)] public AtkEventListener AtkEventListener;
     [FieldOffset(0x08)] public AtkUldManager UldManager;
+    [FieldOffset(0xA0)] public AtkResNode* AtkResNode;
     [FieldOffset(0xA8)] public AtkComponentNode* OwnerNode;
 
+    [MemberFunction("E8 ?? ?? ?? ?? 4C 8B F0 BF")]
+    public partial AtkResNode* GetTextNodeById(uint id);
+
+    [MemberFunction("E8 ?? ?? ?? ?? 8D 56 9C")]
+    public partial AtkResNode* GetImageNodeById(uint id);
+
+    [MemberFunction("E8 ?? ?? ?? ?? 8B 53 FC")]
+    public partial AtkResNode* GetScrollBarNodeById(uint id);
+    
     [VirtualFunction(10)] 
     public partial void* SetEnabledState(bool enabled);
 }

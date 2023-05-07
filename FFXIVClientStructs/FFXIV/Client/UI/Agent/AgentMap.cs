@@ -1,5 +1,4 @@
-﻿using System;
-using System.Numerics;
+﻿using System.Numerics;
 using FFXIVClientStructs.FFXIV.Client.System.Framework;
 using FFXIVClientStructs.FFXIV.Client.System.String;
 using FFXIVClientStructs.FFXIV.Component.GUI;
@@ -10,24 +9,28 @@ namespace FFXIVClientStructs.FFXIV.Client.UI.Agent;
 //   Client::UI::Agent::AgentInterface
 //     Component::GUI::AtkModuleInterface::AtkEventInterface
 [Agent(AgentId.Map)]
-[StructLayout(LayoutKind.Explicit, Size = 0x5D68)]
+[StructLayout(LayoutKind.Explicit, Size = 0x68A8)]
 public unsafe partial struct AgentMap
 {
     [FieldOffset(0x0)] public AgentInterface AgentInterface;
+
+    [FieldOffset(0x118)] public StdMap<uint, uint> SymbolMap; // Icon:MapSymbol
 
     [FieldOffset(0x158)] public Utf8String CurrentMapPath;
     [FieldOffset(0x1C0)] public Utf8String SelectedMapPath;
     [FieldOffset(0x228)] public Utf8String SelectedMapBgPath;
     [FieldOffset(0x290)] public Utf8String CurrentMapBgPath;
+    [FieldOffset(0x2F8), FixedSizeArray<Utf8String>(4)] public fixed byte MapSelectionStrings[4 * 0x68]; // 4 * Utf8String
+    [FieldOffset(0x498)] public Utf8String MapTitleString;
 
-    [FieldOffset(0x638)] public fixed byte MapMarkerInfoArray[0x48 * 132]; // 132 * MapMarkerInfo
-    [FieldOffset(0x2B58)] public fixed byte TempMapMarkerArray[0x108 * 12]; // 12 * TempMapMarker
+    [FieldOffset(0x638), FixedSizeArray<MapMarkerInfo>(132)] public fixed byte MapMarkerInfoArray[0x48 * 132]; // 132 * MapMarkerInfo
+    [FieldOffset(0x2B58), FixedSizeArray<TempMapMarker>(12)] public fixed byte TempMapMarkerArray[0x108 * 12]; // 12 * TempMapMarker
 
     [FieldOffset(0x37B8)] public FlagMapMarker FlagMapMarker;
 
-    [FieldOffset(0x3800)] public fixed byte WarpMarkerArray[0x38 * 12]; // 12 * MapMarkerBase
+    [FieldOffset(0x3800), FixedSizeArray<MapMarkerBase>(12)] public fixed byte WarpMarkerArray[0x38 * 12]; // 12 * MapMarkerBase
     [FieldOffset(0x3AA0)] public fixed byte UnkArray2[0xA8 * 6];
-    [FieldOffset(0x3E90)] public fixed byte MiniMapMarkerArray[0x40 * 100]; // 100 * MiniMapMarker
+    [FieldOffset(0x3E90), FixedSizeArray<MiniMapMarker>(100)] public fixed byte MiniMapMarkerArray[0x40 * 100]; // 100 * MiniMapMarker
 
     [FieldOffset(0x5838)] public float SelectedMapSizeFactorFloat;
     [FieldOffset(0x583C)] public float CurrentMapSizeFactorFloat;
@@ -51,28 +54,61 @@ public unsafe partial struct AgentMap
 
     [FieldOffset(0x5914)] public uint UpdateFlags;
 
-    [FieldOffset(0x59B0)] public byte MapMarkerCount;
-    [FieldOffset(0x59B1)] public byte TempMapMarkerCount;
-    [FieldOffset(0x59B3)] public byte IsFlagMarkerSet;
-    [FieldOffset(0x59B5)] public byte MiniMapMarkerCount;
-    [FieldOffset(0x59BD)] public byte IsPlayerMoving;
-    [FieldOffset(0x59C5)] public byte IsControlKeyPressed;
+    [FieldOffset(0x59B2)] public byte MapMarkerCount;
+    [FieldOffset(0x59B3)] public byte TempMapMarkerCount;
+    [FieldOffset(0x59B5)] public byte IsFlagMarkerSet;
+    [FieldOffset(0x59B7)] public byte MiniMapMarkerCount;
+    [FieldOffset(0x59BF)] public byte IsPlayerMoving;
+    [FieldOffset(0x59C7)] public byte IsControlKeyPressed;
 
     public static AgentMap* Instance() => Framework.Instance()->GetUiModule()->GetAgentModule()->GetAgentMap();
 
     [MemberFunction("E8 ?? ?? ?? ?? 48 8D 4C 24 ?? E8 ?? ?? ?? ?? 33 ED 48 8D 15")]
     public partial void SetFlagMapMarker(uint territoryId, uint mapId, float mapX, float mapY, uint iconId = 0xEC91);
 
-    [MemberFunction("E8 ?? ?? ?? ?? E9 ?? ?? ?? ?? 48 8B 4F 58")]
+    [MemberFunction("E8 ?? ?? ?? ?? 48 8B 5C 24 ?? B0 ?? 48 8B B4 24")]
     public partial void OpenMapByMapId(uint mapId);
 
     [MemberFunction("E8 ?? ?? ?? ?? 48 8B 8C 24 ?? ?? ?? ?? 48 8B 41 28")]
     public partial void OpenMap(OpenMapInfo* data);
 
     [MemberFunction("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 7C 24 ?? 41 54 41 55 41 56 48 83 EC 20")]
-    public partial void AddGatheringTempMarker(uint styleFlags, int mapX, int mapY, uint iconId, int radius,
-        Utf8String* tooltip);
+    public partial void AddGatheringTempMarker(uint styleFlags, int mapX, int mapY, uint iconId, int radius, Utf8String* tooltip);
+    
+    [MemberFunction("40 53 48 83 EC ?? B2 ?? C6 81 ?? ?? ?? ?? ?? 48 8B D9 E8 ?? ?? ?? ?? 33 D2")]
+    public partial void ResetMiniMapMarkers();
 
+    [MemberFunction("40 53 48 83 EC ?? 48 8B D9 C6 81 ?? ?? ?? ?? ?? 48 C7 81")]
+    public partial void ResetMapMarkers();
+
+    public bool AddMiniMapMarker(Vector3 position, uint icon, int scale = 0) {
+	    if (MiniMapMarkerCount >= 100) return false;
+	    var marker = stackalloc MiniMapMarker[1];
+	    marker->MapMarker.Index = MiniMapMarkerCount;
+	    marker->MapMarker.X = (short)(position.X * 16.0f);
+	    marker->MapMarker.Y = (short)(position.Z * 16.0f);
+	    marker->MapMarker.Scale = scale;
+	    marker->MapMarker.IconId = icon;
+	    MiniMapMarkerArraySpan[MiniMapMarkerCount++] = *marker;
+	    return true;
+    }
+
+    public bool AddMapMarker(Vector3 position, uint icon, int scale = 0, byte* text = null, byte textPosition = 3, byte textStyle = 0) {
+	    if (MapMarkerCount >= 132) return false;
+	    if (textPosition is > 0 and < 12)
+		    position *= CurrentMapSizeFactorFloat;
+	    var marker = stackalloc MapMarkerInfo[1];
+	    marker->MapMarker.Index = MapMarkerCount;
+	    marker->MapMarker.X = (short)(position.X * 16.0f);
+	    marker->MapMarker.Y = (short)(position.Z * 16.0f);
+	    marker->MapMarker.Scale = scale;
+	    marker->MapMarker.IconId = icon;
+	    marker->MapMarker.Subtext = text;
+	    marker->MapMarker.SubtextOrientation = textPosition;
+	    marker->MapMarker.SubtextStyle = textStyle;
+	    MapMarkerInfoArraySpan[MapMarkerCount++] = *marker;
+	    return true;
+    }
 
     public void SetFlagMapMarker(uint territoryId, uint mapId, Vector3 worldPosition, uint iconId = 0xEC91)
     {
@@ -82,15 +118,14 @@ public unsafe partial struct AgentMap
         SetFlagMapMarker(territoryId, mapId, mapX, mapY, iconId);
     }
 
-    public void AddGatheringTempMarker(int mapX, int mapY, int radius, uint iconId = 0, uint styleFlags = 4,
-        string tooltip = null)
+    public void AddGatheringTempMarker(int mapX, int mapY, int radius, uint iconId = 0, uint styleFlags = 4, string? tooltip = null)
     {
         var toolTip = Utf8String.FromString(tooltip ?? string.Empty);
         AddGatheringTempMarker(styleFlags, mapX, mapY, iconId, radius, toolTip);
         toolTip->Dtor();
     }
 
-    public void OpenMap(uint mapId, uint territoryId = 0, string windowTitle = null, MapType type = MapType.FlagMarker)
+    public void OpenMap(uint mapId, uint territoryId = 0, string? windowTitle = null, MapType type = MapType.FlagMarker)
     {
         var title = Utf8String.FromString(windowTitle ?? string.Empty);
         var info = stackalloc OpenMapInfo[1];

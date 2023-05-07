@@ -5,7 +5,7 @@
 // base class for all AddonXXX classes (visible UI objects)
 
 // size = 0x220
-// ctor E8 ? ? ? ? 83 8B ? ? ? ? ? 33 C0
+// ctor E8 ?? ?? ?? ?? 83 8B ?? ?? ?? ?? ?? 33 C0
 
 [StructLayout(LayoutKind.Explicit, Size = 0x220)]
 public unsafe partial struct AtkUnitBase
@@ -45,6 +45,15 @@ public unsafe partial struct AtkUnitBase
     [MemberFunction("E8 ?? ?? ?? ?? 0F BF CB 0F 28 F8")]
     public partial float GetScale();
 
+    [MemberFunction("E8 ?? ?? ?? ?? F2 0F 10 77")]
+    public partial void SetSize(ushort width, ushort height);
+
+    [MemberFunction("E8 ?? ?? ?? ?? 40 2A C7")]
+    public partial float GetScaledWidth(bool getScaledWidth); // False returns unscaled width
+
+    [MemberFunction("E8 ?? ?? ?? ?? 0F B7 57 5A")]
+    public partial float GetScaledHeight(bool getScaledHeight); // False returns unscaled height
+
     [MemberFunction("E8 ?? ?? ?? ?? 0F BF 45 00")]
     public partial float GetGlobalUIScale();
 
@@ -56,6 +65,12 @@ public unsafe partial struct AtkUnitBase
 
     [MemberFunction("E8 ?? ?? ?? ?? 8D 53 16")]
     public partial AtkImageNode* GetImageNodeById(uint nodeId);
+
+    [MemberFunction("E8 ?? ?? ?? ?? 8D 53 1B")]
+    public partial AtkComponentButton* GetButtonNodeById(uint nodeId);
+
+    [MemberFunction("E8 ?? ?? ?? ?? 41 B1 01 48 89 87")]
+    public partial AtkComponentList* GetComponentListById(uint nodeId);
 
     [MemberFunction("E9 ?? ?? ?? ?? 83 FB 15")]
     public partial byte FireCallbackInt(int callbackValue);
@@ -70,18 +85,27 @@ public unsafe partial struct AtkUnitBase
     public partial bool SetFocusNode(AtkResNode* node, bool a3 = false, uint a4 = 0);
 
     [VirtualFunction(3)]
-    public partial bool Show(int unkInt, bool unkBool = false);
+    public partial bool Open(uint uknUint);
 
     [VirtualFunction(4)]
+    public partial bool Close(bool unknown);
+
+    [VirtualFunction(5)]
+    public partial bool Show(int unkInt, bool unkBool = false);
+
+    [VirtualFunction(6)]
     public partial bool Hide(bool unknown);
 
     [VirtualFunction(7)]
     public partial void SetPosition(short x, short y);
 
+    [VirtualFunction(47)]
+    public partial void OnSetup(uint a2, AtkValue* atkValues);
+
     [VirtualFunction(49)]
     public partial void OnUpdate(NumberArrayData** numberArrayData, StringArrayData** stringArrayData);
 
-
     [MemberFunction("E9 ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? 48 8D 15")]
-    public partial bool LoadUldByName(string name, byte a3 = 0, uint a4 = 6);
+    [GenerateCStrOverloads]
+    public partial bool LoadUldByName(byte* name, byte a3 = 0, uint a4 = 6);
 }

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace FFXIVClientStructs.FFXIV.Client.Game;
+﻿namespace FFXIVClientStructs.FFXIV.Client.Game;
 
 //ctor i guess 40 53 48 83 EC 20 48 8B D9 45 33 C9 B9
 [StructLayout(LayoutKind.Explicit, Size = 0x3620)]
@@ -27,7 +25,20 @@ public unsafe partial struct InventoryManager
     [MemberFunction("E8 ?? ?? ?? ?? 42 8B 74 A5")]
     public partial byte GetPermittedGearsetCount();
 
-    [StaticAddress("48 8D 0D ?? ?? ?? ?? 81 C2")]
+    [MemberFunction("E8 ?? ?? ?? ?? 48 8D 0D ?? ?? ?? ?? 8B D8 E8 ?? ?? ?? ?? 8B 55 F7")]
+    private partial int GetLimitedTomestoneCount(int a1);
+    
+    [MemberFunction("E8 ?? ?? ?? ?? 8D 4F DD")]
+    private static partial int GetSpecialItemId(byte switchCase);
+
+    // Gets the current maximum weekly number of limited tomestones tha player can earn
+    [MemberFunction("E8 ?? ?? ?? ?? 42 8D 0C 23")]
+    public static partial int GetLimitedTomestoneWeeklyLimit();
+
+    // Gets the number of (limited) tomestones the user has acquired during the current reset cycle.
+    public int GetWeeklyAcquiredTomestoneCount() => GetLimitedTomestoneCount(GetSpecialItemId(9));
+
+    [StaticAddress("48 8D 0D ?? ?? ?? ?? 81 C2", 3)]
     public static partial InventoryManager* Instance();
 }
 

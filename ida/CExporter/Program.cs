@@ -1,4 +1,3 @@
-using FFXIVClientStructs.STD;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -17,9 +16,13 @@ namespace CExporter
         {
             var outputBase = "../../../../";
             File.WriteAllText($"{outputBase}ffxiv_client_structs.h",
-                Exporter.Instance.Export(GapStrategy.FullSize));
+                Exporter.Instance.Export(GapStrategy.FullSize, EnvFormat.IDA));
             File.WriteAllText($"{outputBase}ffxiv_client_structs_arrays.h",
-                Exporter.Instance.Export(GapStrategy.ByteArray));
+                Exporter.Instance.Export(GapStrategy.ByteArray, EnvFormat.IDA));
+            File.WriteAllText($"{outputBase}ffxiv_client_structs_ghidra.h",
+                Exporter.Instance.Export(GapStrategy.FullSize, EnvFormat.Ghidra));
+            File.WriteAllText($"{outputBase}ffxiv_client_structs_arrays_ghidra.h",
+                Exporter.Instance.Export(GapStrategy.ByteArray, EnvFormat.Ghidra));
         }
     }
 
@@ -27,6 +30,12 @@ namespace CExporter
     {
         FullSize,   // Fill gaps in structs with sequential longs, ints, shorts, or bytes
         ByteArray,  // Fill gaps in structs with byte arrays
+    }
+
+    public enum EnvFormat
+    {
+        IDA,     // IDA Format: Separator: "::", Enums: short names with underlying type info
+        Ghidra,  // Ghidra Format: Separator: "_", Enums: long names w/o underlying type info
     }
 
     public class Exporter
@@ -40,10 +49,13 @@ namespace CExporter
 
         private GapStrategy GapStrategy;
 
+        private EnvFormat EnvFormat;
+
         private readonly HashSet<Type> KnownTypes = new HashSet<Type>();
 
         private readonly string FFXIVNamespacePrefix = string.Join(".", new string[] { nameof(FFXIVClientStructs), nameof(FFXIVClientStructs.FFXIV), "" });
         private readonly string STDNamespacePrefix = string.Join(".", new string[] { nameof(FFXIVClientStructs), nameof(FFXIVClientStructs.STD), "" });
+        private readonly string InteropNamespacePrefix = string.Join(".", new string[] { nameof(FFXIVClientStructs), nameof(FFXIVClientStructs.Interop), "" });
 
         private Type[] GetExportableTypes(string assemblyName)
         {
@@ -62,9 +74,10 @@ namespace CExporter
             return definedTypes.Where(t => t.FullName.StartsWith(FFXIVNamespacePrefix)).ToArray();
         }
 
-        public string Export(GapStrategy strategy)
+        public string Export(GapStrategy strategy, EnvFormat envFormat)
         {
             GapStrategy = strategy;
+            EnvFormat = envFormat;
             KnownTypes.Clear();
 
             var header = new StringBuilder();
@@ -143,7 +156,7 @@ namespace CExporter
             }
             else
             {
-                structSize = Marshal.SizeOf(type);
+                structSize = SizeOf(type);
             }
 
             var pad = structSize.ToString("X").Length;
@@ -156,7 +169,7 @@ namespace CExporter
 
             var offset = 0;
             var fieldGroupings = type.GetFields()
-                .Where(finfo => !Attribute.IsDefined(finfo, typeof(NoExportAttribute)))
+                .Where(finfo => !Attribute.IsDefined(finfo, typeof(ObsoleteAttribute)))
                 .Where(finfo => !finfo.IsLiteral) // not constants
                 .Where(finfi => !finfi.IsStatic)  // not static
                 .OrderBy(finfo => finfo.GetFieldOffset())
@@ -196,7 +209,7 @@ namespace CExporter
 
                         sb.AppendLine(string.Format($"    /* 0x{{0:X{pad}}} */ {FixTypeName(fixedType)} {finfo.Name}[0x{fixedSize:X}];", offset));
 
-                        fieldSize = Marshal.SizeOf(fixedType) * fixedSize;
+                        fieldSize = SizeOf(fixedType) * fixedSize;
                     }
                     else if (fieldType.IsPointer)
                     {
@@ -216,7 +229,7 @@ namespace CExporter
 
                         sb.AppendLine(string.Format($"    /* 0x{{0:X{pad}}} */ {FixTypeName(fieldType)} {finfo.Name};", offset));
 
-                        fieldSize = Marshal.SizeOf(Enum.GetUnderlyingType(fieldType));
+                        fieldSize = SizeOf(Enum.GetUnderlyingType(fieldType));
                     }
                     else
                     {
@@ -229,7 +242,7 @@ namespace CExporter
                         else if (fieldType.IsGenericType)
                             fieldSize = Marshal.SizeOf(Activator.CreateInstance(fieldType));
                         else
-                            fieldSize = Marshal.SizeOf(fieldType);
+                            fieldSize = SizeOf(fieldType);
                     }
 
                     if (!isUnion)
@@ -252,6 +265,12 @@ namespace CExporter
             header.AppendLine(sb.ToString());
         }
 
+        private int SizeOf(Type type)
+        {
+            // Marshal.SizeOf doesn't work correctly because the assembly is unmarshaled, and more specifically, it sets bools as 4 bytes long...
+            return (int?)typeof(Unsafe).GetMethod("SizeOf")?.MakeGenericMethod(type).Invoke(null, null) ?? 0;
+        }
+
         private void ProcessEnum(Type type, StringBuilder header)
         {
             if (KnownTypes.Contains(type))
@@ -263,9 +282,18 @@ namespace CExporter
 
             var sb = new StringBuilder();
 
-            var underlyingTypeName = FixTypeName(type.GetEnumUnderlyingType());
+            if (EnvFormat == EnvFormat.IDA)
+            {
+                var underlyingTypeName = FixTypeName(type.GetEnumUnderlyingType());
+                sb.AppendLine($"enum {type.Name}: {underlyingTypeName}");
+            }
+            else
+            {
+                var underlyingType = type.GetEnumUnderlyingType();
+                var fixedTypeName = FixTypeName(type);
+                sb.AppendLine($"enum {fixedTypeName} /* Size=0x{SizeOf(underlyingType):X} */");
+            }
 
-            sb.AppendLine($"enum {type.Name}: {underlyingTypeName}");
             sb.AppendLine("{");
 
             var values = Enum.GetValues(type);
@@ -297,36 +325,67 @@ namespace CExporter
 
         private string FixFullName(Type type)
         {
+            string separator;
+            if (EnvFormat == EnvFormat.IDA)
+                separator = "::";
+            else if (EnvFormat == EnvFormat.Ghidra)
+                separator = "_";
+            else
+                throw new Exception($"Unknown EnvFormat: {EnvFormat}");
+
             string fullName;
-            if (type.IsGenericType)
+            if (type.IsGenericType || (type.IsPointer && type.GetElementType().IsGenericType))
             {
-                var generic = type.GetGenericTypeDefinition();
+                bool isPointer = type.IsPointer;
+                var dereferenced = isPointer ? type.GetElementType() : type;
+                var generic = dereferenced.GetGenericTypeDefinition();
                 fullName = generic.FullName.Split('`')[0];
-                foreach (var argType in type.GenericTypeArguments)
+                if (dereferenced.IsNested)
+                {
+                    fullName += '+' + generic.FullName.Split('+')[1].Split('[')[0];
+                }
+                foreach (var argType in dereferenced.GenericTypeArguments)
                 {
                     var argTypeFullName = FixFullName(argType).Replace("::", "");
-                    fullName += $"::{argTypeFullName}";
+                    fullName += $"{separator}{argTypeFullName}";
                 }
+                if (isPointer)
+                    fullName += '*';
             }
             else
             {
                 fullName = type.FullName;
             }
 
-            if (fullName.Contains(FFXIVNamespacePrefix))
+            if (fullName.StartsWith(FFXIVNamespacePrefix))
                 fullName = fullName.Remove(0, FFXIVNamespacePrefix.Length);
-            if (fullName.Contains(STDNamespacePrefix))
+            if (fullName.StartsWith(STDNamespacePrefix))
                 fullName = fullName.Remove(0, STDNamespacePrefix.Length);
+            if (fullName.StartsWith(InteropNamespacePrefix))
+                fullName = fullName.Remove(0, InteropNamespacePrefix.Length);
 
-            if (fullName.Contains("FFXIVClientStructs, Version")) {
-                if (fullName.EndsWith("*")) {
+            if (fullName.Contains("FFXIVClientStructs, Version"))
+            {
+                if (fullName.EndsWith("*"))
+                {
                     fullName = "void*";
-                } else {
+                }
+                else
+                {
                     throw new Exception($"Failed to fix name: {fullName}");
                 }
             }
-            
-            return fullName.Replace(".", "::").Replace("+", "::");
+
+            // This is a hack because Ghidra doesn't support specifying the enum size
+            // By appending 0x<size> on the enum name, it makes it easier to manually go
+            // in and fix the sizes up after the fact.
+            if (EnvFormat == EnvFormat.Ghidra && type.IsEnum)
+            {
+                var underlyingType = type.GetEnumUnderlyingType();
+                fullName += $"0x{SizeOf(underlyingType):X}";
+            }
+
+            return fullName.Replace(".", separator).Replace("+", separator);
         }
 
         private string FixTypeName(Type type)
@@ -350,6 +409,7 @@ namespace CExporter
             else if (type == typeof(ushort*)) return "unsigned __int16*";
             else if (type == typeof(int*)) return "__int32*";
             else if (type == typeof(uint*)) return "unsigned __int32*";
+            else if (type == typeof(System.Single*)) return "float*";
             else return FixFullName(type);
         }
 

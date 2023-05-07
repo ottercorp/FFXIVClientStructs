@@ -7,19 +7,29 @@ namespace FFXIVClientStructs.FFXIV.Client.UI;
 // Client::UI::RaptureAtkModule
 //   Component::GUI::AtkModule
 //     Component::GUI::AtkModuleInterface
-[StructLayout(LayoutKind.Explicit, Size = 0x28770)]
+[StructLayout(LayoutKind.Explicit, Size = 0x289F8)]
 public partial struct RaptureAtkModule
 {
     [FieldOffset(0x0)] public AtkModule AtkModule;
 
-    [FieldOffset(0x11408)] public RaptureAtkUnitManager RaptureAtkUnitManager;
+    [FieldOffset(0x11690)] public RaptureAtkUnitManager RaptureAtkUnitManager;
 
-    [FieldOffset(0x1B390)] public int NameplateInfoCount;
-    [FieldOffset(0x1B398)] public NamePlateInfo NamePlateInfoArray; // 0-50, &NamePlateInfoArray[i]
+    [FieldOffset(0x1B310)] public RaptureAtkModuleFlags Flags;
+    
+    [FieldOffset(0x1B618)] public int NameplateInfoCount;
+    [FieldOffset(0x1B620)] public NamePlateInfo NamePlateInfoArray; // 0-50, &NamePlateInfoArray[i]
 
     [MemberFunction("E8 ?? ?? ?? ?? 0F B6 44 24 ?? 48 89 9F")]
     public partial bool ChangeUiMode(uint uiMode);
 
+    [VirtualFunction(39)]
+    public partial void SetUiVisibility(bool uiVisible);
+
+    public bool IsUiVisible {
+        get => !Flags.HasFlag(RaptureAtkModuleFlags.UiHidden);
+        set => SetUiVisibility(value);
+    }
+    
     [StructLayout(LayoutKind.Explicit, Size = 0x248 - 0x10)] //CN server exclusive, need confirm
     public struct NamePlateInfo
     {
@@ -33,4 +43,17 @@ public partial struct RaptureAtkModule
 
         public bool IsPrefixTitle => ((Flags >> (8 * 3)) & 0xFF) == 1;
     }
+}
+
+[Flags]
+public enum RaptureAtkModuleFlags : byte {
+    None = 0x00,
+    Unk01 = 0x01,
+    Unk02 = 0x02,
+    UiHidden = 0x04,
+    Unk08 = 0x08,
+    Unk10 = 0x10,
+    Unk20 = 0x20,
+    Unk40 = 0x40,
+    Unk80 = 0x80,
 }
