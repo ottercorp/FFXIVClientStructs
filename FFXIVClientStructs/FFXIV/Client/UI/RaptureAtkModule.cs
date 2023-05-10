@@ -17,7 +17,7 @@ public partial struct RaptureAtkModule
     [FieldOffset(0x1B310)] public RaptureAtkModuleFlags Flags;
     
     [FieldOffset(0x1B618)] public int NameplateInfoCount;
-    [FieldOffset(0x1B620)] public NamePlateInfo NamePlateInfoArray; // 0-50, &NamePlateInfoArray[i]
+    [FieldOffset(0x1B620 - 0x10)] public NamePlateInfo NamePlateInfoArray; // 0-50, &NamePlateInfoArray[i] CN - 0x10
 
     [MemberFunction("E8 ?? ?? ?? ?? 0F B6 44 24 ?? 48 89 9F")]
     public partial bool ChangeUiMode(uint uiMode);
@@ -30,7 +30,7 @@ public partial struct RaptureAtkModule
         set => SetUiVisibility(value);
     }
     
-    [StructLayout(LayoutKind.Explicit, Size = 0x248 - 0x10)] //CN server exclusive, need confirm
+    [StructLayout(LayoutKind.Explicit, Size = 0x248)]
     public struct NamePlateInfo
     {
         [FieldOffset(0x00)] public GameObjectID ObjectID;
