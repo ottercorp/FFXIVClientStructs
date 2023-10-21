@@ -21,7 +21,7 @@ public unsafe partial struct CharacterBase {
     [FieldOffset(0x98)] public int SlotCount; // model slots
     [FieldOffset(0xA0)] public Skeleton* Skeleton; // Client::Graphics::Render::Skeleton
 
-    [Obsolete("Use Models")]
+    [Obsolete("Use Models", true)]
     [FieldOffset(0xA8)] public void** ModelArray; // array of Client::Graphics::Render::Model ptrs size = SlotCount
     [FieldOffset(0xA8)] public Model** Models; // size = SlotCount
     [FieldOffset(0x148)] public void* PostBoneDeformer; // Client::Graphics::Scene::PostBoneDeformer ptr
@@ -46,11 +46,11 @@ public unsafe partial struct CharacterBase {
     public BonePhysicsModule* BonePhysicsModule; // Client::Graphics::Physics::BonePhysicsModule ptr
 
     [FieldOffset(0x224)] public float VfxScale;
-    [Obsolete("Use CharacterDataCBuffer")]
+    [Obsolete("Use CharacterDataCBuffer", true)]
     [FieldOffset(0x240)] public void* CharacterDataCB;
     [FieldOffset(0x240)] public ConstantBuffer* CharacterDataCBuffer; // Size has been observed to be 0x50, contents may be InstanceParameter
 
-    [FieldOffset(0x258)] public Texture** ColorSetTextures; // each one corresponds to a material, size = SlotCount * 4
+    [FieldOffset(0x258)] public Texture** ColorTableTextures; // each one corresponds to a material, size = SlotCount * 4
 
     [FieldOffset(0x2B0)] public float WeatherWetness;  // Set to 1.0f when raining and not covered or umbrella'd
     [FieldOffset(0x2B4)] public float SwimmingWetness; // Set to 1.0f when in water
@@ -69,7 +69,7 @@ public unsafe partial struct CharacterBase {
     public void* TempSlotData; // struct with temporary data for each slot (size = 0x88 * slot count)
 
     //
-    [Obsolete("Use Materials")]
+    [Obsolete("Use Materials", true)]
     [FieldOffset(0x2E8)]
     public void**
         MaterialArray; // array of Client::Graphics::Render::Material ptrs size = SlotCount * 4 (4 material per model max)
@@ -86,8 +86,8 @@ public unsafe partial struct CharacterBase {
     public readonly Span<Pointer<Model>> ModelsSpan
         => new(Models, SlotCount);
 
-    public readonly Span<Pointer<Texture>> ColorSetTexturesSpan
-        => new(ColorSetTextures, SlotCount * 4);
+    public readonly Span<Pointer<Texture>> ColorTableTexturesSpan
+        => new(ColorTableTextures, SlotCount * 4);
 
     public readonly Span<Pointer<Material>> MaterialsSpan
         => new(Materials, SlotCount * 4);

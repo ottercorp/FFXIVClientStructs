@@ -1,5 +1,4 @@
 using FFXIVClientStructs.FFXIV.Client.Game.Object;
-using FFXIVClientStructs.FFXIV.Client.System.Framework;
 using FFXIVClientStructs.FFXIV.Client.System.String;
 using FFXIVClientStructs.FFXIV.Client.UI.Misc;
 using FFXIVClientStructs.FFXIV.Component.GUI;
@@ -12,9 +11,6 @@ namespace FFXIVClientStructs.FFXIV.Client.UI.Agent;
 [Agent(AgentId.CharaCard)]
 [StructLayout(LayoutKind.Explicit, Size = 0x38)]
 public unsafe partial struct AgentCharaCard {
-    public static AgentCharaCard* Instance() => (AgentCharaCard*)Framework.Instance()->GetUiModule()->GetAgentModule()->GetAgentByInternalId(AgentId.CharaCard);
-
-
     [FieldOffset(0x0)] public AgentInterface AgentInterface;
 
     [FieldOffset(0x28)] public Storage* Data;
@@ -36,9 +32,9 @@ public unsafe partial struct AgentCharaCard {
     public struct Storage {
         [FieldOffset(0x58)] public Utf8String Name;
         [FieldOffset(0xD8)] public Utf8String FreeCompany;
-        [FieldOffset(0x140), Obsolete] public Utf8String UnkString1;
+        [FieldOffset(0x140), Obsolete("Use SearchComment1", true)] public Utf8String UnkString1;
         [FieldOffset(0x140)] public Utf8String SearchComment1;
-        [FieldOffset(0x1A8), Obsolete] public Utf8String UnkString2;
+        [FieldOffset(0x1A8), Obsolete("Use SearchComment2", true)] public Utf8String UnkString2;
         [FieldOffset(0x1A8)] public Utf8String SearchComment2; // One of these is probably the raw one without formatting
 
         [FieldOffset(0x250)] public uint Activity1IconId;

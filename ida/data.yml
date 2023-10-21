@@ -69,6 +69,7 @@ functions:
   0x1400622B0: MemoryManager_GetFileSpace
   0x140062250: MemoryManager_GetSoundSpace_1
   0x140062270: MemoryManager_GetSoundSpace_2
+  0x140060A50: MemoryManager_SpaceAlloc
   0x140065480: IsMacClient
   0x1400A65E0: GetCurrentUnixTimestamp # in seconds
   0x1400A6710: Client::UI::PlaySoundEffect # this is a static function in the UI namespace, arg1 is the SE
@@ -379,7 +380,6 @@ classes:
   Client::UI::Atk2DMap:
   Component::Excel::ExcelLanguageEvent:
   Component::GUI::AtkComponentWindowGrab:
-  Component::GUI::AtkDragDropInterface:
   Component::GUI::AtkExternalInterface:
   Component::GUI::AtkManagedInterface:
   Component::GUI::AtkModuleEvent:
@@ -756,6 +756,7 @@ classes:
       0x140982F40: SetUnlockLinkValue
       0x140982FE0: IsUnlockLinkUnlocked
       0x140983010: IsUnlockLinkUnlockedOrQuestCompleted
+      0x1409832C0: IsCutsceneSeen
       0x140985210: IsEmoteUnlocked
       0x140985380: IsItemActionUnlocked
       0x1409834D0: IsTripleTriadCardUnlocked
@@ -1599,6 +1600,9 @@ classes:
       0x140102A20: ProcessRequestResult
       0x140102CF0: ProcessItemHistory
       0x140102D40: ProcessItemHistory_Internal
+      0x140103430: SetLastPurchasedItem
+      0x140103510: SendPurchaseRequestPacket
+      0x1401036A0: ProcessPlayerRetainerInfo
   Client::UI::Info::InfoProxyPartyInvite:
     vtbls:
       - ea: 0x141950028
@@ -1851,13 +1855,77 @@ classes:
       - ea: 0x1419655B8
     funcs:
       0x1401CDDB0: ctor
+  Client::System::Resource::Handle::GrassGridDataResourceHandle:
+    vtbls:
+      - ea: 0x1419653F8
+        base: Client::System::Resource::Handle::DefaultResourceHandle
+  Client::System::Resource::Handle::SoundResourceHandle:
+    vtbls:
+      - ea: 0x1419655E0
+        base: Client::System::Resource::Handle::ResourceHandle
+  Client::System::Resource::Handle::EquipmentParameterResourceHandle:
+    vtbls:
+      - ea: 0x141965778
+        base: Client::System::Resource::Handle::DefaultResourceHandle
+  Client::System::Resource::Handle::PreBoneDeformerResourceHandle:
+    vtbls:
+      - ea: 0x141965940
+        base: Client::System::Resource::Handle::DefaultResourceHandle
   Client::System::Resource::Handle::CharaMakeParameterResourceHandle:
     vtbls:
       - ea: 0x141965AC0
         base: Client::System::Resource::Handle::DefaultResourceHandle
+  Client::System::Resource::Handle::ExSkeletonTableResourceHandle:
+    vtbls:
+      - ea: 0x141965C40
+        base: Client::System::Resource::Handle::DefaultResourceHandle
+  Client::System::Resource::Handle::PartialAnimationPackResourceHandle:
+    vtbls:
+      - ea: 0x141965DF0
+        base: Client::System::Resource::Handle::DefaultResourceHandle
+  Client::System::Resource::Handle::PapLoadTableResourceHandle:
+    vtbls:
+      - ea: 0x141965F80
+        base: Client::System::Resource::Handle::DefaultResourceHandle
+  Client::System::Resource::Handle::AnimationExchangeTableResourceHandle:
+    vtbls:
+      - ea: 0x141966100
+        base: Client::System::Resource::Handle::DefaultResourceHandle
+  Client::System::Resource::Handle::MotionLineTableResourceHandle:
+    vtbls:
+      - ea: 0x141966280
+        base: Client::System::Resource::Handle::DefaultResourceHandle
+  Client::System::Resource::Handle::SkeletonResourceHandle:
+    vtbls:
+      - ea: 0x141966400
+        base: Client::System::Resource::Handle::DefaultResourceHandle
+  Client::System::Resource::Handle::AnimationWorkTableResourceHandle:
+    vtbls:
+      - ea: 0x141966580
+        base: Client::System::Resource::Handle::DefaultResourceHandle
+  Client::System::Resource::Handle::StainingTemplateResourceHandle:
+    vtbls:
+      - ea: 0x141966700
+        base: Client::System::Resource::Handle::DefaultResourceHandle
+  Client::System::Resource::Handle::ImageChangeDataResourceHandle:
+    vtbls:
+      - ea: 0x141966880
+        base: Client::System::Resource::Handle::DefaultResourceHandle
+  Client::System::Resource::Handle::ElementIdResourceHandle:
+    vtbls:
+      - ea: 0x141966A00
+        base: Client::System::Resource::Handle::DefaultResourceHandle
+  Client::System::Resource::Handle::GrassZoneDataResourceHandle:
+    vtbls:
+      - ea: 0x141966B80
+        base: Client::System::Resource::Handle::DefaultResourceHandle
   Client::System::Resource::Handle::ApricotResourceHandle:
     vtbls:
       - ea: 0x141966D40
+        base: Client::System::Resource::Handle::DefaultResourceHandle
+  Client::System::Resource::Handle::ApricotTextureResourceHandle:
+    vtbls:
+      - ea: 0x141966EC0
         base: Client::System::Resource::Handle::DefaultResourceHandle
   Client::System::Resource::Handle::ModelResourceHandle:
     vtbls:
@@ -1867,6 +1935,122 @@ classes:
       0x1401DE280: GetMaterialFileNameBySlot
       0x1403D1F50: GetAttributeIndex
       0x1403D20C0: GetShapeIndex
+  Client::System::Resource::Handle::ShaderCodeResourceHandle:
+    vtbls:
+      - ea: 0x1419671C0
+        base: Client::System::Resource::Handle::ResourceHandle
+  Client::System::Resource::Handle::TerrainResourceHandle:
+    vtbls:
+      - ea: 0x141967340
+        base: Client::System::Resource::Handle::DefaultResourceHandle
+  Client::System::Resource::Handle::EnvSetResourceHandle:
+    vtbls:
+      - ea: 0x1419674C0
+        base: Client::System::Resource::Handle::DefaultResourceHandle
+  Client::System::Resource::Handle::SoundSetResourceHandle:
+    vtbls:
+      - ea: 0x141967640
+        base: Client::System::Resource::Handle::DefaultResourceHandle
+  Client::System::Resource::Handle::AmbientSetResourceHandle:
+    vtbls:
+      - ea: 0x1419677C0
+        base: Client::System::Resource::Handle::DefaultResourceHandle
+  Client::System::Resource::Handle::ObjectBehaviorSetResourceHandle:
+    vtbls:
+      - ea: 0x141967940
+        base: Client::System::Resource::Handle::DefaultResourceHandle
+  Client::System::Resource::Handle::SkyVisibilityResourceHandle:
+    vtbls:
+      - ea: 0x141967AC0
+        base: Client::System::Resource::Handle::DefaultResourceHandle
+  Client::System::Resource::Handle::ClipAABBResourceHandle:
+    vtbls:
+      - ea: 0x141967C40
+        base: Client::System::Resource::Handle::DefaultResourceHandle
+  Client::System::Resource::Handle::AttachOffsetResourceHandle:
+    vtbls:
+      - ea: 0x141967DC0
+        base: Client::System::Resource::Handle::DefaultResourceHandle
+  Client::System::Resource::Handle::UdwResourceHandle:
+    vtbls:
+      - ea: 0x141967F40
+        base: Client::System::Resource::Handle::DefaultResourceHandle
+  Client::System::Resource::Handle::SpmResourceHandle:
+    vtbls:
+      - ea: 0x1419680C0
+        base: Client::System::Resource::Handle::DefaultResourceHandle
+  Client::System::Resource::Handle::LookAtIkResourceHandle:
+    vtbls:
+      - ea: 0x141968240
+        base: Client::System::Resource::Handle::DefaultResourceHandle
+  Client::System::Resource::Handle::AutoShakeIkResourceHandle:
+    vtbls:
+      - ea: 0x1419683C0
+        base: Client::System::Resource::Handle::DefaultResourceHandle
+  Client::System::Resource::Handle::SkeletonParamResourceHandle:
+    vtbls:
+      - ea: 0x141968540
+        base: Client::System::Resource::Handle::DefaultResourceHandle
+  Client::System::Resource::Handle::MsbResourceHandle:
+    vtbls:
+      - ea: 0x1419686C0
+        base: Client::System::Resource::Handle::DefaultResourceHandle
+  Client::System::Resource::Handle::CollisionMeshResourceHandle:
+    vtbls:
+      - ea: 0x141968840
+        base: Client::System::Resource::Handle::DefaultResourceHandle
+  Client::System::Resource::Handle::CutSceneResourceHandle:
+    vtbls:
+      - ea: 0x1419689C0
+        base: Client::System::Resource::Handle::DefaultResourceHandle
+  Client::System::Resource::Handle::TimeLineResourceHandle:
+    vtbls:
+      - ea: 0x141968B40
+        base: Client::System::Resource::Handle::DefaultResourceHandle
+  Client::System::Resource::Handle::LevelSceneResourceHandle:
+    vtbls:
+      - ea: 0x141968CF0
+        base: Client::System::Resource::Handle::DefaultResourceHandle
+  Client::System::Resource::Handle::LayerGroupResourceHandle:
+    vtbls:
+      - ea: 0x141968E70
+        base: Client::System::Resource::Handle::DefaultResourceHandle
+  Client::System::Resource::Handle::SharedGroupResourceHandle:
+    vtbls:
+      - ea: 0x141968FF0
+        base: Client::System::Resource::Handle::DefaultResourceHandle
+  Client::System::Resource::Handle::NaviMeshResourceHandle:
+    vtbls:
+      - ea: 0x141969170
+        base: Client::System::Resource::Handle::DefaultResourceHandle
+  Client::System::Resource::Handle::ExlResourceHandle:
+    vtbls:
+      - ea: 0x1419692F0
+        base: Client::System::Resource::Handle::DefaultResourceHandle
+  Client::System::Resource::Handle::ExhResourceHandle:
+    vtbls:
+      - ea: 0x141969470
+        base: Client::System::Resource::Handle::DefaultResourceHandle
+  Client::System::Resource::Handle::ExdResourceHandle:
+    vtbls:
+      - ea: 0x1419695F0
+        base: Client::System::Resource::Handle::DefaultResourceHandle
+  Client::System::Resource::Handle::HardwareCursorResourceHandle:
+    vtbls:
+      - ea: 0x141969770
+        base: Client::System::Resource::Handle::DefaultResourceHandle
+  Client::System::Resource::Handle::CursorResourceHandle:
+    vtbls:
+      - ea: 0x1419698F0
+        base: Client::System::Resource::Handle::DefaultResourceHandle
+  Client::System::Resource::Handle::PNGResourceHandle:
+    vtbls:
+      - ea: 0x141969A70
+        base: Client::System::Resource::Handle::DefaultResourceHandle
+  Client::System::Resource::Handle::UgdResourceHandle:
+    vtbls:
+      - ea: 0x141969BF0
+        base: Client::System::Resource::Handle::DefaultResourceHandle
   Client::System::Resource::Handle::UldResourceHandle:
     vtbls:
       - ea: 0x141969D70
@@ -1875,6 +2059,54 @@ classes:
     vtbls:
       - ea: 0x141969ED8
         base: Client::System::Resource::Handle::ResourceHandleFactory
+  Client::System::Resource::Handle::LuaResourceHandle:
+    vtbls:
+      - ea: 0x141969EF0
+        base: Client::System::Resource::Handle::DefaultResourceHandle
+  Client::System::Resource::Handle::LuabResourceHandle:
+    vtbls:
+      - ea: 0x14196A070
+        base: Client::System::Resource::Handle::DefaultResourceHandle
+  Client::System::Resource::Handle::BonePhysicsResourceHandle:
+    vtbls:
+      - ea: 0x141AC5F10
+        base: Client::System::Resource::Handle::DefaultResourceHandle
+  Client::System::Resource::Handle::EquipmentVfxParameterResourceHandle:
+    vtbls:
+      - ea: 0x141AC60C8
+        base: Client::System::Resource::Handle::DefaultResourceHandle
+  Client::System::Resource::Handle::GimmickParameterResourceHandle:
+    vtbls:
+      - ea: 0x141AC6270
+        base: Client::System::Resource::Handle::DefaultResourceHandle
+  Client::System::Resource::Handle::EquipmentDeformerParameterResourceHandle:
+    vtbls:
+      - ea: 0x141AC6428
+        base: Client::System::Resource::Handle::DefaultResourceHandle
+  Client::System::Resource::Handle::WeaponAttachOffsetExistResourceHandle:
+    vtbls:
+      - ea: 0x141AC65D8
+        base: Client::System::Resource::Handle::DefaultResourceHandle
+  Client::System::Resource::Handle::WeaponTypeDataResourceHandle:
+    vtbls:
+      - ea: 0x141AC6780
+        base: Client::System::Resource::Handle::DefaultResourceHandle
+  Client::System::Resource::Handle::ControlPointResourceHandle:
+    vtbls:
+      - ea: 0x141AC6948
+        base: Client::System::Resource::Handle::DefaultResourceHandle
+  Client::System::Resource::Handle::CameraShakeResourceHandle:
+    vtbls:
+      - ea: 0x141AC6AE8
+        base: Client::System::Resource::Handle::DefaultResourceHandle
+  Client::System::Resource::Handle::FontdataResourceHandle:
+    vtbls:
+      - ea: 0x141AC6C88
+        base: Client::System::Resource::Handle::DefaultResourceHandle
+  Client::System::Resource::Handle::GaijiFontdataResourceHandle:
+    vtbls:
+      - ea: 0x141AC6E30
+        base: Client::System::Resource::Handle::DefaultResourceHandle
   Client::Graphics::Primitive::Manager:
     instances:
       - ea: 0x14211E020
@@ -1938,6 +2170,10 @@ classes:
         base: Client::Network::Protocol::Chat::PacketReceiverCallbackInterface
     funcs:
       0x14140CA60: HandleSocialPacket
+      0x14140FFF0: HandleMarketBoardOfferingsPacket
+      0x1414100B0: HandleMarketBoardPurchasePacket
+      0x141410B50: HandleMarketBoardHistoryPacket
+      0x14140FF50: HandleMarketBoardItemRequestStartPacket
   Client::Network::NetworkModulePacketReceiverCallback: # derives Application::Network::PacketReceiverCallbackInterface & Client::Network::PacketDispatcher
     vtbls:
       - ea: 0x14196C240
@@ -3482,6 +3718,34 @@ classes:
       - ea: 0x141999198
     funcs:
       0x1405BF030: ctor
+  Client::LayoutEngine::Layer::EnvSpaceLayoutInstance:
+    vtbls:
+      - ea: 0x14199AD68
+        base: Client::LayoutEngine::ILayoutInstance
+  Client::LayoutEngine::Layer::BgPartsLayoutInstance:
+    vtbls:
+      - ea: 0x14199AAF8
+        base: Client::LayoutEngine::ILayoutInstance
+  Client::LayoutEngine::Layer::EnvLocationLayoutInstance:
+    vtbls:
+      - ea: 0x14199AFD8
+        base: Client::LayoutEngine::ILayoutInstance
+  Client::LayoutEngine::Layer::LightLayoutInstance:
+    vtbls:
+      - ea: 0x14199B248
+        base: Client::LayoutEngine::ILayoutInstance
+  Client::LayoutEngine::Layer::DecalLayoutInstance:
+    vtbls:
+      - ea: 0x14199B4B8
+        base: Client::LayoutEngine::ILayoutInstance
+  Client::LayoutEngine::Layer::VfxLayoutInstance:
+    vtbls:
+      - ea: 0x14199B728
+        base: Client::LayoutEngine::ILayoutInstance
+  Client::LayoutEngine::Layer::WeaponLayoutInstance:
+    vtbls:
+      - ea: 0x14199B998
+        base: Client::LayoutEngine::ILayoutInstance
   Client::LayoutEngine::Group::TimeLineLayoutInstance:
     vtbls:
       - ea: 0x1419A0120
@@ -3827,9 +4091,10 @@ classes:
       0x140691020: RemoveGlamourPlateLink
       0x140691030: HasLinkedGlamourPlate
       0x140691220: GetClassJobIcon
-      0x1406916F0: GetBannerIndexByGearsetIndex
-      0x140691750: SetBannerIndexForGearsetIndex
-      0x140691810: IsGearsetLinkedWithBanner
+      0x1406916F0: GetBannerIndex
+      0x140691750: SetBannerIndex
+      0x140691810: HasLinkedBanner
+      0x140691BE0: FindGearsetIDByName
   Client::UI::Misc::ItemFinderModule:
     vtbls:
       - ea: 0x1419AB3C8
@@ -4011,11 +4276,15 @@ classes:
       0x1407461A0: GetParentCharacter
       0x140745620: SetSoftTargetId
       0x1407456A0: GetSoftTargetId
+      0x140745b50: CalculateHeight
       0x140746300: SetMode
       0x140748520: Finalize
       0x14074F6B0: SetupBNpc
       0x1407502C0: CopyFromCharacter
       0x1407AD460: ctor
+  Client::Game::Control::EmoteController:
+    vtbls:
+      - ea: 0x1419AE190
   Client::Game::Character::DrawDataContainer:
     vtbls:
       - ea: 0x1419ADFB8
@@ -6568,7 +6837,7 @@ classes:
       0x141244B40: ctor
   Client::UI::Agent::AgentMJISettings:
     vtbls:
-      - ea: 0x1419FE2E0
+      - ea: 0x141AC2078
         base: Client::UI::Agent::AgentInterface
     funcs:
       0x140A3F720: ctor
@@ -6758,6 +7027,8 @@ classes:
     vtbls:
       - ea: 0x141BA9F88
         base: Client::Game::InstanceContent::ContentDirector
+    funcs:
+      0x14142FAB0: HandleEnterContentInfoPacket  # static
   Client::UI::PopupMenu:
     vtbls:
       - ea: 0x141A1BEE8
@@ -6784,7 +7055,7 @@ classes:
       - ea: 0x141A679E0
         base: Component::GUI::AtkUnitBase
     funcs:
-        0x:140F7EF80: ctor
+        0x140F7EF80: ctor
   Client::UI::AddonFateReward:
     vtbls:
       - ea: 0x141A696D8
@@ -6803,6 +7074,24 @@ classes:
         base: Component::GUI::AtkUnitBase
     funcs:
       0x140D61FD0: ctor
+  Client::UI::AddonBuddy:
+    vtbls:
+      - ea: 0x141A677A8
+        base: Component::GUI::AtkUnitBase
+    funcs:
+      0x140F7DAF0: ctor
+  Client::UI::AddonBuddyAction:
+    vtbls:
+      - ea: 0x141A67C18
+        base: Component::GUI::AtkUnitBase
+  Client::UI::AddonBuddySkill:
+    vtbls:
+      - ea: 0x141A68088
+        base: Component::GUI::AtkUnitBase
+  Client::UI::AddonBuddyAppearance:
+    vtbls:
+      - ea: 0x141A67E50
+        base: Component::GUI::AtkUnitBase
   Client::UI::AddonBuddyInspect:
     vtbls:
       - ea: 0x141A6C3A8
@@ -7016,6 +7305,84 @@ classes:
         base: Component::GUI::AtkUnitBase
     funcs:
       0x140EA1D50: ctor
+  Client::UI::AddonCharacter:
+    vtbls:
+      - ea: 0x141A51090
+        base: Component::GUI::AtkUnitBase
+    funcs:
+      0x140EA9DE0: ctor
+  Client::UI::AddonCharacterStatus:
+    vtbls:
+      - ea: 0x141A512C8
+        base: Component::GUI::AtkUnitBase
+    funcs:
+      0x140EAD350: ctor
+  Client::UI::AddonCharacterProfile:
+    vtbls:
+      - ea: 0x141A62250
+        base: Component::GUI::AtkUnitBase
+    funcs:
+      0x140F5BA20: ctor
+  Client::UI::AddonCharacterClass:
+    vtbls:
+      - ea: 0x141A62488
+        base: Component::GUI::AtkUnitBase
+    funcs:
+      0x140F5C310: ctor
+  Client::UI::AddonCharacterRepute:
+    vtbls:
+      - ea: 0x141A626C0
+        base: Component::GUI::AtkUnitBase
+    funcs:
+      0x140F5D3D0: ctor
+  Client::UI::AddonRecommendEquip:
+    vtbls:
+      - ea: 0x141A6F778
+        base: Component::GUI::AtkUnitBase
+    funcs:
+      0x140FCD860: ctor
+  Client::UI::AddonAdventureNoteBook:
+    vtbls:
+      - ea: 0x141A54270
+        base: Component::GUI::AtkUnitBase
+    funcs:
+      0x140ED52C0: ctor
+  Client::UI::AddonAetherCurrent:
+    vtbls:
+      - ea: 0x141A6F308
+        base: Component::GUI::AtkUnitBase
+    funcs:
+      0x140FCB060: ctor
+  Client::UI::AddonFateProgress:
+    vtbls:
+      - ea: 0x141A694A0
+        base: Component::GUI::AtkUnitBase
+    funcs:
+      0x140F99710: ctor
+  Client::UI::AddonFishingNote:
+    vtbls:
+      - ea: 0x141A534E8
+        base: Component::GUI::AtkUnitBase
+    funcs:
+      0x140ECB230: ctor
+  Client::UI::AddonFishRecord:
+    vtbls:
+      - ea: 0x141A53BA8
+        base: Component::GUI::AtkUnitBase
+    funcs:
+      0x140ED1410: ctor
+  Client::UI::AddonFishGuide2:
+    vtbls:
+      - ea: 0x141A53738
+        base: Component::GUI::AtkUnitBase
+    funcs:
+      0x140ECE610: ctor
+  Client::UI::AddonGearSetList:
+    vtbls:
+      - ea: 0x141A65F40
+        base: Component::GUI::AtkUnitBase
+    funcs:
+      0x140F76F00: ctor
   Client::UI::AddonMonsterNote:
     vtbls:
       - ea: 0x141A526E0
@@ -7038,6 +7405,30 @@ classes:
       0x140EC3130: ReceiveEvent_ClickSynthesizeButton
       0x140EC3180: ReceiveEvent_ClickQuickSynthesisButton
       0x140EC31D0: ReceiveEvent_ClickTrialSynthesisButton
+  Client::UI::AddonRecipeProductList:
+    vtbls:
+      - ea: 0x141A74700
+        base: Component::GUI::AtkUnitBase
+    funcs:
+      0x140FEFD30: ctor
+  Client::UI::AddonRecipeMaterialList:
+    vtbls:
+      - ea: 0x141A53278
+        base: Component::GUI::AtkUnitBase
+    funcs:
+      0x140EC8920: ctor
+  Client::UI::AddonRecipeTree:
+    vtbls:
+      - ea: 0x141A53020
+        base: Component::GUI::AtkUnitBase
+    funcs:
+      0x140EC5620: ctor
+  Client::UI::AddonContentGauge:
+    vtbls:
+      - ea: 0x141AA4DE8
+        base: Component::GUI::AtkUnitBase
+    funcs:
+      0x1411405E0: ctor
   Client::UI::Atk2DAreaMap:
     vtbls:
       - ea: 0x141A534B8
@@ -7639,12 +8030,84 @@ classes:
         base: Component::GUI::AtkUnitBase
     funcs:
       0x1410D6800: ctor
+  Client::UI::AddonMcGuffin:
+    vtbls:
+      - ea: 0x141A856C8
+        base: Component::GUI::AtkUnitBase
+    funcs:
+      0x141064AA0: ctor
+  Client::UI::AddonAkatsukiNote:
+    vtbls:
+      - ea: 0x141A56008
+        base: Component::GUI::AtkUnitBase
+    funcs:
+      0x140EEB6F0: ctor
+  Client::UI::AddonYKWNote:
+    vtbls:
+      - ea: 0x141A55188
+        base: Component::GUI::AtkUnitBase
+    funcs:
+      0x140EE1670: ctor
+  Client::UI::AddonDescriptionYTC:
+    vtbls:
+      - ea: 0x141A727B0
+        base: Component::GUI::AtkUnitBase
+    funcs:
+      0x140FDEC80: ctor
+  Client::UI::AddonMYCWarResultNotebook:
+    vtbls:
+      - ea: 0x141A86FC0
+        base: Component::GUI::AtkUnitBase
+    funcs:
+      0x141076C40: ctor
   Client::UI::AddonTargetInfoBase:
     vtbls:
       - ea: 0x141A95BC8
         base: Component::GUI::AtkUnitBase
     funcs:
       0x1410FBDF0: ctor
+  Client::UI::AddonOrnamentNoteBook:
+    vtbls:
+      - ea: 0x141A55DD0
+        base: Component::GUI::AtkUnitBase
+    funcs:
+      0x140EE9570: ctor
+  Client::UI::AddonPvPCharacter:
+    vtbls:
+      - ea: 0x141A651F0
+        base: Component::GUI::AtkUnitBase
+    funcs:
+      0x140F723A0: ctor
+  Client::UI::AddonPvpProfile:
+    vtbls:
+      - ea: 0x141A638F0
+        base: Component::GUI::AtkUnitBase
+    funcs:
+      0x141A638F0: ctor
+  Client::UI::AddonPvpProfileColosseum:
+    vtbls:
+      - ea: 0x141A63D80
+        base: Component::GUI::AtkUnitBase
+  Client::UI::AddonPvpProfileFrontline:
+    vtbls:
+      - ea: 0x141A63FD8
+        base: Component::GUI::AtkUnitBase
+  Client::UI::AddonPvpProfileManeuvers:
+    vtbls:
+      - ea: 0x141A648D8
+        base: Component::GUI::AtkUnitBase
+  Client::UI::AddonPvpProfileAction:
+    vtbls:
+      - ea: 0x141A63B28
+        base: Component::GUI::AtkUnitBase
+  Client::UI::AddonPvpProfileQuickChat:
+    vtbls:
+      - ea: 0x141A64680
+        base: Component::GUI::AtkUnitBase
+  Client::UI::AddonPvpReward:
+    vtbls:
+      - ea: 0x141A64FB8
+        base: Component::GUI::AtkUnitBase
   Client::UI::AddonTargetInfo:
     vtbls:
       - ea: 0x141A95E00
@@ -7903,6 +8366,12 @@ classes:
     vtbls:
       - ea: 0x141AB8B90
         base: Component::GUI::AtkUnitBase
+  Client::UI::AddonGSInfoEditDeck:
+    vtbls:
+      - ea: 0x141AB9238
+        base: Component::GUI::AtkUnitBase
+    funcs:
+      0x1411B71E0: ctor
   Client::UI::AddonGSInfoMinionBattle:
     vtbls:
       - ea: 0x141AB8DC8
@@ -7943,6 +8412,72 @@ classes:
         base: Component::GUI::AtkUnitBase
     funcs:
       0x1411C5460: ctor
+  Client::UI::AddonInventory:
+    vtbls:
+      - ea: 0x141A4F000
+        base: Component::GUI::AtkUnitBase
+    funcs:
+      0x140E988E0: ctor
+  Client::UI::AddonInventoryBuddy:
+    vtbls:
+      - ea: 0x141A72300
+        base: Component::GUI::AtkUnitBase
+    funcs:
+      0x140FDB130: ctor
+  Client::UI::AddonInventoryEvent:
+    vtbls:
+      - ea: 0x141A4FB98
+        base: Component::GUI::AtkUnitBase
+    funcs:
+      0x140E9EB10: ctor
+  Client::UI::AddonInventoryExpansion:
+    vtbls:
+      - ea: 0x141A4FE10
+        base: Component::GUI::AtkUnitBase
+    funcs:
+      0x140EA01D0: ctor
+  Client::UI::AddonInventoryLarge:
+    vtbls:
+      - ea: 0x141A4F6E8
+        base: Component::GUI::AtkUnitBase
+    funcs:
+      0x140E9BA50: ctor
+  Client::UI::AddonInventoryRetainer:
+    vtbls:
+      - ea: 0x141A50730
+        base: Component::GUI::AtkUnitBase
+    funcs:
+      0x140EA4280: ctor
+  Client::UI::AddonInventoryRetainerLarge:
+    vtbls:
+      - ea: 0x141A50E18
+        base: Component::GUI::AtkUnitBase
+    funcs:
+      0x140EA7AA0: ctor
+  Client::UI::AddonLovmPaletteEdit:
+    vtbls:
+      - ea: 0x141ABDC38
+        base: Component::GUI::AtkUnitBase
+    funcs:
+      0x1411CEEE0: ctor
+  Client::UI::AddonMinionMountBase:
+    vtbls:
+      - ea: 0x141A54918
+        base: Component::GUI::AtkUnitBase
+    funcs:
+      0x140ED8750: ctor
+  Client::UI::AddonMinionNoteBook:
+    vtbls:
+      - ea: 0x141A54BE8
+        base: Client::UI::AddonMinionMountBase
+    funcs:
+      0x140EDDB20: ctor
+  Client::UI::AddonMountNoteBook:
+    vtbls:
+      - ea: 0x141A54EB8
+        base: Client::UI::AddonMinionMountBase
+    funcs:
+      0x140EDFB30: ctor
   Client::Game::Fate::FateDirector:
     vtbls:
       - ea: 0x141AC3A30
@@ -8252,6 +8787,7 @@ classes:
     vtbls:
       - ea: 0x141ACD3F8
     funcs:
+      0x1412CBBA0: GetHeightAdjustActionTimelineRowId
       0x14133A3C0: CreateInstance
       0x14133A410: ctor
     instances:
@@ -8296,6 +8832,29 @@ classes:
     funcs:
       0x1414803A0: ctor
       0x1414808F0: GetResourceData
+  Client::System::Scheduler::Base::BaseInstanceObject:
+    vtbls:
+      - ea: 0x141AD0250
+  Client::System::Scheduler::SchedulerInstanceObject:
+    vtbls:
+      - ea: 0x141AD04A0
+        base: Client::System::Scheduler::Base::BaseInstanceObject
+  Client::System::Scheduler::Instance::VfxObject:
+    vtbls:
+      - ea: 0x141BC80C0
+        base: Client::System::Scheduler::SchedulerInstanceObject
+  Client::System::Scheduler::Instance::BgObject:
+    vtbls:
+      - ea: 0x141BC8730
+        base: Client::System::Scheduler::SchedulerInstanceObject
+  Client::System::Scheduler::Instance::LightObject:
+    vtbls:
+      - ea: 0x141BC8A58
+        base: Client::System::Scheduler::SchedulerInstanceObject
+  Client::System::Scheduler::Instance::WeaponObject:
+    vtbls:
+      - ea: 0x141BC8D68
+        base: Client::System::Scheduler::SchedulerInstanceObject
   Client::System::Scheduler::Clip::BaseClip:
     vtbls:
       - ea: 0x141BCA000

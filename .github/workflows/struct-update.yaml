@@ -24,7 +24,7 @@ jobs:
         run: dotnet run --project CExporter/CExporter.csproj -c Release
       - name: Check for changes
         id: git-check
-        run: |          
+        run: |
           echo "========== check paths of modified files =========="
           git diff --name-only -- ida > files.txt
           echo "=============== list modified files ==============="

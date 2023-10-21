@@ -20,46 +20,48 @@ public unsafe partial struct Character {
 
     #region This is inside a new 0x48 byte class at offset 0x1A8
 
-    [FieldOffset(0x1B0), Obsolete("Use CharacterData.ModelScale", false)] public float ModelScale;
-    [FieldOffset(0x1B4), Obsolete("Use CharacterData.ModelCharaId", false)] public int ModelCharaId;
-    [FieldOffset(0x1B8), Obsolete("Use CharacterData.ModelSkeletonId", false)] public int ModelSkeletonId;
-    [FieldOffset(0x1BC), Obsolete("Use CharacterData.ModelCharaId_2", false)] public int ModelCharaId_2; // == -1 -> return ModelCharaId
-    [FieldOffset(0x1C0), Obsolete("Use CharacterData.ModelSkeletonId_2", false)] public int ModelSkeletonId_2; // == 0 -> return ModelSkeletonId
+    [FieldOffset(0x1B0), Obsolete("Use CharacterData.ModelScale", true)] public float ModelScale;
+    [FieldOffset(0x1B4), Obsolete("Use CharacterData.ModelCharaId", true)] public int ModelCharaId;
+    [FieldOffset(0x1B8), Obsolete("Use CharacterData.ModelSkeletonId", true)] public int ModelSkeletonId;
+    [FieldOffset(0x1BC), Obsolete("Use CharacterData.ModelCharaId_2", true)] public int ModelCharaId_2; // == -1 -> return ModelCharaId
+    [FieldOffset(0x1C0), Obsolete("Use CharacterData.ModelSkeletonId_2", true)] public int ModelSkeletonId_2; // == 0 -> return ModelSkeletonId
 
-    [FieldOffset(0x1C4), Obsolete("Use CharacterData.Health", false)] public uint Health;
-    [FieldOffset(0x1C8), Obsolete("Use CharacterData.MaxHealth", false)] public uint MaxHealth;
-    [FieldOffset(0x1CC), Obsolete("Use CharacterData.Mana", false)] public uint Mana;
-    [FieldOffset(0x1D0), Obsolete("Use CharacterData.MaxMana", false)] public uint MaxMana;
-    [FieldOffset(0x1D4), Obsolete("Use CharacterData.GatheringPoints", false)] public ushort GatheringPoints;
-    [FieldOffset(0x1D6), Obsolete("Use CharacterData.MaxGatheringPoints", false)] public ushort MaxGatheringPoints;
-    [FieldOffset(0x1D8), Obsolete("Use CharacterData.CraftingPoints", false)] public ushort CraftingPoints;
-    [FieldOffset(0x1DA), Obsolete("Use CharacterData.MaxCraftingPoints", false)] public ushort MaxCraftingPoints;
-    [FieldOffset(0x1DC), Obsolete("Use CharacterData.TransformationId", false)] public short TransformationId;
-    [FieldOffset(0x1DE), Obsolete("Use CharacterData.StatusEffectVFXId", false)] public short StatusEffectVFXId; // outdated since TitleID moved here
-    [FieldOffset(0x1DE), Obsolete("Use CharacterData.TitleID", false)] public ushort TitleID;
+    [FieldOffset(0x1C4), Obsolete("Use CharacterData.Health", true)] public uint Health;
+    [FieldOffset(0x1C8), Obsolete("Use CharacterData.MaxHealth", true)] public uint MaxHealth;
+    [FieldOffset(0x1CC), Obsolete("Use CharacterData.Mana", true)] public uint Mana;
+    [FieldOffset(0x1D0), Obsolete("Use CharacterData.MaxMana", true)] public uint MaxMana;
+    [FieldOffset(0x1D4), Obsolete("Use CharacterData.GatheringPoints", true)] public ushort GatheringPoints;
+    [FieldOffset(0x1D6), Obsolete("Use CharacterData.MaxGatheringPoints", true)] public ushort MaxGatheringPoints;
+    [FieldOffset(0x1D8), Obsolete("Use CharacterData.CraftingPoints", true)] public ushort CraftingPoints;
+    [FieldOffset(0x1DA), Obsolete("Use CharacterData.MaxCraftingPoints", true)] public ushort MaxCraftingPoints;
+    [FieldOffset(0x1DC), Obsolete("Use CharacterData.TransformationId", true)] public short TransformationId;
+    [FieldOffset(0x1DE), Obsolete("Use CharacterData.StatusEffectVFXId", true)] public short StatusEffectVFXId; // outdated since TitleID moved here
+    [FieldOffset(0x1DE), Obsolete("Use CharacterData.TitleID", true)] public ushort TitleID;
 
-    [FieldOffset(0x1E2), Obsolete("Use CharacterData.ClassJob", false)] public byte ClassJob;
-    [FieldOffset(0x1E3), Obsolete("Use CharacterData.Level", false)] public byte Level;
+    [FieldOffset(0x1E2), Obsolete("Use CharacterData.ClassJob", true)] public byte ClassJob;
+    [FieldOffset(0x1E3), Obsolete("Use CharacterData.Level", true)] public byte Level;
 
-    [FieldOffset(0x1ED), Obsolete("Use CharacterData.ShieldValue", false)] public byte ShieldValue;
+    [FieldOffset(0x1ED), Obsolete("Use CharacterData.ShieldValue", true)] public byte ShieldValue;
 
-    [FieldOffset(0x1EF), Obsolete("Use CharacterData.OnlineStatus", false)] public byte OnlineStatus;
+    [FieldOffset(0x1EF), Obsolete("Use CharacterData.OnlineStatus", true)] public byte OnlineStatus;
 
     #endregion
 
-    [FieldOffset(0x641)] public byte CPoseState;
+    [FieldOffset(0x620)] public EmoteController EmoteController;
+
+    [FieldOffset(0x641), Obsolete("Use EmoteController.CPoseState", true)] public byte CPoseState;
     [FieldOffset(0x660)] public MountContainer Mount;
     [FieldOffset(0x6C8)] public CompanionContainer Companion;
     [FieldOffset(0x6E8)] public DrawDataContainer DrawData;
 
-    [Obsolete($"Use {nameof(DrawData)}"), FieldOffset(0x830)] public fixed byte EquipSlotData[4 * 10];
-    [Obsolete($"Use {nameof(DrawData)}.CustomizeData"), FieldOffset(0x858)] public fixed byte CustomizeData[0x1A];
+    [Obsolete($"Use {nameof(DrawData)}", true), FieldOffset(0x830)] public fixed byte EquipSlotData[4 * 10];
+    [Obsolete($"Use {nameof(DrawData)}.CustomizeData", true), FieldOffset(0x858)] public fixed byte CustomizeData[0x1A];
 
     [FieldOffset(0x878)] public OrnamentContainer Ornament;
     [FieldOffset(0x8E0)] public ReaperShroudContainer ReaperShroud;
     [FieldOffset(0x920)] public ActionTimelineManager ActionTimelineManager;
 
-    [Obsolete($"Use {nameof(LookTargetId)} instead.")]
+    [Obsolete($"Use {nameof(LookTargetId)} instead.", true)]
     [FieldOffset(0xCB0)] public uint PlayerTargetObjectID;
 
     /// <summary>
@@ -92,7 +94,7 @@ public unsafe partial struct Character {
     /// </remarks>
     [FieldOffset(0x1AB0)] public GameObjectID CombatTaggerId;
 
-    [Obsolete($"Use {nameof(TargetId)} instead.")]
+    [Obsolete($"Use {nameof(TargetId)} instead.", true)]
     [FieldOffset(0x1AB8)] public ulong TargetObjectID;
 
     /// <summary>
@@ -199,7 +201,7 @@ public unsafe partial struct Character {
     [MemberFunction("E8 ?? ?? ?? ?? 0F B6 9F ?? ?? ?? ?? 48 8D 8F")]
     public partial ulong CopyFromCharacter(Character* source, CopyFlags flags);
 
-    [Obsolete("Use CopyFromCharacter(Character*, CopyFlags)")]
+    [Obsolete("Use CopyFromCharacter(Character*, CopyFlags)", true)]
     public ulong CopyFromCharacter(Character* source, uint flags) => CopyFromCharacter(source, (CopyFlags)flags);
 
     [MemberFunction("E8 ?? ?? ?? ?? 4C 8B 7F 48")]
@@ -214,6 +216,10 @@ public unsafe partial struct Character {
     /// <summary> Can only be used for Mounts, Minions, and Ornaments. Literally just checks if the game object at index - 1 is a character and returns that. </summary>
     [MemberFunction("E8 ?? ?? ?? ?? 48 85 C0 48 0F 45 F8")]
     public partial Character* GetParentCharacter();
+
+    /// <summary> Uses TransformationId, Clan, BodyType, Gender and Height as well as RSP scaling values to calculate current height.  </summary>
+    [MemberFunction("E8 ?? ?? ?? ?? F3 0F 59 C7 48 8B CE")]
+    public partial float CalculateHeight();
 
     [VirtualFunction(79)]
     public partial StatusManager* GetStatusManager();
@@ -252,7 +258,7 @@ public unsafe partial struct Character {
         //[FieldOffset(0x4C)] public uint TotalActionCounter?;
         //[FieldOffset(0x50)] public uint OwnActionCounter?;
 
-        [FieldOffset(0x58)] public fixed long ActionRecipientsObjectIdArray[32];
+        [FieldOffset(0x58)] public fixed ulong ActionRecipientsObjectIdArray[32];
         [FieldOffset(0x158)] public int ActionRecipientsCount;
     }
 
@@ -370,19 +376,19 @@ public unsafe partial struct Character {
         Ornament = 0x400000,
 
         // Unknowns included to improve readability of ToString, not to be used.
-        [Obsolete("do not use")] Unk000001 = 0x1,
-        [Obsolete("do not use")] Unk000008 = 0x8, // Copies Character+0x1B24
-        [Obsolete("do not use")] Unk000010 = 0x10,
-        [Obsolete("do not use")] Unk000040 = 0x40,
-        [Obsolete("do not use")] Unk000100 = 0x100,
-        [Obsolete("do not use")] Unk000200 = 0x200,
-        [Obsolete("do not use")] Unk000800 = 0x800,
-        [Obsolete("do not use")] Unk002000 = 0x2000,
-        [Obsolete("do not use")] Unk004000 = 0x4000,
-        [Obsolete("do not use")] Unk008000 = 0x8000, // Copies Character+0xBFC
-        [Obsolete("do not use")] Unk020000 = 0x20000,
-        [Obsolete("do not use")] Unk040000 = 0x40000,
-        [Obsolete("do not use")] Unk080000 = 0x80000,
-        [Obsolete("do not use")] Unk100000 = 0x100000,
+        [Obsolete("do not use", true)] Unk000001 = 0x1,
+        [Obsolete("do not use", true)] Unk000008 = 0x8, // Copies Character+0x1B24
+        [Obsolete("do not use", true)] Unk000010 = 0x10,
+        [Obsolete("do not use", true)] Unk000040 = 0x40,
+        [Obsolete("do not use", true)] Unk000100 = 0x100,
+        [Obsolete("do not use", true)] Unk000200 = 0x200,
+        [Obsolete("do not use", true)] Unk000800 = 0x800,
+        [Obsolete("do not use", true)] Unk002000 = 0x2000,
+        [Obsolete("do not use", true)] Unk004000 = 0x4000,
+        [Obsolete("do not use", true)] Unk008000 = 0x8000, // Copies Character+0xBFC
+        [Obsolete("do not use", true)] Unk020000 = 0x20000,
+        [Obsolete("do not use", true)] Unk040000 = 0x40000,
+        [Obsolete("do not use", true)] Unk080000 = 0x80000,
+        [Obsolete("do not use", true)] Unk100000 = 0x100000,
     }
 }

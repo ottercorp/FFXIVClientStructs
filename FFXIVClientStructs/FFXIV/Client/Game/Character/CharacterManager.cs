@@ -2,7 +2,7 @@ namespace FFXIVClientStructs.FFXIV.Client.Game.Character;
 
 [StructLayout(LayoutKind.Explicit, Size = 0x338)]
 public unsafe partial struct CharacterManager {
-    [Obsolete("Use BattleCharaListSpan")]
+    [Obsolete("Use BattleCharaListSpan", true)]
     [FieldOffset(0x00)] public fixed long BattleCharaArray[100];
     [FixedSizeArray<Pointer<BattleChara>>(100)]
     [FieldOffset(0x00)] public fixed byte BattleCharaList[100 * 8];
@@ -16,7 +16,7 @@ public unsafe partial struct CharacterManager {
     public static partial CharacterManager* Instance();
 
     [MemberFunction("E8 ?? ?? ?? ?? 48 89 84 1D")]
-    public partial BattleChara* LookupBattleCharaByObjectId(int objectId);
+    public partial BattleChara* LookupBattleCharaByObjectId(uint objectId);
 
     [MemberFunction("E8 ?? ?? ?? ?? 48 8B F8 48 85 C0 74 3A 0F B7 4C 24")]
     [GenerateCStrOverloads]

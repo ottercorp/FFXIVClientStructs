@@ -8,7 +8,10 @@ namespace FFXIVClientStructs.FFXIV.Client.System.Resource.Handle;
 public unsafe partial struct ResourceHandle {
     [FieldOffset(0x00)] public void* vtbl;
     [FieldOffset(0x00)] public void** vfunc;
-    [FieldOffset(0x08)] public ResourceCategory Category;
+
+    [FieldOffset(0x08)] public ResourceCategory Category; // First byte in SqPack name, but stored as ushort
+    [FieldOffset(0x0A)] public byte Unknown0A; // Third byte in SqPack name
+    [FieldOffset(0x0B)] public byte Expansion; // Second byte in SqPack name. Specifies SqPack folder: 0 = ffxiv, 1 = ex1, 2 = ex2, ...
 
     [FieldOffset(0x0C)] public uint FileType; // "txt" "uld" etc from the header
     [FieldOffset(0x10)] public uint Id;
@@ -17,7 +20,10 @@ public unsafe partial struct ResourceHandle {
     [FieldOffset(0x2C)] public uint FileSize2;
     [FieldOffset(0x34)] public uint FileSize3;
 
+    [FieldOffset(0x6C)] public byte UserData;
+
     [FieldOffset(0x48)] public StdString FileName; // std::string
+    [FieldOffset(0xA9)] public byte LoadState;
     [FieldOffset(0xAC)] public uint RefCount;
 
     public ReadOnlySpan<byte> GetDataSpan() {
@@ -38,9 +44,18 @@ public unsafe partial struct ResourceHandle {
     [MemberFunction("E8 ?? ?? ?? ?? 41 8B 46 30 C1 E0 05")]
     public partial bool IncRef();
 
-    [VirtualFunction(23u)]
-    public partial byte* GetData();
+    [VirtualFunction(6u)]
+    public partial byte GetUserData();
 
     [VirtualFunction(17u)]
     public partial ulong GetLength();
+
+    [VirtualFunction(23u)]
+    public partial byte* GetData();
+
+    [VirtualFunction(31u)]
+    public partial bool LoadIntoKernel();
+
+    [VirtualFunction(33u)]
+    public partial bool Load(void* contents, bool flag);
 }
