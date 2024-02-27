@@ -1,26 +1,31 @@
+using FFXIVClientStructs.FFXIV.Client.System.Input.SoftKeyboards;
 using FFXIVClientStructs.FFXIV.Client.UI;
-using FFXIVClientStructs.FFXIV.Component.Exd;
 
 namespace FFXIVClientStructs.FFXIV.Component.GUI;
 
 // Component::GUI::AtkModule
 //   Component::GUI::AtkModuleInterface
-[StructLayout(LayoutKind.Explicit, Size = 0x8250)]
+[StructLayout(LayoutKind.Explicit, Size = 0x82A0)]
 public unsafe partial struct AtkModule {
-    [FieldOffset(0x0)] public void* vtbl;
+    [FieldOffset(0x0), CExportIgnore] public void* vtbl;
 
     [FieldOffset(0x128)] public AtkStage* AtkStage;
+    // [FieldOffset(0x130)] public AtkServer* AtkServer;
 
-    [FieldOffset(0x210)] public AtkTextureResourceManager AtkTextureResourceManager;
+    [FieldOffset(0x250)] public AtkTextureResourceManager AtkTextureResourceManager;
 
-    [FieldOffset(0x268)] public RaptureAtkUnitManager* RaptureAtkUnitManager;
+    [FieldOffset(0x2A8)] public RaptureAtkUnitManager* RaptureAtkUnitManager;
 
-    [FieldOffset(0x1B10)] public AtkUnitBase* IntersectingAddon;
-    [FieldOffset(0x1B18)] public AtkCollisionNode* IntersectingCollisionNode;
+    [FieldOffset(0x1B58)] public AtkUnitBase* IntersectingAddon;
+    [FieldOffset(0x1B60)] public AtkCollisionNode* IntersectingCollisionNode;
 
-    [FieldOffset(0x1B48)] public AtkArrayDataHolder AtkArrayDataHolder;
+    [FieldOffset(0x1B90)] public AtkArrayDataHolder AtkArrayDataHolder;
 
-    [FieldOffset(0x5C7C)] public byte ActiveColorThemeType;
+    [FieldOffset(0x5CC4)] public byte ActiveColorThemeType;
+
+    // probably an #IFDEF WINDOWS here or something specifically creating a Steam keyboard.
+    // hope they don't add more soft keyboards later!
+    [FieldOffset(0x8150)] public SteamGamepadSoftKeyboard SoftKeyboardDevice;
 
     [VirtualFunction(9)]
     public partial NumberArrayData* GetNumberArrayData(int index);

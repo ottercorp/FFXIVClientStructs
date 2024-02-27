@@ -4,53 +4,16 @@ using FFXIVClientStructs.FFXIV.Common.Math;
 
 namespace FFXIVClientStructs.FFXIV.Component.GUI;
 
-public enum NodeType : ushort {
-    Res = 1,
-    Image = 2,
-    Text = 3,
-    NineGrid = 4,
-    Counter = 5,
-
-    Collision = 8
-    // Component: >=1000
-}
-
-// 'visible' will change visibility immediately, the rest rely on other stuff to happen so they dont do anything
-// top and bottom assumed based on a scrollbar, lots of left-aligned text has AnchorLeft set
-[Flags]
-public enum NodeFlags : ushort {
-    AnchorTop = 0x01,
-    AnchorLeft = 0x02,
-    AnchorBottom = 0x04,
-    AnchorRight = 0x08,
-    Visible = 0x10,
-    Enabled = 0x20, // this is like, "button can be clicked" etc
-    Clip = 0x40,
-    Fill = 0x80,
-
-    HasCollision =
-        0x100, // set if node type == 8, might be "HasCollision", also set if Unk2 first bit is set (https://github.com/NotAdam/Lumina/blob/714a1d8b9c4e182b411e7c68330d49a5dfccb9bc/src/Lumina/Data/Parsing/Uld/UldRoot.cs#L273)
-    RespondToMouse = 0x200, // this also gets set if the above flag is set
-    Focusable = 0x400,
-    Droppable = 0x800,
-    IsTopNode = 0x1000,
-    EmitsEvents = 0x2000,
-    UseDepthBasedPriority = 0x4000,
-    UnkFlag2 = 0x8000
-}
-
 // Component::GUI::AtkResNode
 //   Component::GUI::AtkEventTarget
-
+// ctor "E9 ?? ?? ?? ?? 33 C0 48 83 C4 20 5B C3 66 90"
 // base class for all UI "nodes" which represent elements of the UI
-
-// size = 0xA8
-// ctor E9 ?? ?? ?? ?? 33 C0 48 83 C4 20 5B C3 66 90 
-[StructLayout(LayoutKind.Explicit, Size = 0xA8)]
+[StructLayout(LayoutKind.Explicit, Size = 0xB0)]
 public unsafe partial struct AtkResNode : ICreatable {
     [FieldOffset(0x0)] public AtkEventTarget AtkEventTarget;
     [FieldOffset(0x8)] public uint NodeID;
-    [FieldOffset(0x10)] public void* TimelineObject; // Component::GUI::AtkTimeline???
+    [FieldOffset(0x10), Obsolete("Use Timeline")] public void* TimelineObject;
+    [FieldOffset(0x10)] public AtkTimeline* Timeline;
 
     [FieldOffset(0x18)] public AtkEventManager AtkEventManager; // holds events registered to this node
 
@@ -66,7 +29,6 @@ public unsafe partial struct AtkResNode : ICreatable {
     [FieldOffset(0x4C)] public float ScaleX;
     [FieldOffset(0x50)] public float ScaleY;
     [FieldOffset(0x54)] public float Rotation; // radians (file is degrees)
-    [FieldOffset(0x58), Obsolete("Use Transform or ScreenX, ScreenY", true)] public fixed float UnkMatrix[3 * 2];
     [FieldOffset(0x58)] public Matrix2x2 Transform;
     [FieldOffset(0x68)] public float ScreenX;
     [FieldOffset(0x6C)] public float ScreenY;
@@ -76,12 +38,12 @@ public unsafe partial struct AtkResNode : ICreatable {
     // not sure what the _2s are for, the regular ones are loaded from the file
     [FieldOffset(0x74)] public float Depth;
     [FieldOffset(0x78)] public float Depth_2;
-    [FieldOffset(0x7C)] public ushort AddRed;
-    [FieldOffset(0x7E)] public ushort AddGreen;
-    [FieldOffset(0x80)] public ushort AddBlue;
-    [FieldOffset(0x82)] public ushort AddRed_2;
-    [FieldOffset(0x84)] public ushort AddGreen_2;
-    [FieldOffset(0x86)] public ushort AddBlue_2;
+    [FieldOffset(0x7C)] public short AddRed;
+    [FieldOffset(0x7E)] public short AddGreen;
+    [FieldOffset(0x80)] public short AddBlue;
+    [FieldOffset(0x82)] public short AddRed_2;
+    [FieldOffset(0x84)] public short AddGreen_2;
+    [FieldOffset(0x86)] public short AddBlue_2;
     [FieldOffset(0x88)] public byte MultiplyRed;
     [FieldOffset(0x89)] public byte MultiplyGreen;
     [FieldOffset(0x8A)] public byte MultiplyBlue;
@@ -93,15 +55,19 @@ public unsafe partial struct AtkResNode : ICreatable {
     [FieldOffset(0x90)] public ushort Width;
     [FieldOffset(0x92)] public ushort Height;
     [FieldOffset(0x94)] public float OriginX;
-
     [FieldOffset(0x98)] public float OriginY;
 
     // asm accesses these fields together so this is one 32bit field with priority+flags
     [FieldOffset(0x9C)] public ushort Priority;
-    [Obsolete("Use NodeFlags", true)]
-    [FieldOffset(0x9E)] public short Flags;
     [FieldOffset(0x9E)] public NodeFlags NodeFlags;
-    [FieldOffset(0xA0)] public uint Flags_2; // bit 1 = has changes, ClipCount is bits 10-17, idk its a mess
+    /// <summary>
+    /// <term>Bit 1 [0x1]</term> Is dirty (has updates to be drawn)<br/>
+    /// <term>Bit 2 [0x2]</term> Is undergoing timeline animation (?)<br/>
+    /// <term>Bit 3 [0x4]</term> Calculate transformation<br/>
+    /// <term>Bit 9 [0x100]</term> Don't make visible on new timeline label<br/>
+    /// <term>Bits 10-17</term> ClipCount<br/>
+    /// <term>Bit 24 [0x800000]</term> Use elliptical collision instead of rectangular
+    /// </summary>
     [FieldOffset(0xA0)] public uint DrawFlags;
 
     public bool IsVisible => NodeFlags.HasFlag(NodeFlags.Visible);
@@ -174,6 +140,9 @@ public unsafe partial struct AtkResNode : ICreatable {
         RemoveEvent((ushort)eventType, eventParam, listener, isSystemEvent);
     }
 
+    [MemberFunction("E8 ?? ?? ?? ?? 8B 5C 24 2C")]
+    public partial void GetBounds(Bounds* outBounds);
+
     [MemberFunction("48 85 C9 74 0B 8B 41 44")]
     public partial void GetPositionFloat(float* outX, float* outY);
 
@@ -195,7 +164,7 @@ public unsafe partial struct AtkResNode : ICreatable {
     [MemberFunction("E8 ?? ?? ?? ?? 49 8D 7E 1E")]
     public partial float GetScaleY();
 
-    [MemberFunction("E8 ?? ?? ?? ?? 48 8D 7F 38")]
+    [MemberFunction("E8 ?? ?? ?? ?? F3 41 0F 58 F9")]
     public partial void SetScale(float X, float Y);
 
     [MemberFunction("E9 ?? ?? ?? ?? F3 0F 5E CA")]
@@ -231,6 +200,9 @@ public unsafe partial struct AtkResNode : ICreatable {
     [MemberFunction("E8 ?? ?? ?? ?? 48 83 C7 08 48 83 EB 01 75 DC")]
     public partial void ToggleVisibility(bool enable);
 
+    [MemberFunction("E8 ?? ?? ?? ?? 45 33 F6 48 8D B3 48 05 00 00")]
+    public partial void SetAlpha(byte alpha);
+
     [MemberFunction("E8 ?? ?? ?? ?? 66 85 C0 75 48")]
     public partial ushort GetPriority();
 
@@ -240,6 +212,54 @@ public unsafe partial struct AtkResNode : ICreatable {
     [MemberFunction("E8 ?? ?? ?? ?? FF C6 3B F5 72 E5 BA ?? ?? ?? ??")]
     public partial void SetUseDepthBasedPriority(bool enable);
 
+    [MemberFunction("E8 ?? ?? ?? ?? 66 83 F8 66 75 3F")]
+    public partial ushort GetTimelineLabel();
+
+    [MemberFunction("48 85 C9 74 12 48 8B 41 10")]
+    public partial void EnableTimeline();
+
+    [MemberFunction("E8 ?? ?? ?? ?? 40 FE C5 49 83 C7 04")]
+    public partial void DisableTimeline();
+
     [VirtualFunction(1)]
     public partial void Destroy(bool free);
+
+    [VirtualFunction(2)]
+    public partial void UpdateFromTimeline();
+}
+
+public enum NodeType : ushort {
+    Res = 1,
+    Image = 2,
+    Text = 3,
+    NineGrid = 4,
+    Counter = 5,
+
+    Collision = 8,
+    UnknownNode10 = 10 // new 6.5
+    // Component: >=1000
+}
+
+// 'visible' will change visibility immediately, the rest rely on other stuff to happen so they dont do anything
+// top and bottom assumed based on a scrollbar, lots of left-aligned text has AnchorLeft set
+[Flags]
+public enum NodeFlags : ushort {
+    AnchorTop = 0x01,
+    AnchorLeft = 0x02,
+    AnchorBottom = 0x04,
+    AnchorRight = 0x08,
+    Visible = 0x10,
+    Enabled = 0x20, // this is like, "button can be clicked" etc
+    Clip = 0x40,
+    Fill = 0x80,
+
+    HasCollision =
+        0x100, // set if node type == 8, might be "HasCollision", also set if Unk2 first bit is set (https://github.com/NotAdam/Lumina/blob/714a1d8b9c4e182b411e7c68330d49a5dfccb9bc/src/Lumina/Data/Parsing/Uld/UldRoot.cs#L273)
+    RespondToMouse = 0x200, // this also gets set if the above flag is set
+    Focusable = 0x400,
+    Droppable = 0x800,
+    IsTopNode = 0x1000,
+    EmitsEvents = 0x2000,
+    UseDepthBasedPriority = 0x4000,
+    UnkFlag2 = 0x8000
 }

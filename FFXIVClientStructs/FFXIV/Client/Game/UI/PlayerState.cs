@@ -3,86 +3,119 @@ using System.Numerics;
 namespace FFXIVClientStructs.FFXIV.Client.Game.UI;
 
 // Client::Game::UI::PlayerState
-// ctor "48 81 C1 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? C6 83 ?? ?? ?? ?? ??"
-[StructLayout(LayoutKind.Explicit, Size = 0x7E8)]
+// ctor "48 81 C1 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? C6 83"
+[StructLayout(LayoutKind.Explicit, Size = 0x818)]
 public unsafe partial struct PlayerState {
+    [StaticAddress("48 8D 0D ?? ?? ?? ?? 4D 8B F9", 3)]
+    public static partial PlayerState* Instance();
+
     [FieldOffset(0x00)] public byte IsLoaded;
     [FieldOffset(0x01)] public fixed byte CharacterName[64];
     [FieldOffset(0x41)] public fixed byte PSNOnlineID[17];
-    [FieldOffset(0x54)] public uint ObjectId;
-    [FieldOffset(0x58)] public ulong ContentId;
+    [FieldOffset(0x64)] public uint ObjectId;
+    [FieldOffset(0x68)] public ulong ContentId;
     /// <remarks>
     /// 0 = Duty penalty<br/>
     /// 1 = Unknown<br/>
     /// See also: <see cref="RouletteController.GetPenaltyRemainingInMinutes" />
     /// </remarks>
-    [FieldOffset(0x60)] public fixed uint PenaltyTimestamps[2];
+    [FieldOffset(0x70)] public fixed uint PenaltyTimestamps[2];
 
-    [FieldOffset(0x69)] public byte MaxLevel;
-    [FieldOffset(0x6A)] public byte MaxExpansion;
-    [FieldOffset(0x6B)] public byte Sex;
-    [FieldOffset(0x6C)] public byte Race;
-    [FieldOffset(0x6D)] public byte Tribe;
-    [FieldOffset(0x6E)] public byte CurrentClassJobId;
-    [FieldOffset(0x78)] public short CurrentLevel;
+    [FieldOffset(0x79)] public byte MaxLevel;
+    [FieldOffset(0x7A)] public byte MaxExpansion;
+    [FieldOffset(0x7B)] public byte Sex;
+    [FieldOffset(0x7C)] public byte Race;
+    [FieldOffset(0x7D)] public byte Tribe;
+    [FieldOffset(0x7E)] public byte CurrentClassJobId;
 
-    [FieldOffset(0x7A)] public fixed short ClassJobLevelArray[30];
-    [FieldOffset(0xB8)] public fixed int ClassJobExpArray[30];
+    [FieldOffset(0x80)] public nint CurrentClassJobRow;
+    [FieldOffset(0x88)] public short CurrentLevel;
+    [FieldOffset(0x8A)] public fixed short ClassJobLevelArray[32];
 
-    [FieldOffset(0x130)] public short SyncedLevel;
-    [FieldOffset(0x132)] public byte IsLevelSynced;
-    [FieldOffset(0x133)] public bool HasPremiumSaddlebag;
+    [FieldOffset(0xCC)] public fixed int ClassJobExpArray[32];
+    [FieldOffset(0x14C)] public short SyncedLevel;
+    [FieldOffset(0x14E)] public byte IsLevelSynced;
+    [FieldOffset(0x14F)] public bool HasPremiumSaddlebag;
 
-    [FieldOffset(0x136)] public byte GuardianDeity;
-    [FieldOffset(0x137)] public byte BirthMonth;
-    [FieldOffset(0x138)] public byte BirthDay;
-    [FieldOffset(0x139)] public byte FirstClass;
-    [FieldOffset(0x13A)] public byte StartTown;
-    [FieldOffset(0x13B)] public byte QuestSpecialFlags;
+    [FieldOffset(0x152)] public byte GuardianDeity;
+    [FieldOffset(0x153)] public byte BirthMonth;
+    [FieldOffset(0x154)] public byte BirthDay;
+    [FieldOffset(0x155)] public byte FirstClass;
+    [FieldOffset(0x156)] public byte StartTown;
+    [FieldOffset(0x157)] public byte QuestSpecialFlags;
+    [FieldOffset(0x158)] public fixed ushort ActiveFestivalIds[4];
+    [FieldOffset(0x160)] public fixed ushort ActiveFestivalPhases[4];
 
-    [FieldOffset(0x154)] public int BaseStrength;
-    [FieldOffset(0x158)] public int BaseDexterity;
-    [FieldOffset(0x15C)] public int BaseVitality;
-    [FieldOffset(0x160)] public int BaseIntelligence;
-    [FieldOffset(0x164)] public int BaseMind;
-    [FieldOffset(0x168)] public int BasePiety;
-    [FieldOffset(0x16C)] public fixed int Attributes[74];
+    [FieldOffset(0x170)] public int BaseStrength;
+    [FieldOffset(0x174)] public int BaseDexterity;
+    [FieldOffset(0x178)] public int BaseVitality;
+    [FieldOffset(0x17C)] public int BaseIntelligence;
+    [FieldOffset(0x180)] public int BaseMind;
+    [FieldOffset(0x184)] public int BasePiety;
+    [FieldOffset(0x188)] public fixed int Attributes[74];
+    [FieldOffset(0x2B0)] public byte GrandCompany;
+    [FieldOffset(0x2B1)] public byte GCRankMaelstrom;
+    [FieldOffset(0x2B2)] public byte GCRankTwinAdders;
+    [FieldOffset(0x2B3)] public byte GCRankImmortalFlames;
+    [FieldOffset(0x2B4)] public ushort HomeAetheryteId;
+    [FieldOffset(0x2B6)] public byte FavouriteAetheryteCount;
+    [FieldOffset(0x2B8)] public fixed ushort FavouriteAetheryteArray[4];
+    [FieldOffset(0x2C0)] public ushort FreeAetheryteId;
+    [FieldOffset(0x2C2)] public ushort FreeAetherytePlayStationPlus;
+    [FieldOffset(0x2C4)] public uint BaseRestedExperience;
 
-    [FieldOffset(0x294)] public byte GrandCompany;
-    [FieldOffset(0x295)] public byte GCRankMaelstrom;
-    [FieldOffset(0x296)] public byte GCRankTwinAdders;
-    [FieldOffset(0x297)] public byte GCRankImmortalFlames;
-    [FieldOffset(0x298)] public byte HomeAetheryteId;
-    [FieldOffset(0x299)] public byte FavouriteAetheryteCount;
-    [FieldOffset(0x29A)] public fixed byte FavouriteAetheryteArray[4];
-    [FieldOffset(0x29E)] public byte FreeAetheryteId;
+    // Size: (MountSheet.Max(row => row.Order) + 7) >> 3
+    /// <remarks> Use <see cref="IsMountUnlocked"/> </remarks>
+    [FieldOffset(0x2DD)] public fixed byte OwnedMountsBitmask[(280 + 7) >> 3];
+    // Size: (OrnamentSheet.RowCount + 7) >> 3
+    /// <remarks> Use <see cref="IsOrnamentUnlocked"/> </remarks>
+    [FieldOffset(0x300)] public fixed byte UnlockedOrnamentsBitmask[(41 + 7) >> 3];
+    [FieldOffset(0x306)] public byte NumOwnedMounts;
 
-    [FieldOffset(0x2A0)] public uint BaseRestedExperience;
+    // Ref: "48 8D 0D ?? ?? ?? ?? 41 0F B6 0C 08 41 B0 01 84 D1 0F 95 C1 24 01 02 C0 0A C8 41 0F B6 C4"
+    // Size: (FishParameterSheet.Count(row => row.IsInLog) + 7) >> 3
+    [FieldOffset(0x3B4)] public fixed byte CaughtFishBitmask[(1272 + 7) >> 3];
 
-    [FieldOffset(0x2E8)] public byte NumOwnedMounts;
+    [FieldOffset(0x458)] public uint NumFishCaught;
+    [FieldOffset(0x45C)] public uint FishingBait;
+    // Ref: "41 0F B6 04 00 D3 E2 84 D0 0F 95 85"
+    // Size: (SpearfishingNotebookSheet.RowCount + 7) >> 3
+    [FieldOffset(0x460)] public fixed byte UnlockedSpearfishingNotebookBitmask[(56 + 7) >> 3];
+    // Ref: "48 8D 0D ?? ?? ?? ?? 41 0F B6 0C 08 84 D1 40 0F"
+    // Size: (SpearfishingItemSheet.RowCount + 7) >> 3
+    [FieldOffset(0x467)] public fixed byte CaughtSpearfishBitmask[(287 + 7) >> 3];
 
-    [FieldOffset(0x438)] public uint NumFishCaught;
-    [FieldOffset(0x43C)] public uint FishingBait;
-
-    [FieldOffset(0x46C)] public uint NumSpearfishCaught;
+    [FieldOffset(0x48C)] public uint NumSpearfishCaught;
 
     /// <remarks>
     /// Index is column 27 of ContentRoulette sheet.<br/>
     /// See also: <see cref="RouletteController.IsRouletteComplete" />
     /// </remarks>
-    [FieldOffset(0x474)] public fixed byte ContentRouletteCompletion[12];
-    [FieldOffset(0x480)] public short PlayerCommendations;
+    [FieldOffset(0x494)] public fixed byte ContentRouletteCompletion[12];
+    [FieldOffset(0x4A0)] public short PlayerCommendations;
 
-    [FieldOffset(0x482)] public fixed byte SelectedPoses[7];
-    [FieldOffset(0x489)] public byte PlayerStateFlags1;
-    [FieldOffset(0x48A)] public byte PlayerStateFlags2;
-    [FieldOffset(0x48B)] public byte PlayerStateFlags3;
+    [FieldOffset(0x4A2)] public fixed byte SelectedPoses[7];
+    [FieldOffset(0x4A9)] public byte PlayerStateFlags1;
+    [FieldOffset(0x4AA)] public byte PlayerStateFlags2;
+    [FieldOffset(0x4AB)] public byte PlayerStateFlags3;
 
-    [FieldOffset(0x509)] public fixed byte UnlockFlags[44];
+    [FieldOffset(0x4D4)] public byte SightseeingLogUnlockState; // 0 = Not Unlocked, 1 = ARR Part 1, 2 = ARR Part 2
+    [FieldOffset(0x4D5)] public byte SightseeingLogUnlockStateEx; // 3 = Quest "Sights of the North" completed (= AdventureExPhase unlocked?)
+    // Ref: PlayerState.IsAdventureExPhaseComplete
+    // Size: (AdventureExPhaseSheet.RowCount + 7) >> 3
+    /// <remarks> Use <see cref="IsAdventureExPhaseComplete"/> </remarks>
+    [FieldOffset(0x4D6)] public fixed byte UnlockedAdventureExPhaseBitmask[(3 + 7) >> 3];
+
+    // Ref: PlayerState.IsAdventureComplete
+    // Size: (AdventureSheet.RowCount + 7) >> 3
+    /// <remarks> Use <see cref="IsAdventureComplete"/> </remarks>
+    [FieldOffset(0x500)] public fixed byte UnlockedAdventureBitmask[(295 + 7) >> 3];
+
+    [FieldOffset(0x529)] public fixed byte UnlockFlags[44];
 
     /// <summary>Carrier Level of Delivery Moogle Quests</summary>
-    [FieldOffset(0x539)] public byte DeliveryLevel;
-
+    [FieldOffset(0x559)] public byte DeliveryLevel;
+    // [FieldOffset(0x560)] public byte UnkWeddingPlanFlag; // see lua function "GetWeddingPlan"
     /// <summary>
     /// Flag containing information about which DoH job the player is specialized in.
     /// </summary>
@@ -92,39 +125,42 @@ public unsafe partial struct PlayerState {
     /// <see cref="IsMeisterFlagMaxCount" /><br/>
     /// <see cref="IsMeisterFlagAndHasSoulStoneEquipped" />
     /// </remarks>
-    [FieldOffset(0x53B)] public byte MeisterFlag;
+    [FieldOffset(0x55B)] public byte MeisterFlag;
 
-    [FieldOffset(0x540)] public uint SquadronMissionCompletionTimestamp;
-    [FieldOffset(0x544)] public uint SquadronTrainingCompletionTimestamp;
-    [FieldOffset(0x548)] public ushort ActiveGcArmyExpedition;
-    [FieldOffset(0x54A)] public ushort ActiveGcArmyTraining;
+    [FieldOffset(0x560)] public uint SquadronMissionCompletionTimestamp;
+    [FieldOffset(0x564)] public uint SquadronTrainingCompletionTimestamp;
+    [FieldOffset(0x568)] public ushort ActiveGcArmyExpedition;
+    [FieldOffset(0x56A)] public ushort ActiveGcArmyTraining;
+    [FieldOffset(0x56C)] public bool HasNewGcArmyCandidate; // see lua function "GcArmyIsNewCandidate"
+    // [FieldOffset(0x56D)] public bool UnkGcPvpMountActionCheck; // see "80 3D ?? ?? ?? ?? ?? 75 3C"
+
+    [FieldOffset(0x56E)] public fixed byte UnlockedMinerFolkloreTomeBitmask[2];
+    [FieldOffset(0x570)] public fixed byte UnlockedBotanistFolkloreTomeBitmask[2];
+    [FieldOffset(0x572)] public fixed byte UnlockedFishingFolkloreTomeBitmask[2];
 
     #region Weekly Bonus/Weekly Bingo/Wondrous Tails Fields (packet reader: "4C 8B D2 48 8D 81")
 
     /// <summary>RowIds of WeeklyBingoOrderData sheet</summary>
-    [FieldOffset(0x658)] public fixed byte WeeklyBingoOrderData[16];
+    [FieldOffset(0x67C)] public fixed byte WeeklyBingoOrderData[16];
     /// <summary>RowIds of WeeklyBingoRewardData sheet</summary>
-    [FieldOffset(0x668)] public fixed byte WeeklyBingoRewardData[4];
+    [FieldOffset(0x68C)] public fixed byte WeeklyBingoRewardData[4];
     /// <summary>Bitflags of placed stickers.</summary>
     /// <remarks>Use IsWeeklyBingoStickerPlaced(index) and WeeklyBingoNumPlacedStickers instead.</remarks>
-    [FieldOffset(0x66C)] private readonly ushort _weeklyBingoStickers;
+    [FieldOffset(0x690)] private readonly ushort _weeklyBingoStickers;
 
     /// <remarks>Use GetWeeklyBingoExpireUnixTimestamp(), WeeklyBingoNumSecondChancePoints and HasWeeklyBingoJournal instead</remarks>
-    [FieldOffset(0x670)] private readonly uint _weeklyBingoFlags;
-    [FieldOffset(0x674)] private fixed byte _weeklyBingoTaskStatus[4];
-    [FieldOffset(0x678)] public byte WeeklyBingoRequestOpenBingoNo;
+    [FieldOffset(0x694)] private readonly uint _weeklyBingoFlags;
+    [FieldOffset(0x698)] private fixed byte _weeklyBingoTaskStatus[4];
+    [FieldOffset(0x69C)] public byte WeeklyBingoRequestOpenBingoNo;
 
-    [FieldOffset(0x6B4)] public byte WeeklyBingoExpMultiplier;
-    [FieldOffset(0x6B5)] public bool WeeklyBingoUnk63;
+    [FieldOffset(0x6D8)] public byte WeeklyBingoExpMultiplier;
+    [FieldOffset(0x6D9)] public bool WeeklyBingoUnk63;
 
     #endregion
 
-    [FieldOffset(0x74C)] public byte MentorVersion; // latest is 2
+    [FieldOffset(0x770)] public byte MentorVersion; // latest is 2
 
-    [FieldOffset(0x750)] public fixed uint DesynthesisLevels[8];
-
-    [StaticAddress("48 8D 0D ?? ?? ?? ?? 4D 8B F9", 3)]
-    public static partial PlayerState* Instance();
+    [FieldOffset(0x774)] public fixed uint DesynthesisLevels[8];
 
     public bool IsLegacy => (QuestSpecialFlags & 1) != 0;
     public bool IsWarriorOfLight => (QuestSpecialFlags & 2) != 0;
@@ -137,9 +173,6 @@ public unsafe partial struct PlayerState {
 
     [MemberFunction("E8 ?? ?? ?? ?? BE ?? ?? ?? ?? 84 C0 75 0C")]
     public partial byte GetBeastTribeRank(byte beastTribeIndex);
-
-    [Obsolete("Use QuestManager.Instance()->GetBeastTribeAllowance() instead.", true)]
-    public static ulong GetBeastTribeAllowance() => QuestManager.Instance()->GetBeastTribeAllowance();
 
     /// <summary>
     /// Returns whether the player is possessing the maximum amount of specialized souls.
@@ -234,7 +267,7 @@ public unsafe partial struct PlayerState {
     /// </remarks>
     /// <param name="kitId">The kit ID to check for.</param>
     /// <returns>Returns true if the framer's kit is unlocked.</returns>
-    [MemberFunction("4C 8B C9 66 83 FA ?? 73")]
+    [MemberFunction("E9 ?? ?? ?? ?? 33 FF 0F 1F 40 00")]
     public partial bool IsFramersKitUnlocked(uint kitId);
 
     public bool IsAetherCurrentUnlocked(uint aetherCurrentId) {
@@ -252,6 +285,20 @@ public unsafe partial struct PlayerState {
     /// <param name="territoryTypeColumn32">Column 32 of TerritoryType</param>
     [MemberFunction("4C 8B C9 85 D2 74 48")]
     public partial bool IsAetherCurrentZoneComplete(uint territoryTypeColumn32);
+
+    /// <summary>
+    /// Check if all vistas of an expansion in the Sightseeing Log have been discovered.
+    /// </summary>
+    /// <param name="adventureExPhaseId">AdventureExPhase RowId</param>
+    [MemberFunction("E8 ?? ?? ?? ?? 88 84 24 ?? ?? ?? ?? 4D 85 F6")]
+    public partial bool IsAdventureExPhaseComplete(uint adventureExPhaseId);
+
+    /// <summary>
+    /// Check if a Sightseeing Log vista has been discovered.
+    /// </summary>
+    /// <param name="adventureId">Index of Row (= RowId - 2162688)</param>
+    [MemberFunction("81 FA ?? ?? ?? ?? 73 1F 0F B6 C2")]
+    public partial bool IsAdventureComplete(uint adventureId);
 
     #endregion
 
@@ -273,7 +320,7 @@ public unsafe partial struct PlayerState {
     /// 5 = whether player is in possession of the journal
     /// </param>
     [MemberFunction("E8 ?? ?? ?? ?? 3B C3 0F 93 C0")]
-    private partial uint _getWeeklyBingoFlagsValue(uint mode);
+    private partial uint GetWeeklyBingoFlagsValue(uint mode);
 
     /// <summary>Returns whether the Wondrous Tails Journal has expired or not.</summary>
     [MemberFunction("E8 ?? ?? ?? ?? 84 C0 74 1D 48 8B 4B 10")]
@@ -302,10 +349,10 @@ public unsafe partial struct PlayerState {
     public DateTime WeeklyBingoExpireDateTime => DateTime.UnixEpoch.AddSeconds(GetWeeklyBingoExpireUnixTimestamp());
 
     /// <summary>Returns the current number of second chance points.</summary>
-    public uint WeeklyBingoNumSecondChancePoints => _getWeeklyBingoFlagsValue(3);
+    public uint WeeklyBingoNumSecondChancePoints => GetWeeklyBingoFlagsValue(3);
 
     /// <summary>Returns whether the player is in possession of the journal or not.</summary>
-    public bool HasWeeklyBingoJournal => _getWeeklyBingoFlagsValue(5) != 0;
+    public bool HasWeeklyBingoJournal => GetWeeklyBingoFlagsValue(5) != 0;
 
     /// <summary>Returns the number of placed stickers.</summary>
     public int WeeklyBingoNumPlacedStickers => BitOperations.PopCount(_weeklyBingoStickers);
@@ -366,7 +413,6 @@ public enum PlayerStateFlag : uint {
     Unknown14 = 14,
 }
 
-
 public enum PoseType : byte {
     Idle = 0,
     WeaponDrawn = 1,
@@ -375,4 +421,4 @@ public enum PoseType : byte {
     Doze = 4,
     Umbrella = 5,
     Accessory = 6,
-};
+}

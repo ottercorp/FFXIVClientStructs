@@ -3,10 +3,13 @@ using FFXIVClientStructs.FFXIV.Common.Math;
 
 namespace FFXIVClientStructs.FFXIV.Client.Game;
 
+// Client::Game::ActionManager
 [StructLayout(LayoutKind.Explicit, Size = 0x7F0)]
 public unsafe partial struct ActionManager {
-    [FieldOffset(0x60)] public ComboDetail Combo;
+    [StaticAddress("48 8D 0D ?? ?? ?? ?? F3 0F 10 13", 3)]
+    public static partial ActionManager* Instance();
 
+    [FieldOffset(0x60)] public ComboDetail Combo;
     [FieldOffset(0x68)] public bool ActionQueued;
     [FieldOffset(0x6C)] public ActionType QueuedActionType;
     [FieldOffset(0x70)] public uint QueuedActionId;
@@ -14,9 +17,6 @@ public unsafe partial struct ActionManager {
     [FieldOffset(0x80)] public uint QueueType;
 
     [FieldOffset(0x13C)] public fixed uint BlueMageActions[24];
-
-    [StaticAddress("48 8D 0D ?? ?? ?? ?? F3 0F 10 13", 3)]
-    public static partial ActionManager* Instance();
 
     [MemberFunction("E8 ?? ?? ?? ?? EB 64 B1 01")]
     public partial bool UseAction(ActionType actionType, uint actionID, ulong targetID = 0xE000_0000, uint a4 = 0, uint a5 = 0, uint a6 = 0, void* a7 = null);
@@ -69,7 +69,7 @@ public unsafe partial struct ActionManager {
     [MemberFunction("40 53 48 83 EC ?? 48 63 DA 85 D2")]
     public partial RecastDetail* GetRecastGroupDetail(int recastGroup);
 
-    [MemberFunction("E8 ?? ?? ?? ?? 85 C0 75 ?? 83 FF ?? 0F 85")]
+    [MemberFunction("E8 ?? ?? ?? ?? 85 C0 75 94")]
     public partial uint CheckActionResources(ActionType actionType, uint actionId, void* actionData = null);
 
     /// <summary>
@@ -93,8 +93,17 @@ public unsafe partial struct ActionManager {
     /// <param name="actionType">The type of action to check.</param>
     /// <param name="actionId">The ID of the action to check.</param>
     /// <returns>Returns true if the action is off-cooldown or slidecastable.</returns>
-    [MemberFunction("77 49 80 3B 00")]
+    [MemberFunction("E8 ?? ?? ?? ?? 84 C0 0F 84 ?? ?? ?? ?? F6 05 ?? ?? ?? ?? ?? 74 2C")]
     public partial bool IsActionOffCooldown(ActionType actionType, uint actionId);
+
+    /// <summary>
+    /// Check if the specified action's target is within range, if any. Will not check line of sight (performance reasons?).
+    /// </summary>
+    /// <param name="actionType">The action type to check against.</param>
+    /// <param name="actionId">The action ID to check against.</param>
+    /// <returns>Returns true if target constraints are satisfied, false otherwise.</returns>
+    [MemberFunction("E8 ?? ?? ?? ?? 88 47 40 EB 36")]
+    public partial bool IsActionTargetInRange(ActionType actionType, uint actionId);
 
     [MemberFunction("E8 ?? ?? ?? ?? F3 0F 11 43 ?? 80 3B 00")]
     public static partial float GetActionRange(uint actionId);
@@ -134,6 +143,15 @@ public unsafe partial struct ActionManager {
 
     [MemberFunction("40 53 55 57 48 81 EC ?? ?? ?? ?? 48 8B 05 ?? ?? ?? ?? 48 33 C4 48 89 84 24 ?? ?? ?? ?? 33 DB")]
     public partial bool SetBlueMageActions(uint* actionArray);
+
+    /// <summary>
+    /// Check whether this action should be highlighted (showing "ants") in the UI or not.
+    /// </summary>
+    /// <param name="actionType">The action type to check.</param>
+    /// <param name="actionId">The action ID to check.</param>
+    /// <returns>Returns true if ants should be drawn, false otherwise.</returns>
+    [MemberFunction("E8 ?? ?? ?? ?? 48 8B CB 88 47 41")]
+    public partial bool IsActionHighlighted(ActionType actionType, uint actionId);
 
     [MemberFunction("48 89 5C 24 ?? 57 48 83 EC 20 48 8B DA 8B F9 E8 ?? ?? ?? ?? 4C 8B C3")]
     public static partial bool CanUseActionOnTarget(uint actionId, GameObject* target);
@@ -207,24 +225,24 @@ public struct ComboDetail {
 
 public enum ActionType : byte {
     None = 0x00,
-    Spell = 0x01,
+    Action = 0x01, // Spell, Weaponskill, Ability. Confusing name, I know.
     Item = 0x02,
     KeyItem = 0x03,
-    Ability = 0x04,
-    General = 0x05,
-    Companion = 0x06,
-    Unk_7 = 0x07,
-    Unk_8 = 0x08, //something with Leve?
+    Ability = 0x04, // Not in UseAction (??)
+    GeneralAction = 0x05,
+    BuddyAction = 0x06,
+    MainCommand = 0x07,
+    Companion = 0x08,
     CraftAction = 0x09,
-    MainCommand = 0x0A,
+    Unk_10 = 0x0A, // Fishing per Sapphire? Something to do with items.
     PetAction = 0x0B,
-    Unk_12 = 0x0C,
+    Unk_12 = 0x0C, // Not in UseAction. Sapphire says CompanyAction, but not actually triggered.
     Mount = 0x0D,
     PvPAction = 0x0E,
-    Waymark = 0x0F,
+    FieldMarker = 0x0F,
     ChocoboRaceAbility = 0x10,
     ChocoboRaceItem = 0x11,
-    Unk_18 = 0x12,
-    SquadronAction = 0x13,
-    Accessory = 0x14
+    Unk_18 = 0x12, // Not in UseAction (?)
+    BgcArmyAction = 0x13,
+    Ornament = 0x14,
 }

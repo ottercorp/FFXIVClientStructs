@@ -1,6 +1,7 @@
 namespace FFXIVClientStructs.FFXIV.Common.Lua;
 
-//ctor 48 8D 05 ?? ?? ?? ?? C6 41 10 01 48 89 01 33 C0
+// Common::Lua::LuaState
+//ctor "48 8D 05 ?? ?? ?? ?? C6 41 10 01 48 89 01 33 C0"
 [StructLayout(LayoutKind.Explicit, Size = 0x28)]
 public unsafe struct LuaState {
     [FieldOffset(0x08)] public lua_State* State;
@@ -78,7 +79,7 @@ public unsafe partial struct lua_State {
     [GenerateCStrOverloads]
     public partial int luaL_loadfile(byte* filename);
 
-    [MemberFunction("E8 ?? ?? ?? ?? 85 C0 7E 10")]
+    [MemberFunction("E8 ?? ?? ?? ?? 3B C3 74 0D")]
     public partial LuaType lua_type(int idx);
 
     [MemberFunction("E8 ?? ?? ?? ?? 41 8B D3")]

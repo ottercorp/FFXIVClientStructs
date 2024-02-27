@@ -40,7 +40,7 @@ public unsafe partial struct AtkTooltipManager {
     public partial void AddTooltip(AtkTooltipType type, ushort parentID, AtkResNode* targetNode,
         AtkTooltipArgs* tooltipArgs);
 
-    [MemberFunction("E8 ?? ?? ?? ?? 45 33 C9 45 8D 46 4A")]
+    [MemberFunction("E8 ?? ?? ?? ?? 45 33 C9 45 8D 44 24")]
     public partial void RemoveTooltip(AtkResNode* targetNode);
 
     [MemberFunction("E8 ?? ?? ?? ?? EB 24 66 83 FA 22")]
@@ -62,6 +62,6 @@ public unsafe partial struct AtkTooltipManager {
         ShowTooltip(AtkTooltipType.Text, parentId, targetNode, args);
     }
 
-    [MemberFunction("E8 ?? ?? ?? ?? 41 F6 C5 20")]
+    [MemberFunction("E8 ?? ?? ?? ?? 41 F6 C5 08")]
     public partial void HideTooltip(ushort parentId, bool unk = false);
 }

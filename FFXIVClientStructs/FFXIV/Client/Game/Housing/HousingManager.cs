@@ -1,14 +1,14 @@
 namespace FFXIVClientStructs.FFXIV.Client.Game.Housing;
 
+// Client::Game::Housing::HousingManager
+// ctor "E8 ?? ?? ?? ?? 48 89 05 ?? ?? ?? ?? EB 07 48 89 1D ?? ?? ?? ?? 48 8D 05"
 [StructLayout(LayoutKind.Explicit, Size = 0xE0)]
 public unsafe partial struct HousingManager {
-    [MemberFunction("E8 ?? ?? ?? ?? 8B 56 7C")]
+    [MemberFunction("E8 ?? ?? ?? ?? 0F B6 55 84")]
     public static partial HousingManager* Instance();
 
     [FieldOffset(0x00)] public HousingTerritory* CurrentTerritory;
-    [Obsolete("Use HousingOutdoorTerritory", true)]
-    [FieldOffset(0x08)] public HousingTerritory* OutdoorTerritory;
-    [FieldOffset(0x08)] public HousingOutdoorTerritory* HousingOutdoorTerritory;
+    [FieldOffset(0x08)] public HousingOutdoorTerritory* OutdoorTerritory;
     [FieldOffset(0x10)] public HousingTerritory* IndoorTerritory;
     [FieldOffset(0x18)] public HousingWorkshopTerritory* WorkshopTerritory;
 

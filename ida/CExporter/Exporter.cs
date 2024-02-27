@@ -5,7 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
-using FFXIVClientStructs;
+using FFXIVClientStructs.Attributes;
 
 namespace CExporter;
 
@@ -40,7 +40,7 @@ public static class ExporterStatics {
             definedTypes = ex.Types.Where(t => t != null).ToArray()!;
         }
 
-        return definedTypes.Where(t => t.FullName!.StartsWith(FFXIVNamespacePrefix)).ToArray();
+        return definedTypes.Where(t => t.FullName!.StartsWith(FFXIVNamespacePrefix) && !t.FullName.EndsWith("VTable")).ToArray();
     }
 
 }
@@ -73,6 +73,7 @@ public abstract class ExporterBase {
     private GapStrategy _gapStrategy;
 
     private readonly HashSet<Type> _knownTypes = new();
+    private readonly HashSet<string> _knownNames = new();
 
     public bool Errored { get; private set; }
 
@@ -125,10 +126,20 @@ public abstract class ExporterBase {
             ProcessType(definitions[index], sb);
         }
 
-        return sb.ToString().Replace("__{0}__", string.Join(Environment.NewLine, _knownTypes.Where(t => !t.IsEnum).Select(t => $"struct {FixFullName(t)};")));
+        return sb.ToString().Replace("__{0}__", string.Join(Environment.NewLine, _knownNames.Select(t => $"struct {t};")));
     }
 
     private void ProcessType(Type type, StringBuilder header) {
+        if (_knownTypes.Contains(type) || type.IsPrimitive || type.IsInterface || type.IsBlocked())
+            return;
+
+        if (type.IsFixedBuffer()) {
+            return;
+        }
+
+        while (type.IsPointer)
+            type = type.GetElementType()!;
+
         if (_knownTypes.Contains(type) || type.IsPrimitive || type.IsInterface || type.IsBlocked())
             return;
 
@@ -149,6 +160,8 @@ public abstract class ExporterBase {
 
     private static bool IsNotHavok(FieldInfo fieldInfo) {
         var type = fieldInfo.FieldType;
+        if (type.IsFunctionPointer || type.IsUnmanagedFunctionPointer)
+            return true;
         if (type.IsPointer)
             type = type.GetElementType()!;
         return !(type.GenericTypeArguments.Any(IsHavok) || IsHavok(type));
@@ -162,24 +175,39 @@ public abstract class ExporterBase {
     }
 
     private List<UnionLayout> GetStructLayout(Type type) {
-        var fields = type.GetFields()
+        var fields = type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
             .Where(fieldInfo => !Attribute.IsDefined(fieldInfo, typeof(ObsoleteAttribute)))
             .Where(fieldInfo => !Attribute.IsDefined(fieldInfo, typeof(CExportIgnoreAttribute)))
             .Where(fieldInfo => !fieldInfo.IsLiteral) // not constants
             .Where(fieldInfo => !fieldInfo.IsStatic) // not static
+            .Where(fieldInfo => fieldInfo.Name != "VTable")
             .Where(IsNotHavok) // Don't export Havok types
             .OrderBy(fieldInfo => fieldInfo.GetFieldOffset())
             .Select(fieldInfo =>
                 new StructObject {
                     Info = fieldInfo,
                     Offset = fieldInfo.GetFieldOffset(),
-                    Size = fieldInfo.IsFixed() ? fieldInfo.GetFixedType().SizeOf() * fieldInfo.GetFixedSize() : fieldInfo.FieldType.SizeOf()
+                    Size = fieldInfo.IsFixed() ? fieldInfo.GetFixedLength() : fieldInfo.FieldType.SizeOf()
                 }).GroupBy(obj => obj.Offset)
             .Select(grouping => new UnionLayout {
                 Layouts = grouping.Select(f => new StructLayout {
                     Objects = new List<StructObject> { f }
                 }).ToList()
-            }).OrderBy(unionLayout => unionLayout.Offset()).ToList();
+            }).ToList();
+
+        var vTable = GetVTableLayout(type);
+        if (vTable.Objects.Count != 0) {
+            if (fields.All(t => t.Offset() != 0))
+                fields.Add(new UnionLayout {
+                    Layouts = new List<StructLayout> {
+                    vTable
+                }
+                });
+            else
+                fields.First(t => t.Offset() == 0).Layouts.Insert(0, vTable);
+        }
+
+        fields = fields.OrderBy(unionLayout => unionLayout.Offset()).ToList();
 
         var tries = 0;
 
@@ -191,7 +219,7 @@ public abstract class ExporterBase {
 
                 var offsetMin = unionLayout.Layouts.Min(t => t.Offset());
                 var offsetMax = unionLayout.Size() + offsetMin;
-                var others = fields.Where(t => t.Offset() >= offsetMin && t.Offset() < offsetMax).ToList();
+                var others = fields.Where(t => t.Offset() > offsetMin && t.Offset() < offsetMax).ToList();
                 if (others.Count == 0) tries++;
                 fields.RemoveAll(others.Contains);
                 var minKey = unionLayout.Layouts.FindIndex(t => t.Size() < unionLayout.Size());
@@ -207,10 +235,8 @@ public abstract class ExporterBase {
     }
 
     private void ProcessStdStruct(Type type, StringBuilder header) {
-        if (_knownTypes.Contains(type))
+        if (!_knownTypes.Add(type))
             return;
-
-        _knownTypes.Add(type);
 
         var typeName = type.Name.IndexOf('`') > 0 ? type.Name[..type.Name.IndexOf('`')] : type.Name;
 
@@ -222,7 +248,7 @@ public abstract class ExporterBase {
 
         var sb = new StringBuilder();
         if (type.ContainsGenericParameters) {
-            header.AppendLine($"struct {FixFullName(type)}; /* Size=unknown due to generic type with parameters */");
+            header.AppendLine($"struct {type.FixTypeName(FixFullName)}; /* Size=unknown due to generic type with parameters */");
             return;
         }
 
@@ -237,11 +263,13 @@ public abstract class ExporterBase {
             .Where(fieldInfo => !fieldInfo.IsStatic) // not static
             .OrderBy(fieldInfo => fieldInfo.GetFieldOffset());
 
-        sb.AppendLine($"struct {FixFullName(type)} /* Size=0x{structSize:X} */");
+        var name = type.FixTypeName(FixFullName, false).Replace("*", "Ptr");
+        _knownNames.Add(name);
+        sb.AppendLine($"__unaligned struct {name} /* Size=0x{structSize:X} */");
         sb.AppendLine("{");
 
         foreach (var fieldInfo in fields) {
-            if (SetProperty(type, header, fieldInfo, false, fieldInfo.GetFieldOffset(), padFill, sb, pad, null, ref offset))
+            if (SetProperty(type, header, fieldInfo, false, fieldInfo.GetFieldOffset(), padFill, sb, pad, null, ref offset, structSize))
                 return;
         }
 
@@ -259,12 +287,17 @@ public abstract class ExporterBase {
         if (type == typeof(void))
             return;
 
+        if (type.Name == "Pointer`1" && type.Namespace == ExporterStatics.InteropNamespacePrefix[..^1]) {
+            ProcessType(type.GenericTypeArguments[0], header);
+            return;
+        }
+
         _knownTypes.Add(type);
 
         int structSize;
         if (type.IsGenericType) {
             if (type.ContainsGenericParameters) {
-                header.AppendLine($"struct {FixFullName(type)}; /* Size=unknown due to generic type with parameters */");
+                header.AppendLine($"struct {type.FixTypeName(FixFullName)}; /* Size=unknown due to generic type with parameters */");
                 return;
             }
 
@@ -278,7 +311,9 @@ public abstract class ExporterBase {
 
         var sb = new StringBuilder();
 
-        sb.AppendLine($"struct {FixFullName(type)} /* Size=0x{structSize:X} */");
+        var name = type.FixTypeName(FixFullName);
+        _knownNames.Add(name);
+        sb.AppendLine($"__unaligned struct {name} /* Size=0x{structSize:X} */");
         sb.AppendLine("{");
 
         var offset = 0;
@@ -315,20 +350,28 @@ public abstract class ExporterBase {
 
             var isUnion = layouts.Count > 1;
             if (isUnion) {
+                FillGaps(ref offset, fieldOffset, padFill, sb);
                 sb.AppendLine("    union {");
             }
 
             foreach (var structLayout in layouts) {
-                var isStruct = structLayout.Objects.Count > 1;
-                var layoutObjects = structLayout.Objects;
-                if (isStruct) {
-                    sb.AppendLine("    struct {");
-                    if (layoutObjects.Any(layoutObject => SetProperty(type, header, layoutObject.Info, isUnion, layoutObject.Offset, padFill, sb, pad, fields.GetNextLayout(grouping), ref offset))) {
-                        return;
-                    }
+                if (structLayout.Name == "VTable") {
+                    var vtableName = ProcessVTable(structLayout, type, header);
+                    sb.AppendLine($"    /* 0x{new string('0', padFill.Length - 2)} */ {vtableName}* VTable;");
+                    if (!isUnion)
+                        offset += 8;
+                } else {
+                    var isStruct = structLayout.Objects.Count > 1;
+                    var layoutObjects = structLayout.Objects;
+                    if (isStruct) {
+                        sb.AppendLine("    struct {");
+                        if (layoutObjects.Any(layoutObject => SetProperty(type, header, layoutObject.Info, isUnion, layoutObject.Offset, padFill, sb, pad, fields.GetNextLayout(grouping), ref offset, structSize))) {
+                            return;
+                        }
 
-                    sb.AppendLine($"    }} _union_struct_0x{structLayout.Offset():X};");
-                } else if (SetProperty(type, header, layoutObjects[0].Info, isUnion, layoutObjects[0].Offset, padFill, sb, pad, fields.GetNextLayout(grouping), ref offset)) return;
+                        sb.AppendLine($"    }} _union_struct_0x{structLayout.Offset():X};");
+                    } else if (SetProperty(type, header, layoutObjects[0].Info, isUnion, layoutObjects[0].Offset, padFill, sb, pad, fields.GetNextLayout(grouping), ref offset, structSize)) return;
+                }
             }
 
             if (!isUnion)
@@ -345,15 +388,56 @@ public abstract class ExporterBase {
         header.AppendLine(sb.ToString());
     }
 
-    private bool SetProperty(Type type, StringBuilder header, FieldInfo fieldInfo, bool isUnion, int fieldOffset, string padFill, StringBuilder sb, int pad, UnionLayout? nextLayout, ref int offset) {
+    private string ProcessVTable(StructLayout layout, Type type, StringBuilder header) {
+        StringBuilder sb = new StringBuilder();
+        string vTableTypeName = $"{type.FixTypeName(FixFullName)}VTable";
+        _knownNames.Add(vTableTypeName);
+
+        var pad = layout.Objects.Max(t => t.Offset);
+        var padFill = new string(' ', pad.ToString("X").Length + 2);
+
+        sb.AppendLine($"struct {vTableTypeName}");
+        sb.AppendLine("{");
+        var offset = 0;
+        foreach (var layoutObject in layout.Objects) {
+            SetProperty(type, header, layoutObject.Info, false, layoutObject.Offset, padFill, sb, pad, null, ref offset, 0);
+        }
+        sb.AppendLine("};");
+        header.AppendLine(sb.ToString());
+        return vTableTypeName;
+    }
+
+    private string BuildFunctionDefinition(FieldInfo fieldInfo, StringBuilder header) {
+        var sb = new StringBuilder();
+        var fieldType = fieldInfo.FieldType;
+        var funcPtr = fieldType.GetFunctionPointerReturnType();
+        var funcPtrParams = fieldType.GetFunctionPointerParameterTypes();
+        ProcessType(funcPtr, header);
+        foreach (var funcPtrParam in funcPtrParams) {
+            ProcessType(funcPtrParam, header);
+        }
+        sb.Append(funcPtr.FixTypeName(FixFullName));
+        sb.Append(" (__fastcall *");
+        sb.Append(fieldInfo.Name);
+        sb.Append(")(");
+        sb.Append(string.Join(", ", funcPtrParams.Select(t => t.FixTypeName(FixFullName)).Select((t, i) => t + $" a{i + 1}")));
+        sb.Append(')');
+        return sb.ToString();
+    }
+
+    private bool SetProperty(Type type, StringBuilder header, FieldInfo fieldInfo, bool isUnion, int fieldOffset, string padFill, StringBuilder sb, int pad, UnionLayout? nextLayout, ref int offset, int structSize) {
         var fieldType = fieldInfo.FieldType;
         int fieldSize;
 
-        if (!isUnion)
-            FillGaps(ref offset, fieldOffset, padFill, sb);
+        if (!isUnion) {
+            if (fieldType.IsUnmanagedFunctionPointer)
+                FillVFuncGap(ref offset, fieldOffset, padFill, sb);
+            else
+                FillGaps(ref offset, fieldOffset, padFill, sb);
+        }
 
-        if (offset > fieldOffset) {
-            var error = $"Current offset exceeded the next field's offset (0x{offset:X} > 0x{fieldOffset:X}): {FixFullName(type)}.{fieldInfo.Name}";
+        if (offset > structSize && structSize != 0) {
+            var error = $"Current offset exceeded the struct's size (0x{offset:X} > 0x{structSize:X}): {FixFullName(type)}.{fieldInfo.Name}";
             Debug.WriteLine(error);
             Console.WriteLine(error);
             ExporterStatics.ErrorListDictionary.TryAdd(type, error);
@@ -361,12 +445,22 @@ public abstract class ExporterBase {
             return true;
         }
 
+        if (offset > fieldOffset) {
+            var error = $"Current offset conflicts with another field's offset (0x{offset:X} > 0x{fieldOffset:X}): {FixFullName(type)}.{fieldInfo.Name}";
+            Debug.WriteLine(error);
+            Console.WriteLine(error);
+            ExporterStatics.ErrorListDictionary.TryAdd(type, error);
+            Errored = true;
+            return true;
+        }
+
+        var offsetComment = string.Format($"/* 0x{{0:X{padFill.Length - 2}}} */", fieldOffset);
+
         if (fieldInfo.IsFixed()) {
-            var fixedType = fieldInfo.GetFixedType();
-            var fixedSize = fieldInfo.GetFixedSize();
+            var (fixedType, fixedSize) = fieldInfo.GetFixed();
             ProcessType(fixedType, header);
 
-            sb.AppendLine(string.Format($"    /* 0x{{0:X{pad}}} */ {fixedType.FixTypeName(FixFullName)} {fieldInfo.Name}[0x{fixedSize:X}];", fieldOffset));
+            sb.AppendLine($"    {offsetComment} {fixedType.FixTypeName(FixFullName)} {fieldInfo.Name}[0x{fixedSize:X}];");
 
             fieldSize = fixedType.SizeOf() * fixedSize;
         } else if (fieldType.IsPointer) {
@@ -377,13 +471,15 @@ public abstract class ExporterBase {
                 ProcessType(elemType, header);
             }
 
-            sb.AppendLine(string.Format($"    /* 0x{{0:X{pad}}} */ {fieldType.FixTypeName(FixFullName)} {(fieldInfo.Name.EndsWith("k__BackingField") ? "Value" : fieldInfo.Name)};", fieldOffset));
+            bool shouldLower = elemType.Namespace != ExporterStatics.StdNamespacePrefix[..^1];
+
+            sb.AppendLine($"    {offsetComment} {fieldType.FixTypeName(FixFullName, shouldLower)} {(fieldInfo.Name.EndsWith("k__BackingField") ? "Value" : fieldInfo.Name)};");
 
             fieldSize = 8;
         } else if (fieldType.IsEnum) {
             ProcessType(fieldType, header);
 
-            sb.AppendLine(string.Format($"    /* 0x{{0:X{pad}}} */ {fieldType.FixTypeName(FixFullName)} {fieldInfo.Name};", fieldOffset));
+            sb.AppendLine($"    {offsetComment} {fieldType.FixTypeName(FixFullName)} {fieldInfo.Name};");
 
             var enumSize = Enum.GetUnderlyingType(fieldType).SizeOf();
 
@@ -391,15 +487,21 @@ public abstract class ExporterBase {
             if (fieldSize >= enumSize) {
                 fieldSize = enumSize;
             } else {
-                var warn = $"Warning enum {FixFullName(type)} has bad size declaration";
+                var warn = $"Warning enum field {FixFullName(type)}.{fieldInfo.Name} has bad size declaration";
                 Debug.WriteLine(warn);
                 Console.WriteLine(warn);
                 ExporterStatics.WarningListDictionary.TryAdd(type, warn);
             }
+        } else if (fieldType.IsFunctionPointer || fieldType.IsUnmanagedFunctionPointer) {
+            sb.AppendLine($"    {offsetComment} {BuildFunctionDefinition(fieldInfo, header)};");
+
+            fieldSize = 8;
         } else {
             ProcessType(fieldType, header);
 
-            sb.AppendLine(string.Format($"    /* 0x{{0:X{pad}}} */ {fieldType.FixTypeName(FixFullName)} {fieldInfo.Name};", fieldOffset));
+            bool shouldLower = fieldType.Namespace != ExporterStatics.StdNamespacePrefix[..^1];
+
+            sb.AppendLine($"    {offsetComment} {fieldType.FixTypeName(FixFullName, shouldLower)} {fieldInfo.Name};");
 
             fieldSize = fieldType.IsGenericType ? Marshal.SizeOf(Activator.CreateInstance(fieldType)!) : fieldType.SizeOf();
         }
@@ -423,10 +525,9 @@ public abstract class ExporterBase {
 
         sb.AppendLine("{");
 
-        var values = Enum.GetValues(type);
+        var values = Enum.GetNames(type).Select(t => Tuple.Create(t, Enum.Parse(type, t, true))).DistinctBy(t => t.Item2).ToArray();
         for (var i = 0; i < values.Length; i++) {
-            var value = values.GetValue(i)!;
-            var name = Enum.GetName(type, value);
+            var (name, value) = values[i];
             sb.Append($"    {name} = {value:D}");
             if (i < values.Length - 1)
                 sb.AppendLine(",");
@@ -439,8 +540,19 @@ public abstract class ExporterBase {
         header.AppendLine(sb.ToString());
     }
 
-    protected virtual string FixFullName(Type type) {
+    protected virtual string FixFullName(Type type, bool shouldLower = true) {
         string fullName;
+        if (type.Name.StartsWith("Pointer`1") && type.FullName!.StartsWith(ExporterStatics.InteropNamespacePrefix)) {
+            var isPointer = type.IsPointer;
+            var pointerCount = 0;
+            while (isPointer) {
+                pointerCount++;
+                type = type.GetElementType()!;
+                isPointer = type.IsPointer;
+            }
+            var generic = type.GenericTypeArguments[0];
+            return generic.FixTypeName(FixFullName, shouldLower) + new string('*', pointerCount + 1);
+        }
         if (type.IsGenericType || (type.IsPointer && type.GetElementType()!.IsGenericType)) {
             var isPointer = type.IsPointer;
             var dereferenced = isPointer ? type.GetElementType()! : type;
@@ -449,8 +561,8 @@ public abstract class ExporterBase {
             if (dereferenced.IsNested) {
                 fullName += '+' + generic.FullName?.Split('+')[1].Split('[')[0];
             }
-
-            fullName = dereferenced.GenericTypeArguments.Aggregate(fullName, (current, argType) => current + $"{_separator}{FixFullName(argType).Replace(_separator, "")}");
+            if (dereferenced.GenericTypeArguments.Any())
+                fullName += dereferenced.GenericTypeArguments.Aggregate("", (current, argType) => current + $"{argType.FixTypeName(FixFullName, shouldLower).Replace("__", "").Replace(" ", "").Replace(_separator, "")}").Replace("*", "Ptr");
             if (isPointer)
                 fullName += '*';
         } else {
@@ -478,6 +590,14 @@ public abstract class ExporterBase {
             return fullName.Replace(".", _separator).Replace("+", _separator);
 
         return fullName.Replace(".", _separator).Replace("+", _separator).Replace(oldName, newName);
+    }
+
+    private void FillVFuncGap(ref int offset, int maxOffset, string padFill, StringBuilder sb) {
+        int gap;
+        while ((gap = maxOffset - offset) > 0) {
+            sb.AppendLine($"    /* {padFill} */ __int64 _vf{offset / 8};");
+            offset += 8;
+        }
     }
 
     private void FillGaps(ref int offset, int maxOffset, string padFill, StringBuilder sb) {
@@ -522,6 +642,43 @@ public abstract class ExporterBase {
             }
         }
     }
+
+    private StructLayout GetVTableLayout(Type type) {
+        StructLayout layout = new();
+        layout.Name = "VTable";
+        layout.SetSize(8);
+        layout.SetOffset(0);
+        var vtable = type.GetField("VTable", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+        if (vtable != null) {
+            var vtableType = vtable.FieldType;
+            while (vtableType.IsPointer)
+                vtableType = vtableType.GetElementType()!;
+            var fields = vtableType.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+            foreach (var field in fields) {
+                layout.Objects.Add(new StructObject {
+                    Info = field,
+                    Offset = field.GetFieldOffset(),
+                    Size = field.IsFixed() ? field.GetFixedLength() : field.FieldType.SizeOf()
+                });
+            }
+        }
+        var underlying = type.GetUnderlyingTypeFromOffset();
+        if (underlying != null) {
+            var underlyingLayout = GetVTableLayout(underlying);
+            layout.Objects.AddRange(underlyingLayout.Objects.Where(layoutObject => layout.Objects.All(t => t.Offset != layoutObject.Offset)));
+        }
+        layout.Objects = layout.Objects.OrderBy(obj => obj.Offset).ToList();
+        var names = layout.Objects.Select(obj => obj.Info.Name).ToList();
+
+        if (names.Count == names.Distinct().Count()) return layout;
+
+        var error = $"VTable for {type.FixTypeName(FixFullName, false)} has duplicate names";
+        Debug.WriteLine(error);
+        Console.WriteLine(error);
+        ExporterStatics.ErrorListDictionary.TryAdd(type, error);
+
+        return layout;
+    }
 }
 
 internal record UnionLayout {
@@ -534,6 +691,7 @@ internal record UnionLayout {
 
 internal record StructLayout {
     public List<StructObject> Objects = new();
+    public string Name = "";
 
     public void AddObjects(IEnumerable<StructObject> objs) {
         Objects.AddRange(objs);
@@ -543,6 +701,9 @@ internal record StructLayout {
 
     private int? _size;
     private int? _offset;
+
+    public void SetSize(int size) => _size = size;
+    public void SetOffset(int offset) => _offset = offset;
 
     public int Size() => _size ??= Objects.Sum(t => t.Size);
 
