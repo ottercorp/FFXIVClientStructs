@@ -1,56 +1,81 @@
-﻿using FFXIVClientStructs.FFXIV.Client.Game.Event;
+using FFXIVClientStructs.FFXIV.Client.Game.Event;
 using FFXIVClientStructs.FFXIV.Client.Game.Fate;
 using FFXIVClientStructs.FFXIV.Component.Exd;
 
 namespace FFXIVClientStructs.FFXIV.Client.Game.UI;
+
+// Client::Game::UI::UIState
+// ctor "E8 ?? ?? ?? ?? 48 8D 0D ?? ?? ?? ?? 48 83 C4 28 E9 ?? ?? ?? ?? 48 83 EC 28 33 D2"
 // this is a large object holding most of the other objects in the Client::Game::UI namespace
 // all data in here is used for UI display
-
-// ctor E8 ?? ?? ?? ?? 48 8D 0D ?? ?? ?? ?? 48 83 C4 28 E9 ?? ?? ?? ?? 48 83 EC 28 33 D2 
-[StructLayout(LayoutKind.Explicit, Size = 0x16BAC)] // its at least this big, may be a few bytes bigger
-public unsafe partial struct UIState
-{
+[StructLayout(LayoutKind.Explicit, Size = 0x17D10)] // its at least this big, may be a few bytes bigger
+public unsafe partial struct UIState {
     [FieldOffset(0x00)] public Hotbar Hotbar;
     [FieldOffset(0x08)] public Hate Hate;
     [FieldOffset(0x110)] public Hater Hater;
-    [FieldOffset(0xA18)] public WeaponState WeaponState;
+    [FieldOffset(0xA18)] public Chain Chain;
+    [FieldOffset(0xA20)] public WeaponState WeaponState;
     [FieldOffset(0xA38)] public PlayerState PlayerState;
-    [FieldOffset(0x1208)] public Revive Revive;
-    [FieldOffset(0x14A0)] public Telepo Telepo;
-    [FieldOffset(0x14F8)] public Cabinet Cabinet;
-    [FieldOffset(0x1A90)] public Buddy Buddy;
-    [FieldOffset(0x296C)] public PvPProfile PvPProfile;
-    [FieldOffset(0x29F0)] public ContentsNote ContentsNote;
-    [FieldOffset(0x2A98)] public RelicNote RelicNote;
-    [FieldOffset(0x2AF8)] public AreaInstance AreaInstance;
-    [FieldOffset(0x2B34)] public MobHunt MobHunt;
-    [FieldOffset(0x2FC0)] public Loot Loot;
+    [FieldOffset(0x1250)] public Revive Revive;
+    [FieldOffset(0x1280)] public Inspect Inspect;
+    [FieldOffset(0x14F8)] public Telepo Telepo;
+    [FieldOffset(0x1550)] public Cabinet Cabinet;
+    [FieldOffset(0x15D8)] public Achievement Achievement;
+    [FieldOffset(0x1B30)] public Buddy Buddy;
+    [FieldOffset(0x36B4)] public PvPProfile PvPProfile;
+    [FieldOffset(0x3738)] public ContentsNote ContentsNote;
+    [FieldOffset(0x37F0)] public RelicNote RelicNote;
+    [FieldOffset(0x3850)] public AreaInstance AreaInstance; // at vtbl - 0x10
+    [FieldOffset(0x3D18)] public Loot Loot;
 
-    [FieldOffset(0x3C60)] public RecipeNote RecipeNote;
+    [FieldOffset(0x49E0)] public RecipeNote RecipeNote;
 
-    [FieldOffset(0xA7C8)] public Director* ActiveDirector;
-    [FieldOffset(0xA910)] public FateDirector* FateDirector;
+    [FieldOffset(0xB560)] public Director* ActiveDirector;
+    [FieldOffset(0xB6A8)] public FateDirector* FateDirector;
 
-    [FieldOffset(0xAA58)] public Map Map;
+    [FieldOffset(0xB7F0)] public Map Map;
+    [FieldOffset(0xF7F0)] public MarkingController MarkingController;
+    [FieldOffset(0xFAD0)] public LimitBreakController LimitBreakController;
+    [FieldOffset(0xFAE0)] public void* TitleController;
+    [FieldOffset(0xFAE8)] public TitleList TitleList;
 
-    [FieldOffset(0xEA40)] public MarkingController MarkingController;
-    [FieldOffset(0xECF0)] public LimitBreakController LimitBreakController;
+    [FieldOffset(0x12798)] public RouletteController RouletteController;
+    [FieldOffset(0x12868)] public ContentsFinder ContentsFinder;
+    [FieldOffset(0x12980)] public MobHunt MobHunt;
 
-    [FieldOffset(0x119B8)] public RouletteController RouletteController;
-    [FieldOffset(0x11A88)] public ContentsFinder ContentsFinder;
+    // [Patch 6.55] 0x17710: Adventurer Plate data
 
     // Ref: UIState#IsUnlockLinkUnlocked (relative to uistate)
-    [FieldOffset(0x169FC)] public fixed byte UnlockLinkBitmask[0x7E];
-    
-    // Ref: g_Client::Game::UI::UnlockedCompanionsMask
-    //      direct ref: 48 8D 0D ?? ?? ?? ?? 0F B6 04 08 84 D0 75 10 B8 ?? ?? ?? ?? 48 8B 5C 24
-    //      relative to uistate: E8 ?? ?? ?? ?? 84 C0 75 A6 32 C0 (case for 0x355)
-    [FieldOffset(0x16A7A)] public fixed byte UnlockedCompanionsBitmask[0x3A];
-    
-    // 42 0F B6 04 30 44 84 C0
-    [FieldOffset(0x16AB6)] public fixed byte ChocoboTaxiStandsBitmask[0x26];
+    // Size: Offset of UnlockedAetherytesBitmask - Offset of UnlockLinkBitmask
+    [FieldOffset(0x17954)] public fixed byte UnlockLinkBitmask[0x40];
 
-    //[StaticAddress("48 8D 0D ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 8B 8B ?? ?? ?? ?? 48 8B 01", 1)] CN 6.2
+    // Ref: Telepo#UpdateAetheryteList (in the Aetheryte sheet loop)
+    // Size: (AetheryteSheet.RowCount + 7) >> 3
+    [FieldOffset(0x17994)] public fixed byte UnlockedAetherytesBitmask[(201 + 7) >> 3];
+
+    // Ref: "E8 ?? ?? ?? ?? 48 83 6F ?? ?? 75 06 48 89 77 68"
+    // Size: (HowToSheet.RowCount + 7) >> 3
+    [FieldOffset(0x179AE)] public fixed byte UnlockedHowtoBitmask[(288 + 7) >> 3];
+
+    // Ref: g_Client::Game::UI::UnlockedCompanionsMask
+    //      direct ref: "48 8D 0D ?? ?? ?? ?? 0F B6 04 08 84 D0 75 10 B8 ?? ?? ?? ?? 48 8B 5C 24"
+    //      relative to uistate: "E8 ?? ?? ?? ?? 84 C0 75 A6 32 C0" (case for 0x355)
+    // Size: (CompanionSheet.RowCount + 7) >> 3
+    [FieldOffset(0x179D2)] public fixed byte UnlockedCompanionsBitmask[(512 + 7) >> 3];
+
+    // Ref: "42 0F B6 04 30 44 84 C0"
+    // Size: (ChocoboTaxiStandSheet.RowCount + 7) >> 3
+    [FieldOffset(0x17A12)] public fixed byte ChocoboTaxiStandsBitmask[(87 + 7) >> 3];
+
+    // Ref: UIState#IsCutsceneSeen
+    // Size: (CutsceneWorkIndexSheet.Max(row => row.WorkIndex) + 7) >> 3
+    [FieldOffset(0x17A1E)] public fixed byte CutsceneSeenBitmask[(1272 + 7) >> 3];
+
+    // Ref: UIState#IsTripleTriadCardUnlocked
+    // Size: TripleTriadCard.RowCount >> 3
+    [FieldOffset(0x17ABD)] public fixed byte UnlockedTripleTriadCardsBitmask[409 >> 3];
+    [FieldOffset(0x17AF8)] public ulong UnlockedTripleTriadCardsCount;
+
     [StaticAddress("48 8D 0D ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 8B 8B ?? ?? ?? ?? 48 8B 01", 3)]
     public static partial UIState* Instance();
 
@@ -114,6 +139,24 @@ public unsafe partial struct UIState
     public partial bool IsEmoteUnlocked(ushort emoteId);
 
     /// <summary>
+    /// Check if a aetheryte is unlocked for the current character.
+    /// </summary>
+    /// <param name="aetheryteId">The ID of the aetheryte to check for.</param>
+    /// <returns>Returns true if the specified aetheryte is unlocked.</returns>
+    public bool IsAetheryteUnlocked(uint aetheryteId) {
+        return ((1 << ((int)aetheryteId & 7)) & UnlockedAetherytesBitmask[aetheryteId >> 3]) > 0;
+    }
+
+    /// <summary>
+    /// Check if a HowTo is unlocked for the current character.
+    /// </summary>
+    /// <param name="howtoId">The ID of the HowTo to check for.</param>
+    /// <returns>Returns true if the specified HowTo is unlocked.</returns>
+    public bool IsHowToUnlocked(uint howtoId) {
+        return ((1 << ((int)howtoId & 7)) & UnlockedHowtoBitmask[howtoId >> 3]) > 0;
+    }
+
+    /// <summary>
     /// Check if a companion (minion) is unlocked for the current character.
     /// </summary>
     /// <remarks>
@@ -123,18 +166,18 @@ public unsafe partial struct UIState
     /// <param name="companionId">The ID of the companion/minion to check for.</param>
     /// <returns>Returns true if the specified minion is unlocked.</returns>
     public bool IsCompanionUnlocked(uint companionId) {
-        // Logic borrowed from E8 ?? ?? ?? ?? 84 C0 75 A6 32 C0 and others.
-        
+        // Logic borrowed from "E8 ?? ?? ?? ?? 84 C0 75 A6 32 C0" and others.
+
         // This, for some reason, does not exist as a siggable method in the game code normally. Virtually everyone and
         // everything that does minion checks will have this snippet (or one like it) in place. One does exist in the
         // crossref for the bitmask, but it's over in what I suspect is in the UI module and is bounded. I don't want to
         // replicate this upper bound here as that'll just be something we need to change with alarming regularity.
-        
-        return ((1 << ((int) companionId & 7)) & this.UnlockedCompanionsBitmask[companionId >> 3]) > 0;
+
+        return ((1 << ((int)companionId & 7)) & UnlockedCompanionsBitmask[companionId >> 3]) > 0;
     }
-    
+
     public bool IsChocoboTaxiStandUnlocked(uint chocoboTaxiStandId) {
-        return ((1 << ((ushort)chocoboTaxiStandId & 7)) & this.ChocoboTaxiStandsBitmask[(ushort)chocoboTaxiStandId >> 3]) > 0;
+        return ((1 << ((ushort)chocoboTaxiStandId & 7)) & ChocoboTaxiStandsBitmask[(ushort)chocoboTaxiStandId >> 3]) > 0;
     }
 
     [MemberFunction("E8 ?? ?? ?? ?? 44 22 F0")]
@@ -143,13 +186,27 @@ public unsafe partial struct UIState
     [MemberFunction("E8 ?? ?? ?? ?? 48 8B 7C 24 ?? 3C")]
     public static partial bool IsInstanceContentUnlocked(uint instanceContentId);
 
+    [MemberFunction("48 83 EC 28 E8 ?? ?? ?? ?? 48 85 C0 74 15 0F B7 40 2A")]
+    public static partial bool IsPublicContentCompleted(uint publicContentId);
+
+    [MemberFunction("E8 ?? ?? ?? ?? 80 BF ?? ?? ?? ?? ?? 74 1E")]
+    public static partial bool IsPublicContentUnlocked(uint publicContentId);
+
+    /// <summary> Check if the player has seen the cutscene before. </summary>
+    /// <remarks>
+    /// Only tracks skippable cutscenes (for that, check if WorkIndex is not 0 in CutsceneWorkIndex sheet).
+    /// </remarks>
+    /// <param name="cutsceneId"> RowId of the Cutscene </param>
+    /// <returns> Returns <c>true</c> if the player has seen the cutscene before, otherwise <c>false</c>. </returns>
+    [MemberFunction("E8 ?? ?? ?? ?? 84 C0 41 0F B6 CE")]
+    public partial bool IsCutsceneSeen(uint cutsceneId);
+
     // Only valid after the timers window has been opened, returns -1 otherwise.
     [MemberFunction("E8 ?? ?? ?? ?? 48 8B F8 E8 ?? ?? ?? ?? 49 8D 9F")]
     public partial int GetNextMapAllowanceTimestamp();
 
     // Only valid after the timers window has been opened, returns DateTime.MinValue otherwise.
-    public DateTime GetNextMapAllowanceDateTime()
-    {
+    public DateTime GetNextMapAllowanceDateTime() {
         var timeStamp = GetNextMapAllowanceTimestamp();
         return timeStamp > 0 ? DateTime.UnixEpoch.AddSeconds(timeStamp) : DateTime.MinValue;
     }

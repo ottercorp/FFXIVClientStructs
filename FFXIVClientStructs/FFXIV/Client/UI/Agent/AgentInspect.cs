@@ -1,20 +1,20 @@
-﻿using FFXIVClientStructs.FFXIV.Client.Game;
-using FFXIVClientStructs.FFXIV.Client.System.Framework;
+using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.System.String;
 using FFXIVClientStructs.FFXIV.Client.UI.Info;
+using FFXIVClientStructs.FFXIV.Client.UI.Misc;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 
 namespace FFXIVClientStructs.FFXIV.Client.UI.Agent;
 
+// Client::UI::Agent::AgentInspect
+//   Client::UI::Agent::AgentInterface
+//     Component::GUI::AtkModuleInterface::AtkEventInterface
 [Agent(AgentId.Inspect)]
-[StructLayout(LayoutKind.Explicit, Size = 0x554)]
-public unsafe partial struct AgentInspect
-{
+[StructLayout(LayoutKind.Explicit, Size = 0x820)]
+public unsafe partial struct AgentInspect {
     //Notes to INfoProxies:
     //0xa used for DeepDungeon
     //0xd
-    public static AgentInspect* Instance() =>
-        (AgentInspect*)Framework.Instance()->GetUiModule()->GetAgentModule()->GetAgentByInternalId(AgentId.Inspect);
 
     [FieldOffset(0x000)] public AgentInterface AgentInterface;
     //First byte seems to be a bit field
@@ -32,8 +32,8 @@ public unsafe partial struct AgentInspect
     [FieldOffset(0x170)] public Utf8String ChocoboBarding1;
     [FieldOffset(0x1D8)] public Utf8String ChocoboBarding2;
     [FieldOffset(0x240)] public Utf8String ChocoboBarding3;
-    [FixedSizeArray<ItemData>(0xd)]
-    [FieldOffset(0x2A8)] public fixed byte Items[0xd * 0x28]; //Size: 0x208
+    [FixedSizeArray<ItemData>(13)]
+    [FieldOffset(0x2A8)] public fixed byte Items[13 * 0x28]; //Size: 0x208
     [FieldOffset(0x4B0)] public FreeCompanyData FreeCompany;
     [FieldOffset(0x536)] public short UnkObj536; //Maybe part of FC
     //Status fields
@@ -45,9 +45,17 @@ public unsafe partial struct AgentInspect
     [FieldOffset(0x548)] public InfoProxySearchComment* InfoProxySearchComment;
     [FieldOffset(0x550)] public InfoProxyFreeCompany* InfoProxyFreeCompany;
 
+    [FieldOffset(0x558)] public InspectCharaView CharaView;
+
+    // Client::UI::Agent::AgentInspect::InspectCharaView
+    //   Client::UI::Misc::CharaView
+    [StructLayout(LayoutKind.Explicit, Size = 0x2C8)]
+    public struct InspectCharaView {
+        [FieldOffset(0)] public CharaView Base;
+    }
+
     [StructLayout(LayoutKind.Explicit, Size = 0x86)]
-    public struct FreeCompanyData
-    {
+    public struct FreeCompanyData {
         [FieldOffset(0x00)] public byte Unkown4b0; //Maybe FreeCompany get status 1=Finished
         [FieldOffset(0x01)] public bool IsPArtOfFreeCOmpany; //HasGuild???????? if 0 Client::UI::RaptureAtkModule.OpenAddon can be called without getting additional infos
         [FieldOffset(0x08)] public long ID;
@@ -57,9 +65,9 @@ public unsafe partial struct AgentInspect
         [FieldOffset(0x1c)] public ushort Unk1C;
         [FieldOffset(0x1E)] public Utf8String GuildName;
     }
+
     [StructLayout(LayoutKind.Explicit, Size = 0x28)]
-    public struct ItemData
-    {
+    public struct ItemData {
         [FieldOffset(0x00)] public uint IconID;
         [FieldOffset(0x04)] public IconFlagsTopRight IconFlags1;
         [FieldOffset(0x05)] public ColorRGB Color;
@@ -68,28 +76,27 @@ public unsafe partial struct AgentInspect
         [FieldOffset(0x10)] public fixed short ModelMain[4];
         [FieldOffset(0x18)] public fixed short ModelSub[4];
         [FieldOffset(0x20)] public InventoryItem* Item; //Init 0 unsure
+
         [StructLayout(LayoutKind.Explicit)]
-        public struct ColorRGB
-        {
+        public struct ColorRGB {
             [FieldOffset(0x0)] public byte B;
             [FieldOffset(0x1)] public byte G;
             [FieldOffset(0x2)] public byte R;
         }
-        public enum IconFlagsTopRight
-        {
+
+        public enum IconFlagsTopRight : byte {
             None = 0,
             Dyeable = 1,
             Glamoured = 4,
         }
     }
-    public enum ItemDataFlags
-    {
+
+    public enum ItemDataFlags {
         None = 0,
         Filled = 8,
     }
 
-    public void ExamineCharacter(uint objectID)
-    {
+    public void ExamineCharacter(uint objectID) {
         RequestObjectID = objectID;
         RequestSearchCommentOID = objectID;
         RequestFreeCompanyOID = objectID;

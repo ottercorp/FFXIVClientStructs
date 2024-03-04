@@ -1,4 +1,4 @@
-﻿using FFXIVClientStructs.FFXIV.Client.System.Framework;
+using FFXIVClientStructs.FFXIV.Client.System.Framework;
 using FFXIVClientStructs.FFXIV.Client.System.String;
 using FFXIVClientStructs.FFXIV.Common.Log;
 using FFXIVClientStructs.FFXIV.Component.Excel;
@@ -8,9 +8,8 @@ namespace FFXIVClientStructs.FFXIV.Client.UI.Misc;
 // Client::UI::Misc::RaptureLogModule
 //   Component::Log::LogModule
 // ctor "E8 ?? ?? ?? ?? 4C 8D A7 ?? ?? ?? ?? 49 8B CC E8 ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ??"
-[StructLayout(LayoutKind.Explicit, Size = 0x3480)]
-public unsafe partial struct RaptureLogModule
-{
+[StructLayout(LayoutKind.Explicit, Size = 0x3488)]
+public unsafe partial struct RaptureLogModule {
     public static RaptureLogModule* Instance() => Framework.Instance()->GetUiModule()->GetRaptureLogModule();
 
     [FieldOffset(0x00)] public LogModule LogModule;
@@ -18,25 +17,46 @@ public unsafe partial struct RaptureLogModule
     [FieldOffset(0xE8)] public ExcelModuleInterface* ExcelModuleInterface;
     [FieldOffset(0xF0)] public RaptureTextModule* RaptureTextModule;
 
-    [FieldOffset(0x528)] public fixed byte ChatTabs[5 * 0x928]; // array of 5 RaptureLogModuleTab
+    [FixedSizeArray<RaptureLogModuleTab>(5)]
+    [FieldOffset(0x530)] public fixed byte ChatTabs[5 * 0x928];
 
-    [FieldOffset(0x3470)] public LogMessageSource* MsgSourceArray;
-    [FieldOffset(0x3478)] public int MsgSourceArrayLength;
+    [FieldOffset(0x33E8)] public fixed byte ChatTabsPendingReload[4]; // set to 1 to reload the tab, see "48 8D 9F ?? ?? ?? ?? 48 8D B7 ?? ?? ?? ?? 80 3B 00"
+
+    [FieldOffset(0x3478)] public LogMessageSource* MsgSourceArray;
+    [FieldOffset(0x3480)] public int MsgSourceArrayLength;
+
+    [MemberFunction("E8 ?? ?? ?? ?? 39 9E ?? ?? ?? ?? 7E 4B")]
+    public partial uint PrintMessage(ushort logKindId, Utf8String* senderName, Utf8String* message, int timestamp, bool silent = false);
 
     [MemberFunction("E8 ?? ?? ?? ?? 44 03 FB")]
     public partial void ShowLogMessage(uint logMessageID);
 
+    [MemberFunction("E8 ?? ?? ?? ?? 32 C0 EB 17")]
+    public partial void ShowLogMessageUInt(uint logMessageId, uint value);
+
+    [MemberFunction("E8 ?? ?? ?? ?? 0F B7 46 32")]
+    public partial void ShowLogMessageUInt2(uint logMessageId, uint value1, uint value2);
+
+    [MemberFunction("E8 ?? ?? ?? ?? 40 84 ED 74 0A 8B D7")]
+    public partial void ShowLogMessageUInt3(uint logMessageId, uint value1, uint value2, uint value3);
+
+    [MemberFunction("E8 ?? ?? ?? ?? EB 68 48 8B 07")]
+    public partial void ShowLogMessageString(uint logMessageId, Utf8String* value);
+
+    [MemberFunction("E8 ?? ?? ?? ?? FE 44 24 50")]
+    [GenerateCStrOverloads]
+    public partial void PrintString(byte* str);
+
     [MemberFunction("4C 8B 81 ?? ?? ?? ?? 4D 85 C0 74 17")]
     public partial ulong GetContentIdForLogMessage(int index);
 
-    [MemberFunction("E8 ?? ?? ?? ?? 84 C0 0F 84 ?? ?? ?? ?? 48 8D 96 ?? ?? ?? ?? 48 8D 4C 24")]
+    [MemberFunction("40 53 55 56 57 41 56 48 81 EC ?? ?? ?? ?? 48 8B 05 ?? ?? ?? ?? 48 33 C4 48 89 84 24 ?? ?? ?? ?? 48 8B E9 49 8B F0")]
     public partial bool GetLogMessage(int index, Utf8String* str);
 
     [MemberFunction("E8 ?? ?? ?? ?? 84 C0 74 ?? 0F B6 85 ?? ?? ?? ?? 48 8D 8D")]
     public partial bool GetLogMessageDetail(int index, short* logKind, Utf8String* sender, Utf8String* message, uint* timeStamp);
 
-    public bool GetLogMessage(int index, out byte[] message)
-    {
+    public bool GetLogMessage(int index, out byte[] message) {
         var pMsg = stackalloc Utf8String[1];
         pMsg->Ctor();
         var result = GetLogMessage(index, pMsg);
@@ -45,8 +65,7 @@ public unsafe partial struct RaptureLogModule
         return result;
     }
 
-    public bool GetLogMessageDetail(int index, out byte[] sender, out byte[] message, out short logKind, out uint time)
-    {
+    public bool GetLogMessageDetail(int index, out byte[] sender, out byte[] message, out short logKind, out uint time) {
         var pMsg = stackalloc Utf8String[1];
         var pSender = stackalloc Utf8String[1];
         var pKind = stackalloc short[1];
@@ -70,8 +89,7 @@ public unsafe partial struct RaptureLogModule
 }
 
 [StructLayout(LayoutKind.Explicit, Size = 0x10)]
-public struct LogMessageSource
-{
+public struct LogMessageSource {
     [FieldOffset(0x00)] public ulong ContentId;
     [FieldOffset(0x08)] public int LogMessageIndex;
     [FieldOffset(0x0C)] public short World;
@@ -79,8 +97,7 @@ public struct LogMessageSource
 }
 
 [StructLayout(LayoutKind.Explicit, Size = 0x928)]
-public struct RaptureLogModuleTab
-{
+public struct RaptureLogModuleTab {
     [FieldOffset(0x00)] public Utf8String Name;
     [FieldOffset(0x68)] public Utf8String VisibleLogLines;
 }

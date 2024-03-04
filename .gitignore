@@ -354,3 +354,7 @@ MigrationBackup/
 
 # JetBrains
 .idea/
+
+# VSCode
+.vscode/
+ida/errors.txt

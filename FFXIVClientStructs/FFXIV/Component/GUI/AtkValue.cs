@@ -1,12 +1,10 @@
-﻿using System.Text;
-using FFXIVClientStructs.FFXIV.Client.Graphics.Render;
+using FFXIVClientStructs.FFXIV.Client.Graphics.Kernel;
 
 namespace FFXIVClientStructs.FFXIV.Component.GUI;
 
 // this type is used to store data of a bunch of different kinds
 // the enum is not exhaustive, just the ones I care about so far
-public enum ValueType
-{
+public enum ValueType {
     Int = 0x3,
     Bool = 0x2,
     UInt = 0x4,
@@ -15,13 +13,13 @@ public enum ValueType
     String8 = 0x8,
     Vector = 0x9,
     Texture = 0xA,
+    AtkValues = 0xB,
     AllocatedString = 0x26,
     AllocatedVector = 0x29
 }
 
 [StructLayout(LayoutKind.Explicit, Size = 0x10)]
-public unsafe partial struct AtkValue
-{
+public unsafe partial struct AtkValue {
     [FieldOffset(0x0)] public ValueType Type;
 
     // union field
@@ -32,12 +30,13 @@ public unsafe partial struct AtkValue
     [FieldOffset(0x8)] public byte Byte;
     [FieldOffset(0x8)] public StdVector<AtkValue>* Vector;
     [FieldOffset(0x8)] public Texture* Texture;
+    [FieldOffset(0x8)] public AtkValue* AtkValues;
 
     [MemberFunction("E8 ?? ?? ?? ?? 41 03 ED")]
     [GenerateCStrOverloads]
     public partial void SetString(byte* value);
 
-    [MemberFunction("E8 ?? ?? ?? ?? F7 DE")]
+    [MemberFunction("E8 ?? ?? ?? ?? 48 8B 06 4C 8D 4C 24 ?? 44 8B C3")]
     public partial void ChangeType(ValueType type);
 
     [MemberFunction("E8 ?? ?? ?? ?? 33 FF 89 7C 24")]

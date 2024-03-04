@@ -1,4 +1,3 @@
-﻿using FFXIVClientStructs.FFXIV.Client.System.Framework;
 using FFXIVClientStructs.FFXIV.Client.System.String;
 using FFXIVClientStructs.FFXIV.Client.UI.Info;
 using FFXIVClientStructs.FFXIV.Component.GUI;
@@ -7,11 +6,7 @@ namespace FFXIVClientStructs.FFXIV.Client.UI.Agent;
 
 [Agent(AgentId.DeepDungeonInspect)]
 [StructLayout(LayoutKind.Explicit, Size = 0x30)]
-public unsafe partial struct AgentDeepDungeonInspect
-{
-    public static AgentDeepDungeonInspect* Instance() =>
-        (AgentDeepDungeonInspect*)Framework.Instance()->GetUiModule()->GetAgentModule()->GetAgentByInternalId(AgentId.DeepDungeonInspect);
-
+public unsafe partial struct AgentDeepDungeonInspect {
     [FieldOffset(0x00)] public AgentInterface AgentInterface;
     [FieldOffset(0x28)] public AgentDeepDungeonInspectData* Data;
     /*
@@ -22,8 +17,7 @@ public unsafe partial struct AgentDeepDungeonInspect
 
     //Size taken from Alloc in disassembly
     [StructLayout(LayoutKind.Explicit, Size = 0x160)]
-    public unsafe partial struct AgentDeepDungeonInspectData
-    {
+    public unsafe partial struct AgentDeepDungeonInspectData {
         [FieldOffset(0x00)] public uint RequestObjectID;
         [FieldOffset(0x04)] public uint CurrentObjectID;
         [FieldOffset(0x08)] public uint StatusSearchComment;
@@ -43,4 +37,3 @@ public unsafe partial struct AgentDeepDungeonInspect
         [FieldOffset(0xF8)] public Utf8String UnkF8; //Never seen a value here. Type taken from Constructor
     }
 }
-

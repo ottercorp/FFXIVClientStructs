@@ -1,9 +1,8 @@
-﻿namespace FFXIVClientStructs.FFXIV.Common.Math; 
+namespace FFXIVClientStructs.FFXIV.Common.Math;
 
 [StructLayout(LayoutKind.Explicit, Size = 0x10)]
-public unsafe struct Matrix2x2 : IEquatable<Matrix2x2>
-{
-    [FieldOffset(0x0)] public fixed float Matrix[4];
+public unsafe struct Matrix2x2 : IEquatable<Matrix2x2> {
+    [FieldOffset(0x0), CExportIgnore] public fixed float Matrix[4];
 
     [FieldOffset(0x0)] public float M11;
     [FieldOffset(0x4)] public float M12;
@@ -13,18 +12,15 @@ public unsafe struct Matrix2x2 : IEquatable<Matrix2x2>
     public static Matrix2x2 Zero = new();
     public static Matrix2x2 Identity = new() { M11 = 1.0f, M22 = 1.0f };
 
-    public float this[int index]
-    {
+    public float this[int index] {
         get => index is >= 0 and < 4 ? Matrix[index] : throw new IndexOutOfRangeException($"{index}");
-        set
-        {
+        set {
             if (index is >= 0 and < 4) Matrix[index] = value;
             else throw new IndexOutOfRangeException($"{index}");
         }
     }
 
-    public float this[int row, int column]
-    {
+    public float this[int row, int column] {
         get => this[column + row * 2];
         set => this[column + row * 2] = value;
     }

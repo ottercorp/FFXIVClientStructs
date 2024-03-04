@@ -1,11 +1,11 @@
-﻿using FFXIVClientStructs.FFXIV.Common.Math;
+using FFXIVClientStructs.FFXIV.Client.Graphics.Kernel;
+using FFXIVClientStructs.FFXIV.Common.Math;
 
 namespace FFXIVClientStructs.FFXIV.Client.Graphics.Render;
-// Client::Graphics::Render::SubView
 
+// Client::Graphics::Render::SubView
 [StructLayout(LayoutKind.Explicit, Size = 0x58)]
-public unsafe struct SubView
-{
+public unsafe struct SubView {
     [FieldOffset(0x0)] public void* Vtbl;
     [FieldOffset(0x8)] public uint Flags;
     [FieldOffset(0x10)] public Rectangle ViewportRegion;

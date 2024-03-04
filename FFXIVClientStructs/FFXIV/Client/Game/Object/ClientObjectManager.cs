@@ -1,8 +1,7 @@
-﻿namespace FFXIVClientStructs.FFXIV.Client.Game.Object;
+namespace FFXIVClientStructs.FFXIV.Client.Game.Object;
 
 [StructLayout(LayoutKind.Explicit)]
-public unsafe partial struct ClientObjectManager
-{
+public unsafe partial struct ClientObjectManager {
     [StaticAddress("48 8D 0D ?? ?? ?? ?? E8 ?? ?? ?? ?? C7 43 60 FF FF FF FF", 3)]
     public static partial ClientObjectManager* Instance();
 
@@ -18,6 +17,6 @@ public unsafe partial struct ClientObjectManager
     [MemberFunction("E8 ?? ?? ?? ?? C7 07 ?? ?? ?? ?? 48 8B 05")]
     public partial void DeleteObjectByIndex(ushort id, byte param);
 
-    [MemberFunction("E8 ?? ?? ?? ?? 8B F8 83 F8 FF 75 12")]
+    [MemberFunction("E8 ?? ?? ?? ?? 8B F8 48 8B CB 83 F8 FF")]
     public partial uint CalculateNextAvailableIndex();
 }

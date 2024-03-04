@@ -1,9 +1,11 @@
-﻿namespace FFXIVClientStructs.FFXIV.Client.Game.MJI;
+namespace FFXIVClientStructs.FFXIV.Client.Game.MJI;
 
 /// <summary>
-/// Manager struct (?) for Island Sanctuary (internally MJI).
+/// Manager for Island Sanctuary (internally MJI).
 /// </summary>
-[StructLayout(LayoutKind.Explicit, Size = 0x378)]
+// Client::Game::MJI::MJIManager
+// ctor "48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 33 F6 48 C7 01"
+[StructLayout(LayoutKind.Explicit, Size = 0x440)]
 public unsafe partial struct MJIManager {
     /// <summary>
     /// Reports if the player is currently on the Island Sanctuary.
@@ -29,10 +31,13 @@ public unsafe partial struct MJIManager {
     [FieldOffset(0x1C)] public uint CurrentModeItem;
 
     [FieldOffset(0x28)] public IslandState IslandState;
-    
-    [FieldOffset(0xF0)] public MJIPastureHandler* PastureHandler;
-    [FieldOffset(0xF8)] public MJIFarmState* FarmState;
-    
+
+    [FieldOffset(0x128)] public MJIPastureHandler* PastureHandler;
+    [FieldOffset(0x130)] public MJIFarmState* FarmState;
+    [FieldOffset(0x140)] public MJIGranariesState* GranariesState;
+
+    [FieldOffset(0x168)] public MJIFavorState* FavorState;
+
     /// <summary>
     /// A struct representing landmark placements on the Island Sanctuary. Each index represents a specific landmark
     /// slot directly. Refer to <see cref="MJILandmarkPlacement"/> for more information.
@@ -42,9 +47,9 @@ public unsafe partial struct MJIManager {
     /// logic. To that end, this field doesn't actually seem authoritative for determining what's going on - see
     /// <see cref="MJI.IslandState.LandmarkIds"/> et al for what seems to be used by system logic.
     /// </remarks>
-    [FixedSizeArray<MJILandmarkPlacement>(4)]
-    [FieldOffset(0x184)] public fixed byte LandmarkPlacements[4 * MJILandmarkPlacement.Size];
-    
+    [FixedSizeArray<MJILandmarkPlacement>(5)]
+    [FieldOffset(0x1D4)] public fixed byte LandmarkPlacements[5 * MJILandmarkPlacement.Size]; // ??
+
     /// <summary>
     /// A struct representing building placements on the Island Sanctuary. Each index represents a specific building
     /// slot directly. Refer to <see cref="MJIBuildingPlacement"/> for more information.
@@ -55,8 +60,8 @@ public unsafe partial struct MJIManager {
     /// <see cref="MJI.IslandState.Granaries"/> and <see cref="MJI.IslandState.Workshops"/> for what seems to be
     /// used by system logic.
     /// </remarks>
-    [FixedSizeArray<MJIBuildingPlacement>(5)]
-    [FieldOffset(0x1B4)] public fixed byte BuildingPlacements[5 * MJIBuildingPlacement.Size];
+    [FixedSizeArray<MJIBuildingPlacement>(6)]
+    [FieldOffset(0x224)] public fixed byte BuildingPlacements[6 * MJIBuildingPlacement.Size];
 
     /// <summary>
     /// A struct representing information about the cabin.
@@ -65,50 +70,58 @@ public unsafe partial struct MJIManager {
     /// Like <c>MJIBuildingPlacements</c>, the purpose of this field is unknown but it at least appears to behave
     /// like any other building placement.
     /// </remarks>
-    [FieldOffset(0x204)] public MJIBuildingPlacement CabinPlacement;
+    [FieldOffset(0x284)] public MJIBuildingPlacement CabinPlacement;
 
     /// <summary>
     /// A struct representing farm (garden/cropland) placements on the current Island Sanctuary.
     /// </summary>
     [FixedSizeArray<MJIFarmPasturePlacement>(3)]
-    [FieldOffset(0x214)] public fixed byte FarmPlacements[MJIFarmPasturePlacement.Size * 3];
-    
+    [FieldOffset(0x294)] public fixed byte FarmPlacements[MJIFarmPasturePlacement.Size * 3];
+
     /// <summary>
     /// A struct representing pasture placements on the current Island Sanctuary. Identical in behavior (hopefully)
     /// to that of <see cref="FarmPlacements"/>
     /// </summary>
     [FixedSizeArray<MJIFarmPasturePlacement>(3)]
-    [FieldOffset(0x238)] public fixed byte PasturePlacements[MJIFarmPasturePlacement.Size * 3];
+    [FieldOffset(0x2B8)] public fixed byte PasturePlacements[MJIFarmPasturePlacement.Size * 3];
+
+    [FieldOffset(0x2E0)] public ushort RequestDemandCraftId;
+    [FieldOffset(0x2E4)] public int RequestDemandType; // 0 = none, 1 = everything, 2 = specific object
+    [FieldOffset(0x2E8)] public bool DemandDirty; // if true, fields below (popularity and supply/demand are unset)
 
     /// <summary>
     /// A reference to the current set of popularity scores given to craftworks on the player's island. The actual
     /// popularity scores can be pulled from the MJICraftworksPopularity sheet using this value as a Row ID.
+    /// Valid only if DemandDirty == false.
     /// </summary>
-    [FieldOffset(0x270)] public byte CurrentPopularity;
+    [FieldOffset(0x2F0)] public byte CurrentPopularity;
 
     /// <summary>
     /// A reference to the next cycle's popularity scores (called "predicted demand" in-game). Follows the same rules
     /// as <see cref="CurrentPopularity" />.
+    /// Valid only if DemandDirty == false.
     /// </summary>
-    [FieldOffset(0x271)] public byte NextPopularity;
+    [FieldOffset(0x2F1)] public byte NextPopularity;
 
     /// <summary>
     /// An array of bytes representing the current supply and demand shift for each craftwork that the player can
     /// create. Information for a specific item can be retrieved by querying the RowID for the item under inspection.
+    /// Valid only if DemandDirty == false.
     /// <br /><br />
     /// The current supply value is stored in the upper half of each byte, while the current demand shift is stored in
     /// the lower half.
     /// </summary>
-    [FieldOffset(0x272)] public fixed byte SupplyAndDemandShifts[71]; // Maybe 72?
-    
+    // Set to the row count of the MJICraftworksObject table
+    [FieldOffset(0x2F2)] public fixed byte SupplyAndDemandShifts[91];
+
     /// <summary>
     /// The current day in the Craftworks cycle, from 0 to 6.
     /// </summary>
     /// <remarks>
     /// 0 represents reset day (Tuesday).
     /// </remarks>
-    [FieldOffset(0x306)] public byte CurrentCycleDay;
-    
+    [FieldOffset(0x3A8)] public byte CurrentCycleDay;
+
     /// <summary>
     /// An array containing the currently-configured rest days for the Isleworks. Contains values 0 - 13, and is
     /// always in order.
@@ -117,15 +130,15 @@ public unsafe partial struct MJIManager {
     /// Like CurrentCycleDay, 0 represents Reset Day. 7, likewise, represents the next reset. This field may not be
     /// populated until the Craftworks have been opened at least once.
     /// </remarks>
-    [FieldOffset(0x307)] public fixed byte CraftworksRestDays[4];
-    
+    [FieldOffset(0x3A9)] public fixed byte CraftworksRestDays[4];
+
     /// <summary>
     /// The current groove level of the Isleworks.
     /// </summary>
     /// <remarks>
     /// May not be present until the Isleworks is loaded at least once by the player.
     /// </remarks>
-    [FieldOffset(0x354)] public uint CurrentGroove;
+    [FieldOffset(0x3F6)] public uint CurrentGroove; // unverified for 6.5!
 
     /// <summary>
     /// Retrieve an instance of IslandSanctuaryManager for consumption.
@@ -196,6 +209,28 @@ public unsafe partial struct MJIManager {
     public partial byte GetFarmSlotCount();
 
     /// <summary>
+    /// Request updated popularity and demand data.
+    /// </summary>
+    [MemberFunction("E8 ?? ?? ?? ?? 48 8B CD E8 ?? ?? ?? ?? 32 C0")]
+    public partial void RequestDemandFull();
+
+    /// <summary>
+    /// Schedule specified item to be crafted in a given workshop at a given time.
+    /// </summary>
+    /// <param name="craftObjectId">MJICraftworksObject row id for object to be crafted.</param>
+    /// <param name="startingHour">(slot + 17) % 24, where slot 0 is first hour of the cycle.</param>
+    /// <param name="cycle">0-13 range, this/next week in order.</param>
+    /// <param name="workshop">0-3 range.</param>
+    [MemberFunction("E8 ?? ?? ?? ?? 48 8B 46 28 41 8D 4E FF")]
+    public partial void ScheduleCraft(ushort craftObjectId, byte startingHour, byte cycle, byte workshop);
+
+    /// <summary>
+    /// Request updated favor data.
+    /// </summary>
+    [MemberFunction("E8 ?? ?? ?? ?? 48 8B 47 28 C7 00")]
+    public partial void RequestFavorData();
+
+    /// <summary>
     /// Check if a specific MJIKeyItem is unlocked by the player.
     /// </summary>
     /// <remarks>
@@ -206,7 +241,7 @@ public unsafe partial struct MJIManager {
     /// <param name="keyItemId">The RowID of the MJIKeyItem to check.</param>
     /// <returns>Returns true if the key item is unlocked.</returns>
     public bool IsKeyItemUnlocked(ushort keyItemId) {
-        return (this.IslandState.UnlockedKeyItems & (1 << keyItemId - 1)) > 0;
+        return ((1 << (keyItemId & 7)) & this.IslandState.UnlockedKeyItems[keyItemId >> 3]) > 0;
     }
 
     /// <summary>
@@ -215,7 +250,7 @@ public unsafe partial struct MJIManager {
     /// <param name="itemId">The Craftwork ID to look up</param>
     /// <returns>Returns an enum value.</returns>
     public CraftworkSupply GetSupplyForCraftwork(uint itemId) {
-        return (CraftworkSupply) ((this.SupplyAndDemandShifts[itemId] & 0xF0) >> 4);
+        return (CraftworkSupply)((this.SupplyAndDemandShifts[itemId] & 0xF0) >> 4);
     }
 
     /// <summary>
@@ -224,7 +259,7 @@ public unsafe partial struct MJIManager {
     /// <param name="itemId">The Craftwork ID to look up</param>
     /// <returns>Returns an enum value.</returns>
     public CraftworkDemandShift GetDemandShiftForCraftwork(uint itemId) {
-        return (CraftworkDemandShift) (this.SupplyAndDemandShifts[itemId] & 0x0F);
+        return (CraftworkDemandShift)(this.SupplyAndDemandShifts[itemId] & 0x0F);
     }
 }
 
@@ -234,7 +269,7 @@ public unsafe partial struct MJIManager {
 [StructLayout(LayoutKind.Explicit, Size = 0x10)]
 public struct MJIBuildingPlacement {
     public const int Size = 0x10;
-    
+
     /// <summary>
     /// At load, the location of this specific building. Will update if a building is changed, but the exact
     /// mechanism of the update (and why it does such) is not currently known.
@@ -258,16 +293,18 @@ public struct MJIBuildingPlacement {
 /// </summary>
 [StructLayout(LayoutKind.Explicit, Size = Size)]
 public struct MJILandmarkPlacement {
-    public const int Size = 0xC;
+    public const int Size = 0x10;
 
     [FieldOffset(0x8)] public byte HoursToCompletion;
-    
+
     /// <summary>
     /// The RowID of the landmark currently present at the specified location.
     /// </summary>
     [FieldOffset(0x9)] public byte LandmarkId;
 
-    [FieldOffset(0xA)] public ushort UnderConstruction; // ?? unsure if this is actually a ushort...
+    [FieldOffset(0xA)] public ushort UnderConstruction; // ?? unverified for 6.5!
+
+    [FieldOffset(0xC)] public ushort Rotation;
 }
 
 /// <summary>
@@ -276,7 +313,7 @@ public struct MJILandmarkPlacement {
 [StructLayout(LayoutKind.Explicit, Size = Size)]
 public struct MJIFarmPasturePlacement {
     public const int Size = 0xC;
-    
+
     /// <summary>
     /// The SGB ID of the model to use for this location
     /// </summary>

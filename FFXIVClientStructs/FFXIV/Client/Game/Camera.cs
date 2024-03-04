@@ -1,8 +1,10 @@
-﻿namespace FFXIVClientStructs.FFXIV.Client.Game;
+namespace FFXIVClientStructs.FFXIV.Client.Game;
 
+// Client::Game::Camera
+//   Client::Game::CameraBase
+// ctor "E8 ?? ?? ?? ?? EB 03 48 8B C7 45 33 C0 48 89 03"
 [StructLayout(LayoutKind.Explicit, Size = 0x2B0)]
-public struct Camera
-{
+public struct Camera {
     [FieldOffset(0x00)] public CameraBase CameraBase;
     [FieldOffset(0x114)] public float Distance;
     [FieldOffset(0x118)] public float MinDistance;
@@ -15,27 +17,23 @@ public struct Camera
 }
 
 [StructLayout(LayoutKind.Explicit, Size = 0x300)]
-public unsafe struct LobbyCamera
-{
+public unsafe struct LobbyCamera {
     [FieldOffset(0x00)] public Camera Camera;
     [FieldOffset(0x2F8)] public void* LobbyExcelSheet;
 }
 
 [StructLayout(LayoutKind.Explicit, Size = 0x300)]
-public struct Camera3
-{
+public struct Camera3 {
     [FieldOffset(0x00)] public Camera Camera;
 }
 
 [StructLayout(LayoutKind.Explicit, Size = 0x2E0)]
-public struct LowCutCamera
-{
+public struct LowCutCamera {
     [FieldOffset(0x00)] public CameraBase CameraBase;
 }
 
 [StructLayout(LayoutKind.Explicit, Size = 0x350)]
-public struct Camera4
-{
+public struct Camera4 {
     [FieldOffset(0x00)] public CameraBase CameraBase;
 
     [FieldOffset(0x110)] public Graphics.Scene.Camera SceneCamera0;

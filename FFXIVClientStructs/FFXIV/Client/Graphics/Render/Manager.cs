@@ -1,14 +1,15 @@
-﻿namespace FFXIVClientStructs.FFXIV.Client.Graphics.Render;
+namespace FFXIVClientStructs.FFXIV.Client.Graphics.Render;
+
 // Client::Graphics::Render::Manager
 //  Client::Graphics::Singleton<Client::Graphics::Render::Manager>
+// ctor "48 89 01 48 8D 59 08"
+[StructLayout(LayoutKind.Explicit, Size = 0x2D750)]
+public unsafe partial struct Manager {
+    [FieldOffset(0x0)] public void* Vtbl;
+    [FixedSizeArray<View>(32)]
+    [FieldOffset(0x8)] public fixed byte ViewArray[32 * 0x5A0]; // 32x Client::Graphics::Render::View
 
-// size = 0x2D6C0
-// ctor 48 89 01 48 8D 59 08 
-[StructLayout(LayoutKind.Explicit, Size = 0x2D710)]
-public unsafe partial struct Manager
-{
-    public enum RenderViews : uint
-    {
+    public enum RenderViews : uint {
         OmniShadow0 = 0,
         OmniShadow1,
         OmniShadow2,
@@ -43,8 +44,7 @@ public unsafe partial struct Manager
         Unused // unused in retail
     }
 
-    public enum RenderSubViews : uint
-    {
+    public enum RenderSubViews : uint {
         Shadow0 = 0,
         Shadow1,
         Shadow2,
@@ -64,8 +64,4 @@ public unsafe partial struct Manager
         Query,
         Hud
     }
-
-    [FieldOffset(0x0)] public void* Vtbl;
-    [FixedSizeArray<View>(32)]
-    [FieldOffset(0x8)] public fixed byte ViewArray[0x5A0 * 0x20]; // 32 Client::Graphics::Render::View
 }
