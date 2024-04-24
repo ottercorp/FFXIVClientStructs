@@ -599,9 +599,12 @@ classes:
       - ea: 0x141A1A668
     vfuncs:
       0: dtor
+      1: GetGlobalParameters
+      3: FormatUtf8String
       7: EncodeString
       8: EncodeMacro
       9: ProcessMacroCode
+      16: FormatString # using byte* as input
   Component::Text::Localize::Localize:
     vtbls:
       - ea: 0x141A1A6F0
@@ -1680,7 +1683,7 @@ classes:
       0x1409655A0: ctor
   Client::Game::UI::Map::MapMarkerData:
     funcs:
-      0x1409652B0: SetData # (int levelId, Utf8String* tooltip, uint iconId, float x, float y, float z, float radius, ushort territoryTypeId, uint mapId, uint placeNameZoneId, uint placeNameId, ushort recommendedLevel, char a14) -> MapMarkerData*
+      0x1409652B0: SetData
   Client::Game::BattleLog:
     funcs:
       0x14099B090: AddLogMessage
@@ -2955,7 +2958,7 @@ classes:
       11: GetUseOsHardwareCursor
       12: SetSoftwareCursorScale
       13: GetSoftwareCursorScale
-      14: IsCursorVisible
+      14: GetCursorVisibility
       19: SetShowSoftwareCursorTrajectory
       21: IsMouseNotCaptured
       22: UnloadSoftwareCursor
@@ -3028,9 +3031,12 @@ classes:
       0x1400B6660: OpenAddon
       0x1400B6AB0: OpenAddonByAgent
       0x1400B6DE0: OpenYesNo
+      0x1400B70F0: OpenSelectOk
+      0x1400B7050: OpenSelectOk2
       0x1400CA390: OnUpdate_Nameplates
       0x1400CB840: IncRefNumberArrayData
       0x1400CB890: IncRefStringArrayData
+      0x1400CF0A0: GetStaticAddonName
       0x1400DACD0: UpdateBattleCharaNameplates
       0x1400DBB20: UpdateNpcNameplates
       0x1400DDE90: IsUIVisible
@@ -3251,8 +3257,8 @@ classes:
       0x14010CA40: GetLetterBoxUsage
       0x14010CA60: GetNumLettersFromPurchases
       0x14010CA70: GetNumLettersFromGameMasters
-      0x14010CA80: HasLettersFromGameMasters
-      0x14010CA90: HasLettersFromSupportDesk
+      0x14010CA80: GetHasLettersFromGameMasters
+      0x14010CA90: GetHasLettersFromSupportDesk
       0x14017C8D0: Finalize
   Client::UI::Info::InfoProxySearch:
     vtbls:
@@ -3838,6 +3844,7 @@ classes:
       0x14149E740: HandleMarketBoardPurchasePacket
       0x14149F1E0: HandleMarketBoardHistoryPacket
       0x14149E5E0: HandleMarketBoardItemRequestStartPacket
+# wrong offset      0x14130DD20: ctor
   Client::Network::NetworkModulePacketReceiverCallback: # derives Application::Network::PacketReceiverCallbackInterface & Client::Network::PacketDispatcher
     vtbls:
       - ea: 0x1419DD6D0
@@ -3881,8 +3888,8 @@ classes:
       0x1402259A0: ctor
       0x14022B150: Finalize
       0x14022B1B0: Update
-      0x14022B3A0: GetAgentByInternalID
-      0x14022B3B0: GetAgentByInternalID_2  # dupe?
+      0x14022B3A0: GetAgentByInternalId
+      0x14022B3B0: GetAgentByInternalId_2  # dupe?
       0x14022B450: HideAgent
       0x14022B470: HideAgentIfActive
       0x14022B4C0: IsAgentActive
@@ -3967,6 +3974,19 @@ classes:
         base: Application::Network::LobbyClient::LobbyRequestCallback
     funcs:
       0x14023C3F0: ctor
+  Component::GUI::AtkMessageBoxManager::AtkMessageBoxEvent:
+    vtbls:
+      - ea: 0x1419DF580
+  Application::Network::LogoutCallbackInterface:
+    vtbls:
+      - ea: 0x1419DF588
+    vfuncs:
+      1: OnLogout
+  Application::Network::ZoneLoginCallbackInterface:
+    vtbls:
+      - ea: 0x1419DF598
+    vfuncs:
+      1: OnZoneLogin
   Client::UI::Agent::AgentLobby:
     vtbls:
       - ea: 0x1419DF508
@@ -3974,12 +3994,39 @@ classes:
     funcs:
       0x140255960: ctor
       0x140255E00: Finalize
+      0x140259C60: UpdateLobbyUIStage
       0x14025A6A0: UpdateCharaSelectDisplay
+      0x14025BEF0: SetDataCenter
+      0x14025FB20: OpenTitleDCWorldMap
+      0x14025FCC0: OpenTitleConnectDialog
       0x140262790: OpenLoginWaitDialog
+      0x140262D80: OpenLobbyScreenText
+      0x140263620: CloseDialog
       0x140264150: ShowCharacterNotFoundWarning
+      0x140264330: GetLobbyText
+      0x14031A960: SetupLobbyCamera
   Client::UI::Agent::AgentLobby::LobbyData:
     funcs:
       0x140241A00: GetCharacterEntryByIndex
+  Client::UI::Agent::AgentLobby::LobbySubscriptionInfo:
+    funcs:
+      0x14161A230: GetDaysUntilNextVeteranRank
+      0x14161A240: GetDaysRemaining
+      0x14161A250: GetVeteranRewardRank
+      0x14161A260: GetTotalDaysSubscribed
+  Client::UI::Agent::AgentLobby::CharaSelectCharacterEntry:
+    funcs:
+      0x14023BED0: IsAnyRetainerNameChangeRequired
+      0x14023C040: IsInDifferentRegion
+      0x14161A2F0: IsNotLocked
+      0x14161A340: IsMissingExVersionForCharacterEdit
+      0x14161A350: IsDCTraveling
+      0x14161A370: IsUnk32
+      0x14161A380: IsMissingExVersionForLogin
+      0x14161A3D0: IsNameChangeRequired
+  Client::UI::Agent::AgentLobby::CharaSelectRetainerInfo:
+    funcs:
+      0x14161A3E0: IsNameChangeRequired
   Client::UI::Agent::AgentCursor:
     vtbls:
       - ea: 0x1419DFD08
@@ -5317,6 +5364,7 @@ classes:
       10: GetStringArrayData
       11: GetExtendArrayData
       17: SetHandlerFunction
+      21: CloseAddon
       26: IsAddonReady
       39: SetUIVisibility
       58: Update
@@ -5725,7 +5773,8 @@ classes:
       24: GetRecipeFavoriteModule
       25: GetCraftModule
       26: GetRaptureUiDataModule
-      27: GetAfterAgentsPtr # points to the field right after the last Agent in AgentModule
+      27: GetDataCenterHelper
+      28: GetWorldHelper
       29: GetGoldSaucerModule
       30: GetRaptureTeleportHistory
       31: GetItemContextCustomizeModule
@@ -6358,6 +6407,30 @@ classes:
       0x1406A8A50: Update
       0x1406A6FF0: Finalize
       0x1406A8E40: SearchForItem
+  Client::UI::Misc::DataCenterHelper:
+    vtbls:
+      - ea: 0x141A1EEB0
+    vfuncs:
+      0: dtor
+    funcs:
+      0x1406B1D40: ctor
+      0x1406B1D80: Finalize
+      0x1406B1E90: PopulateForRegion # a2 is a pointer to the region id (byte)
+      0x1406B2260: GetDataCenterByIndex # unused
+      0x1406B22E0: GetDataCenterByRowId # unused
+      0x1406B22E0: GetDataCenterNameByRowId # unused
+  Client::UI::Misc::WorldHelper:
+    vtbls:
+      - ea: 0x141A1EEC8
+    vfuncs:
+      0: dtor
+    funcs:
+      0x1406B2560: ctor
+      0x1406B2630: Finalize
+      0x1406B26C0: Populate
+      0x1406B2B50: GetWorldById
+      0x1406B2BD0: GetWorldNameById
+      0x1406B2C30: GetWorldIdByName
   Client::UI::Misc::GoldSaucerModule:
     vtbls:
       - ea: 0x141A1EED0
@@ -9970,6 +10043,8 @@ classes:
     vtbls:
       - ea: 0x141A49730
         base: Client::Game::Event::LuaEventHandler
+    vfuncs:
+      267: PopulateMapMarkers # (this, ushort territoryTypeId, StdVector<MapMarkerData>* markerVector)
     funcs:
       0x14082A0E0: ctor
       0x140964F60: ShowTodo # lua function "ShowDirectorTodo"
