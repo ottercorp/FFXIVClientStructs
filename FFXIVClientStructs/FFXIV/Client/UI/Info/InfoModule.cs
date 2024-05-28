@@ -17,8 +17,15 @@ public unsafe partial struct InfoModule {
     [MemberFunction("E8 ?? ?? ?? ?? 48 8B 55 68")]
     public partial InfoProxyInterface* GetInfoProxyById(InfoProxyId id);
 
+    [Obsolete("Use GetInfoProxyById(InfoProxyId)")]
     public InfoProxyInterface* GetInfoProxyById(uint id)
         => GetInfoProxyById((InfoProxyId)id);
+
+    [MemberFunction("E8 ?? ?? ?? ?? 49 83 C9 FF 48 8D 8C 24")]
+    public partial byte* GetLocalCharacterName();
+
+    [MemberFunction("E8 ?? ?? ?? ?? 48 39 03")]
+    public partial ulong GetLocalContentId();
 
     /// <summary>
     /// Checks if the local player has a specific online status set.
@@ -26,6 +33,14 @@ public unsafe partial struct InfoModule {
     /// <param name="id">The RowId in the OnlineStatus sheet.</param>
     [MemberFunction("48 8B 81 ?? ?? ?? ?? 0F B6 CA 48 D3 E8")]
     public partial bool IsOnlineStatusSet(uint id);
+
+    /// <summary>
+    /// Sets the local player's online status to the specified flag bitmask.
+    /// Sent by the server; devs should not call this manually. May be called multiple times.
+    /// </summary>
+    /// <param name="flags">A bitfield representing set flags.</param>
+    [MemberFunction("48 89 91 ?? ?? ?? ?? 48 8B 89 ?? ?? ?? ?? 48 85 C9 0F 85")]
+    public partial void SetOnlineStatusFlags(ulong flags);
 
     /// <summary>
     /// Checks if the local player is in a cross world duty.

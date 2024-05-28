@@ -121,7 +121,7 @@ public unsafe partial struct AgentMap {
     public bool AddMapMarker(Vector3 position, uint icon, int scale = 0, byte* text = null, byte textPosition = 3, byte textStyle = 0) {
         if (MapMarkerCount >= 132) return false;
         if (textPosition is > 0 and < 12)
-            position *= CurrentMapSizeFactorFloat;
+            position *= SelectedMapSizeFactorFloat;
         var marker = stackalloc MapMarkerInfo[1];
         marker->MapMarker.Index = MapMarkerCount;
         marker->MapMarker.X = (short)(position.X * 16.0f);
@@ -210,7 +210,7 @@ public struct MiniMapMarker {
     [FieldOffset(0x08)] public MapMarkerBase MapMarker;
 }
 
-[StructLayout(LayoutKind.Explicit, Size = 0x108)]
+[StructLayout(LayoutKind.Explicit, Size = 0x110)]
 public struct TempMapMarker {
     [FieldOffset(0x00)] public Utf8String TooltipText;
     [FieldOffset(0x68)] public MapMarkerBase MapMarker;

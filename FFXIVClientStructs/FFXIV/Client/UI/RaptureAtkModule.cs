@@ -32,9 +32,10 @@ public unsafe partial struct RaptureAtkModule {
     [FieldOffset(0x10D40 - 0x10)] public Utf8String* AddonNames; // TODO: change to StdVector<Utf8String>
     [FieldOffset(0x10D58 - 0x10)] public AddonConfig* AddonConfigPtr;
 
-    [FieldOffset(0x10E1 - 0x100)] public UIModule* UIModulePtr;
+    [FieldOffset(0x10E10 - 0x10)] public UIModule* UIModulePtr;
     [FieldOffset(0x10E18 - 0x10)] public RaptureLogModule* RaptureLogModulePtr;
     [FieldOffset(0x10E20 - 0x10)] public AgentModule AgentModule;
+    [FieldOffset(0x11C18 - 0x10)] public RaptureHotbarModule* RaptureHotbarModulePtr;
     [FieldOffset(0x11C20 - 0x10)] public RaptureAtkUnitManager RaptureAtkUnitManager;
     [FieldOffset(0x1B938 - 0x10)] public RaptureAtkColorDataManager RaptureAtkColorDataManager;
 
