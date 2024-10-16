@@ -1,4 +1,5 @@
 using FFXIVClientStructs.FFXIV.Client.Game.Event;
+using FFXIVClientStructs.FFXIV.Client.Graphics;
 using FFXIVClientStructs.FFXIV.Client.Graphics.Scene;
 using FFXIVClientStructs.FFXIV.Client.LayoutEngine;
 using FFXIVClientStructs.FFXIV.Client.LayoutEngine.Group;
@@ -78,8 +79,16 @@ public unsafe partial struct GameObject {
     [VirtualFunction(26)]
     public partial void Highlight(ObjectHighlightColor color);
 
+    /// <param name="outHandlers">Should point to array that can fit up to 32 pointers.</param>
+    /// <returns>Num elements filled.</returns>
+    [VirtualFunction(30)]
+    public partial int GetEventHandlersImpl(EventHandler** outHandlers);
+
     [VirtualFunction(34)]
     public partial void SetReadyToDraw();
+
+    [VirtualFunction(46)]
+    public partial void GetCenterPosition(Vector3* outCenter);
 
     [VirtualFunction(47)]
     public partial uint GetNameId();
@@ -99,6 +108,16 @@ public unsafe partial struct GameObject {
     [VirtualFunction(61)]
     public partial bool IsCharacter();
 
+    /// <summary>
+    /// Determines whether a ray intersects with the game object, either by checking the model's geometry or the object's approximate center position.
+    /// </summary>
+    /// <param name="ray">The ray to test for intersection, containing both origin and direction.</param>
+    /// <param name="outHitPosition">The output position where the intersection occurs, if any.</param>
+    /// <param name="outModelChecked">A boolean output that indicates whether the intersection was checked against the model (<c>true</c>) or approximated via the object's center (<c>false</c>).</param>
+    /// <returns><c>true</c> if the ray intersects with the game object; otherwise, <c>false</c>.</returns>
+    [VirtualFunction(69)]
+    public partial bool IntersectsRay(Ray* ray, Vector3* outHitPosition, bool* outModelChecked);
+
     [MemberFunction("E8 ?? ?? ?? ?? 0F 28 74 24 ?? 80 3D")]
     public partial void SetDrawOffset(float x, float y, float z);
 
@@ -110,6 +129,9 @@ public unsafe partial struct GameObject {
 
     [MemberFunction("E8 ?? ?? ?? ?? 84 C0 74 ?? 48 8B 17 45 33 C9")]
     public partial bool IsReadyToDraw();
+
+    [MemberFunction("E8 ?? ?? ?? ?? 0F 5A C7")]
+    public partial Vector3* GetPosition();
 }
 
 // if (EntityId == 0xE0000000)
