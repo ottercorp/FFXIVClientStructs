@@ -1,0 +1,30 @@
+name: Validate data.yml
+
+on:
+  pull_request_target:
+    types:
+      - opened
+      - synchronize
+      - reopened
+    paths:
+      - 'ida/data.yml'
+  push:
+    paths:
+      - 'ida/data.yml'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - name: Install dependencies
+        run: |
+          npm install -g js-yaml
+      - name: Validate data.yml
+        run: NODE_PATH="$(npm root -g):$NODE_PATH" node ./ida/data-validator.js

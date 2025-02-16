@@ -1,16 +1,17 @@
-using FFXIVClientStructs.FFXIV.Client.System.Framework;
-using FFXIVClientStructs.FFXIV.Client.UI.Misc.UserFileManager;
+using UserFileEvent = FFXIVClientStructs.FFXIV.Client.UI.Misc.UserFileManager.UserFileEvent;
 
 namespace FFXIVClientStructs.FFXIV.Client.UI.Misc;
 
 // Client::UI::Misc::UiSavePackModule
 //   Client::UI::Misc::UserFileManager::UserFileEvent
-// ctor "48 89 5C 24 ?? 57 48 83 EC 20 33 FF 48 89 51 10 48 8D 05 ?? ?? ?? ?? 48 89 79 08 48 8B D9 48 89 01 48 89 79 18 4C 8D 05 ?? ?? ?? ?? 89 79 20 8D 57 0C 48 89 79 28 89 79 3C 48 83 C1 30 E8 ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? C6 43 48 1E"
 [GenerateInterop]
 [Inherits<UserFileEvent>]
-[StructLayout(LayoutKind.Explicit, Size = 0x50)]
+[StructLayout(LayoutKind.Explicit, Size = 0x58)]
 public unsafe partial struct UiSavePackModule {
-    public static UiSavePackModule* Instance() => Framework.Instance()->GetUIModule()->GetUiSavePackModule();
+    public static UiSavePackModule* Instance() {
+        var uiModule = UIModule.Instance();
+        return uiModule == null ? null : uiModule->GetUiSavePackModule();
+    }
 
     [VirtualFunction(13)]
     public partial nint GetSegment(byte segment);
@@ -48,4 +49,13 @@ public enum DataSegment : byte {
     VVDNOTE = 0x1A,
     VVDACT = 0x1B,
     TOFU = 0x1C,
+    FISHING = 0x1D,
+    ACTION = 0x1E,
+    TFILTER = 0x1F,
+    READYC = 0x20,
+    PTRLST = 0x21,
+    CATSBM = 0x22,
+    DESCRI = 0x23,
+    MJICWSP = 0x24,
+    PERFORM = 0x25,
 }

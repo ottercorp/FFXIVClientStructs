@@ -4,8 +4,7 @@ using FFXIVClientStructs.FFXIV.Common.Math;
 namespace FFXIVClientStructs.FFXIV.Client.Graphics.Physics;
 
 // Client::Graphics::Physics::BoneSimulator
-// ctor "33 D2 48 8D 05 ?? ?? ?? ?? 48 89 01 48 8B C1 89 51 10"
-[StructLayout(LayoutKind.Explicit, Size = 0x100)]
+[StructLayout(LayoutKind.Explicit, Size = 0x450)]
 public unsafe struct BoneSimulator {
     [FieldOffset(0x10)] public PhysicsGroup Group;
     [FieldOffset(0x18)] public Skeleton* Skeleton; // Client::Graphics::Render::Skeleton

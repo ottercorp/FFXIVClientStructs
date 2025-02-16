@@ -42,13 +42,16 @@ public unsafe partial struct AtkUldManager {
     [FieldOffset(0x86)] public byte Flags1;
     [FieldOffset(0x89)] public AtkLoadState LoadedState; // 3 is fully loaded
 
+    [MemberFunction("40 53 48 83 EC 20 48 8B D9 E8 ?? ?? ?? ?? 45 33 C9 4C 8B C0")]
+    public partial void InitializeResourceRendererManager();
+
     [MemberFunction("F6 81 ?? ?? ?? ?? ?? 44 8B CA 74 42")]
     public partial AtkResNode* SearchNodeById(uint id);
 
     [MemberFunction("E8 ?? ?? ?? ?? 4C 8B F0 48 85 C0 0F 84 ?? ?? ?? ?? 49 8B 4D 08")]
     public partial AtkComponentBase* CreateAtkComponent(ComponentType type);
 
-    [MemberFunction("E8 ?? ?? ?? ?? 49 8B 55 08 48 89 04 13")]
+    [MemberFunction("E8 ?? ?? ?? ?? 49 8B 55 08 48 89 04 17")]
     public partial AtkResNode* CreateAtkNode(NodeType type);
 
     public static AtkResNode* CreateAtkNodeStatic(NodeType type) => MemberFunctionPointers.CreateAtkNode(null, type);

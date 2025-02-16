@@ -3,7 +3,7 @@ using FFXIVClientStructs.FFXIV.Client.System.String;
 namespace FFXIVClientStructs.FFXIV.Client.Game.UI;
 
 // Client::Game::UI::RecipeNote
-// ctor "E8 ?? ?? ?? ?? 48 8D 8B ?? ?? ?? ?? E8 ?? ?? ?? ?? B9 ?? ?? ?? ?? 48 89 AB"
+// ctor "E8 ?? ?? ?? ?? BD ?? ?? ?? ?? 4C 89 A6"
 [GenerateInterop]
 [StructLayout(LayoutKind.Explicit, Size = 0xB18)]
 public unsafe partial struct RecipeNote {
@@ -14,10 +14,11 @@ public unsafe partial struct RecipeNote {
 
     [FieldOffset(0xB8)] public RecipeData* RecipeList;
 
-    [StructLayout(LayoutKind.Explicit, Size = 0x420)]
+    [StructLayout(LayoutKind.Explicit, Size = 0x440)]
     public struct RecipeData {
+        // E8 ?? ?? ?? ?? 48 8B 8E ?? ?? ?? ?? 33 FF 48 85 C9 74 0C E8 ?? ?? ?? ?? 48 89 BE ?? ?? ?? ?? 48 8B 86 ?? ?? ?? ?? 48 89 5C 24   (7.1)
         [FieldOffset(0x000)] public RecipeEntry* Recipes;
-        [FieldOffset(0x408)] public ushort SelectedIndex;
+        [FieldOffset(0x428)] public ushort SelectedIndex;
         public RecipeEntry* SelectedRecipe => Recipes + SelectedIndex;
     }
 
@@ -38,7 +39,7 @@ public unsafe partial struct RecipeNote {
     }
 
     [GenerateInterop]
-    [StructLayout(LayoutKind.Explicit, Size = 0x3F8)]
+    [StructLayout(LayoutKind.Explicit, Size = 0x400)]
     public unsafe partial struct RecipeEntry {
         [FieldOffset(0x00), FixedSizeArray] internal FixedSizeArray6<RecipeIngredient> _ingredients;
         [FieldOffset(0x330), FixedSizeArray] internal FixedSizeArray2<RecipeCrystal> _crystals;
@@ -77,9 +78,9 @@ public unsafe partial struct RecipeNote {
         [FieldOffset(0x3E6)] public ushort PatchNumber;
     }
 
-    [MemberFunction("4C 8B 81 ?? ?? ?? ?? 44 8B D2 4D 85 C0")]
+    [MemberFunction("4C 8B 81 ?? ?? ?? ?? 4D 85 C0 74 2E")]
     public partial bool IsRecipeUnlocked(ushort recipeId);
 
-    [MemberFunction("E8 ?? ?? ?? ?? 0F B6 4E 09 8B 76 04")]
+    [MemberFunction("E8 ?? ?? ?? ?? 40 32 FF 44 0F B7 F0")]
     public partial ushort GetCraftTypeLevel(byte craftType);
 }

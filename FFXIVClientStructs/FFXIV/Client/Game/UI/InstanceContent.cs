@@ -2,10 +2,12 @@ namespace FFXIVClientStructs.FFXIV.Client.Game.UI;
 
 // Client::Game::UI::InstanceContent
 [GenerateInterop]
-[StructLayout(LayoutKind.Explicit, Size = 0x70)]
+[StructLayout(LayoutKind.Explicit, Size = 0x78)]
 public unsafe partial struct InstanceContent {
-    [StaticAddress("45 32 FF 48 8D 0D ?? ?? ?? ?? F3 0F 7F 44 24 ??", 6)]
+    [StaticAddress("48 8D 0D ?? ?? ?? ?? 0F 57 C0 4C 89 B4 24", 3)]
     public static partial InstanceContent* Instance();
+
+    [FieldOffset(0x70)] public byte IsLimitedTimeBonusActive;
 
     /// <summary>
     /// Provides the number of minutes remaining on the penalty.

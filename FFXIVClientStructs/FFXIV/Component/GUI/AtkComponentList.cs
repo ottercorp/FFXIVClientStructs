@@ -1,28 +1,33 @@
+using FFXIVClientStructs.FFXIV.Client.System.Memory;
+
 namespace FFXIVClientStructs.FFXIV.Component.GUI;
 
 // Component::GUI::AtkComponentList
 //   Component::GUI::AtkComponentBase
 //     Component::GUI::AtkEventListener
-// common CreateAtkComponent function "E8 ?? ?? ?? ?? 48 8B F8 48 85 C0 0F 84 ?? ?? ?? ?? 49 8B 0F"
+// common CreateAtkComponent function "E8 ?? ?? ?? ?? 4C 8B F0 48 85 C0 0F 84 ?? ?? ?? ?? 49 8B 4D 08"
 // type 1
 [GenerateInterop(isInherited: true)]
 [Inherits<AtkComponentBase>]
-[StructLayout(LayoutKind.Explicit, Size = 0x1A8)]
-public unsafe partial struct AtkComponentList {
+[StructLayout(LayoutKind.Explicit, Size = 0x1B0)]
+public unsafe partial struct AtkComponentList : ICreatable {
     [FieldOffset(0xC0)] public AtkComponentListItemRenderer* FirstAtkComponentListItemRenderer;
     [FieldOffset(0xC8)] public AtkComponentScrollBar* AtkComponentScrollBarC8;
     [FieldOffset(0xF0)] public ListItem* ItemRendererList;
-    [FieldOffset(0x118)] public int ListLength;
-    [FieldOffset(0x12C)] public int SelectedItemIndex; // 0-N, -1 when none.
-    [FieldOffset(0x130)] public int HeldItemIndex; // 0-N, -1 when none. While mouse is held down.
+    [FieldOffset(0x120)] public int ListLength;
+    [FieldOffset(0x134)] public int SelectedItemIndex; // 0-N, -1 when none.
+    [FieldOffset(0x138)] public int HeldItemIndex; // 0-N, -1 when none. While mouse is held down.
 
-    [FieldOffset(0x134)] public int HoveredItemIndex; // 0-N, -1 when none. While mouse is hovering.
+    [FieldOffset(0x13C)] public int HoveredItemIndex; // 0-N, -1 when none. While mouse is hovering.
 
-    // [FieldOffset(0x138)] public int SelectedItemIndex2; // Goes negative sometimes... strange.
-    [FieldOffset(0x148)] public AtkCollisionNode* HoveredItemCollisionNode;
-    [FieldOffset(0x150)] public int HoveredItemIndex2; // Repeat?
-    [FieldOffset(0x158)] public int HoveredItemIndex3; // Repeat?
-    [FieldOffset(0x193)] public bool IsUpdatePending;
+    // [FieldOffset(0x140)] public int SelectedItemIndex2; // Goes negative sometimes... strange.
+    [FieldOffset(0x150)] public AtkCollisionNode* HoveredItemCollisionNode;
+    [FieldOffset(0x158)] public int HoveredItemIndex2; // Repeat?
+    [FieldOffset(0x160)] public int HoveredItemIndex3; // Repeat?
+    [FieldOffset(0x19B)] public bool IsUpdatePending;
+
+    [MemberFunction("E8 ?? ?? ?? ?? 48 89 9F ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? 48 89 07 0F 57 C0")]
+    public partial void Ctor();
 
     [VirtualFunction(25)]
     public partial AtkComponentListItemRenderer* GetItemRenderer(int index);
@@ -56,7 +61,7 @@ public unsafe partial struct AtkComponentList {
     public partial void SetItemLabel(int index, byte* text);
 
     /// <remarks> Used by <see cref="AtkComponentDropDownList"/>. </remarks>
-    [MemberFunction("E8 ?? ?? ?? ?? 4C 8B 97 ?? ?? ?? ?? 89 5C 24 28")]
+    [MemberFunction("3B 91 ?? ?? ?? ?? 7C 03 33 C0 C3 4C 8B 81")]
     public partial byte* GetItemLabel(int index);
 
     [MemberFunction("83 FA FF 0F 8E ?? ?? ?? ?? 53")]

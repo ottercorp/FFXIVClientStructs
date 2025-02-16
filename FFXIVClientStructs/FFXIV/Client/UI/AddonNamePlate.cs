@@ -8,12 +8,12 @@ namespace FFXIVClientStructs.FFXIV.Client.UI;
 [Addon("NamePlate")]
 [GenerateInterop]
 [Inherits<AtkUnitBase>]
-[StructLayout(LayoutKind.Explicit, Size = 0x480)]
+[StructLayout(LayoutKind.Explicit, Size = 0x490)]
 public unsafe partial struct AddonNamePlate {
-    [FieldOffset(0x230)] public BakePlateRenderer BakePlate;
-    [FieldOffset(0x470)] public NamePlateObject* NamePlateObjectArray; // 0 - 50
-    [FieldOffset(0x478)] public byte DoFullUpdate;
-    [FieldOffset(0x47A)] public ushort AlternatePartId;
+    [FieldOffset(0x240)] public BakePlateRenderer BakePlate;
+    [FieldOffset(0x480)] public NamePlateObject* NamePlateObjectArray; // 0 - 50
+    [FieldOffset(0x488)] public byte DoFullUpdate;
+    [FieldOffset(0x48A)] public ushort AlternatePartId;
 
     // Client::UI::AddonNamePlate::BakePlateRenderer
     //   Component::GUI::AtkTextNodeRenderer
@@ -70,7 +70,7 @@ public unsafe partial struct AddonNamePlate {
         public bool IsLocalPlayer => IsPlayerCharacter && ClickThrough;
     }
 
-    [Obsolete("Renamed to AddonNamePlateNumberArray")]
+    [Obsolete("Renamed to AddonNamePlateNumberArray", true)]
     [GenerateInterop]
     [StructLayout(LayoutKind.Explicit, Size = 1006 * 4)]
     public partial struct NamePlateIntArrayData {

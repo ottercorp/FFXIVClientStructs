@@ -9,13 +9,13 @@ namespace FFXIVClientStructs.FFXIV.Client.UI;
 [Addon("JobHudRDB0")]
 [GenerateInterop]
 [Inherits<AddonJobHud>]
-[StructLayout(LayoutKind.Explicit, Size = 0x2E0)]
+[StructLayout(LayoutKind.Explicit, Size = 0x2E8)]
 public unsafe partial struct AddonJobHudRDB0 {
 
-    [FieldOffset(0x270)] public VipersightGaugeData DataPrevious;
-    [FieldOffset(0x288)] public VipersightGaugeData DataCurrent;
-    [FieldOffset(0x2A0)] public VipersightGauge GaugeStandard;
-    [FieldOffset(0x2C0)] public VipersightGaugeSimple GaugeSimple;
+    [FieldOffset(0x278)] public VipersightGaugeData DataPrevious;
+    [FieldOffset(0x290)] public VipersightGaugeData DataCurrent;
+    [FieldOffset(0x2A8)] public VipersightGauge GaugeStandard;
+    [FieldOffset(0x2C8)] public VipersightGaugeSimple GaugeSimple;
 
     [GenerateInterop]
     [Inherits<AddonJobHudGaugeData>]
@@ -100,13 +100,13 @@ public unsafe partial struct AddonJobHudRDB0 {
 [Addon("JobHudRDB1")]
 [GenerateInterop]
 [Inherits<AddonJobHud>]
-[StructLayout(LayoutKind.Explicit, Size = 0x310)]
+[StructLayout(LayoutKind.Explicit, Size = 0x318)]
 public unsafe partial struct AddonJobHudRDB1 {
 
-    [FieldOffset(0x270)] public SerpentOfferingsGaugeData DataPrevious;
-    [FieldOffset(0x2A0)] public SerpentOfferingsGaugeData DataCurrent;
-    [FieldOffset(0x2D0)] public SerpentOfferingsGauge GaugeStandard;
-    [FieldOffset(0x2F0)] public SerpentOfferingsGaugeSimple GaugeSimple;
+    [FieldOffset(0x278)] public SerpentOfferingsGaugeData DataPrevious;
+    [FieldOffset(0x2A8)] public SerpentOfferingsGaugeData DataCurrent;
+    [FieldOffset(0x2D8)] public SerpentOfferingsGauge GaugeStandard;
+    [FieldOffset(0x2F8)] public SerpentOfferingsGaugeSimple GaugeSimple;
 
     [GenerateInterop]
     [Inherits<AddonJobHudGaugeData>]

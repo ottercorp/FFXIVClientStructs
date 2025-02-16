@@ -1,6 +1,5 @@
-using FFXIVClientStructs.FFXIV.Client.System.Framework;
 using FFXIVClientStructs.FFXIV.Client.System.String;
-using FFXIVClientStructs.FFXIV.Client.UI.Misc.UserFileManager;
+using UserFileEvent = FFXIVClientStructs.FFXIV.Client.UI.Misc.UserFileManager.UserFileEvent;
 
 namespace FFXIVClientStructs.FFXIV.Client.UI.Misc;
 
@@ -8,11 +7,14 @@ namespace FFXIVClientStructs.FFXIV.Client.UI.Misc;
 //   Client::UI::Misc::UserFileManager::UserFileEvent
 [GenerateInterop]
 [Inherits<UserFileEvent>]
-[StructLayout(LayoutKind.Explicit, Size = 0x68)]
+[StructLayout(LayoutKind.Explicit, Size = 0x70)]
 public unsafe partial struct AddonConfig {
-    public static AddonConfig* Instance() => Framework.Instance()->GetUIModule()->GetAddonConfig();
+    public static AddonConfig* Instance() {
+        var uiModule = UIModule.Instance();
+        return uiModule == null ? null : uiModule->GetAddonConfig();
+    }
 
-    [FieldOffset(0x50)] public AddonConfigData* ModuleData;
+    [FieldOffset(0x58)] public AddonConfigData* ModuleData;
 
     /// <summary>
     /// Changes the current HUD Layout to the specific value
@@ -26,13 +28,33 @@ public unsafe partial struct AddonConfig {
 }
 
 [GenerateInterop]
-[StructLayout(LayoutKind.Explicit, Size = 0xC8E8)]
+[StructLayout(LayoutKind.Explicit, Size = 0xCBD8)]
 public unsafe partial struct AddonConfigData {
     [FieldOffset(0x00)] public Utf8String DefaultString; // Literally says "Default"
-    // [FieldOffset(0x68)] public StdList<[SomeStruct Size 48]> SomeList; // Contains 300 elements
-    // [FieldOffset(0x78)] public StdList<[SomeStruct size 16]> SomeList; // Contains 400 elements
-    // [FixedSizeArray<[SomeStruct Size 36]>(400)] public byte SomeArray[400 * 36]; // Contains 400 elements
-    // There's a LOT more data here
+    // [FieldOffset(0x68)] public StdList<[SomeStruct Size 48]> SomeList; // Contains 574 elements
+    // [FieldOffset(0x78)] public StdList<[SomeStruct size 16]> SomeList; // Contains 424 elements
+    [FieldOffset(0x88), FixedSizeArray] internal FixedSizeArray998<AddonConfigEntry> _configEntries; // 109 (Default HudLayout?) + 889 (the amount of addons in RaptureAtkModule)
+    [FieldOffset(0x8CE0), FixedSizeArray] internal FixedSizeArray4<Utf8String> _hudLayoutNames; // unused?!
+    [FieldOffset(0x8E80), FixedSizeArray] internal FixedSizeArray436<AddonConfigEntry> _hudLayoutConfigEntries; // 4 HudLayouts * 109 entries
+    [FieldOffset(0xCBD0)] public int CurrentHudLayout;
+}
 
-    [FieldOffset(0xC8E0)] public int CurrentHudLayout;
+[StructLayout(LayoutKind.Explicit, Size = 0x24)]
+public struct AddonConfigEntry {
+    /// <remarks> CRC32 hash of "%s_a" where %s is the addons name. </remarks>
+    [FieldOffset(0x00)] public uint AddonNameHash;
+    // technically these are just FloatValue1, FloatValue2 and so on, but we can name some of them
+    [FieldOffset(0x04)] public float X; // percentage-based position relative to the middle of screen?
+    [FieldOffset(0x08)] public float Y; // percentage-based position relative to the middle of screen?
+    [FieldOffset(0x0C)] public float Scale;
+    [FieldOffset(0x10)] public uint ElementFlags; // Job Guage Simple Mode, the shape of ActionBars...
+    [FieldOffset(0x14)] public ushort Width;
+    [FieldOffset(0x16)] public ushort Height;
+    [FieldOffset(0x18)] public byte ByteValue1; // Visibility flag?
+    [FieldOffset(0x19)] public byte ByteValue2; // Enable flag?
+    [FieldOffset(0x1A)] public byte ByteValue3;
+    [FieldOffset(0x1B)] public byte Alpha;
+
+    [FieldOffset(0x20)] public bool HasValue;
+    [FieldOffset(0x21)] public bool IsOpen;
 }

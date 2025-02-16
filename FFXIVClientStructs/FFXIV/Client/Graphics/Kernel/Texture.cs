@@ -5,7 +5,6 @@ namespace FFXIVClientStructs.FFXIV.Client.Graphics.Kernel;
 //     Client::Graphics::Kernel::DelayedReleaseClassBase
 //       Client::Graphics::ReferencedClassBase
 //   Client::Graphics::Kernel::Notifier
-// ctor "E8 ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? 41 B9 ?? ?? ?? ?? 48 89 07 48 8B CF"
 // renderer texture object, contains platform specific render objects (DX9/DX11/PS3/PS4)
 [GenerateInterop]
 [Inherits<Notifier>(parentOffset: 0x20)]
@@ -34,6 +33,7 @@ public unsafe partial struct Texture {
     [FieldOffset(0x68)] public void* D3D11Texture2D; // ID3D11Texture2D1
     [FieldOffset(0x70)] public void* D3D11ShaderResourceView; // ID3D11ShaderResourceView1
 
+    // TODO: use TextureFormat enum for textureFormat API 12 spec
     public static Texture* CreateTexture2D(int width, int height, byte mipLevel, uint textureFormat, uint flags, uint unk) {
         var size = stackalloc int[2];
         size[0] = width;
@@ -41,6 +41,7 @@ public unsafe partial struct Texture {
         return CreateTexture2D(size, mipLevel, textureFormat, flags, unk);
     }
 
+    // TODO: use TextureFormat enum for textureFormat API 12 spec
     public static Texture* CreateTexture2D(int* size, byte mipLevel, uint textureFormat, uint flags, uint unk)
         => Device.Instance()->CreateTexture2D(size, mipLevel, textureFormat, flags, unk);
 
@@ -66,7 +67,7 @@ public enum TextureFormat : uint {
     B4G4R4A4_UNORM = 0x1440,
     B5G5R5A1_UNORM = 0x1441,
     B8G8R8A8_UNORM = 0x1450,
-    [Obsolete($"Use {nameof(B8G8R8A8_UNORM)}")]
+    [Obsolete($"Use {nameof(B8G8R8A8_UNORM)}", true)]
     R8G8B8A8 = 0x1450,
     B8G8R8X8_UNORM = 0x1451,
     R16_FLOAT = 0x2140,
@@ -83,7 +84,7 @@ public enum TextureFormat : uint {
     D16_UNORM = 0x4140,
     /// <remarks> Can also be R24G8_TYPELESS or R24_UNORM_X8_TYPELESS depending on context. </remarks>
     D24_UNORM_S8_UINT = 0x4250, // depth 28 stencil 8, see MS texture formats on google if you really care :)
-    [Obsolete($"Use {nameof(D24_UNORM_S8_UINT)}")]
+    [Obsolete($"Use {nameof(D24_UNORM_S8_UINT)}", true)]
     D24S8 = 0x4250,
     /// <remarks> Can also be R16_TYPELESS or R16_UNORM depending on context. </remarks>
     D16_UNORM_2 = 0x5140,

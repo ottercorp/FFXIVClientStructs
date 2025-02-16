@@ -1,22 +1,24 @@
 using FFXIVClientStructs.FFXIV.Client.System.String;
-using FFXIVClientStructs.FFXIV.Client.UI.Misc.UserFileManager;
+using UserFileEvent = FFXIVClientStructs.FFXIV.Client.UI.Misc.UserFileManager.UserFileEvent;
 
 namespace FFXIVClientStructs.FFXIV.Client.UI.Misc;
 
 // Client::UI::Misc::RaptureMacroModule
 //   Client::UI::Misc::UserFileManager::UserFileEvent
-// ctor "E8 ?? ?? ?? ?? 48 8D B7 ?? ?? ?? ?? 4C 8B C7"
 [GenerateInterop]
 [Inherits<UserFileEvent>]
 [StructLayout(LayoutKind.Explicit, Size = 0x51AA8)]
 public unsafe partial struct RaptureMacroModule {
-    public static RaptureMacroModule* Instance() => UIModule.Instance()->GetRaptureMacroModule();
+    public static RaptureMacroModule* Instance() {
+        var uiModule = UIModule.Instance();
+        return uiModule == null ? null : uiModule->GetRaptureMacroModule();
+    }
 
-    [FieldOffset(0x40)] public RaptureTextModule* RaptureTextModule;
-    //[FieldOffset(0x48)] public TextChecker* TextChecker;
+    [FieldOffset(0x48)] public RaptureTextModule* RaptureTextModule;
+    //[FieldOffset(0x50)] public TextChecker* TextChecker;
 
-    [FieldOffset(0x58), FixedSizeArray] internal FixedSizeArray100<Macro> _individual;
-    [FieldOffset(0x28D78), FixedSizeArray] internal FixedSizeArray100<Macro> _shared;
+    [FieldOffset(0x60), FixedSizeArray] internal FixedSizeArray100<Macro> _individual;
+    [FieldOffset(0x28D80), FixedSizeArray] internal FixedSizeArray100<Macro> _shared;
 
     [MemberFunction("E8 ?? ?? ?? ?? 32 DB 83 C6 F9")]
     public partial Macro* GetMacro(uint set, uint index);
@@ -30,7 +32,7 @@ public unsafe partial struct RaptureMacroModule {
     [MemberFunction("E8 ?? ?? ?? ?? 8B F8 85 C0 7E 35")]
     public partial uint GetLineCount(Macro* macro);
 
-    [MemberFunction("E8 ?? ?? ?? ?? 48 8D 8C 24 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 8D 8C 24 ?? ?? ?? ?? E8 ?? ?? ?? ?? 41 FE C5")]
+    [MemberFunction("40 53 55 41 54 41 55 48 81 EC ?? ?? ?? ?? 48 8B 05 ?? ?? ?? ?? 48 33 C4 48 89 84 24 ?? ?? ?? ?? 4C 8B E9")]
     public partial void SetMacroLines(Macro* macro, int lineStartIndex, Utf8String* lines);
 
     /// <summary>
@@ -38,7 +40,7 @@ public unsafe partial struct RaptureMacroModule {
     /// </summary>
     /// <param name="needsSave">A boolean denoting if the specified set needs to be saved.</param>
     /// <param name="set">The macro page ID that needs saving.</param>
-    [MemberFunction("45 85 C0 75 04 88 51 3D")]
+    [MemberFunction("45 85 C0 75 04 88 51 44")]
     public partial void SetSavePendingFlag(bool needsSave, uint set);
 
     [GenerateInterop]
@@ -62,7 +64,7 @@ public unsafe partial struct RaptureMacroModule {
         [MemberFunction("E8 ?? ?? ?? ?? 49 63 97 ?? ?? ?? ?? 83 FA 11")]
         public partial void Clear();
 
-        [Obsolete("This function returns the opposite. Use IsNotEmpty.")]
+        [Obsolete("This function returns the opposite. Use IsNotEmpty.", true)]
         [MemberFunction("E8 ?? ?? ?? ?? 48 8B 4D 10 0F B6 9D ?? ?? ?? ??")]
         public partial bool IsEmpty();
 

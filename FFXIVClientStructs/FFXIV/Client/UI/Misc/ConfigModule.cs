@@ -4,14 +4,16 @@ using FFXIVClientStructs.FFXIV.Client.System.Framework;
 namespace FFXIVClientStructs.FFXIV.Client.UI.Misc;
 
 // Client::UI::Misc::ConfigModule
-// ctor "E8 ?? ?? ?? ?? 48 8B 97 ?? ?? ?? ?? 48 8D 8F ?? ?? ?? ?? 4C 8B CF"
 // For updating offsets:
 //  "48 8B CB E8 ?? ?? ?? ?? 48 8B 7C 24 ?? 33 C0 48 8B 5C 24"
 //    16 * (v6 + ConfigOptionCount * a6) + a1 + {ValuesFieldOffset}
 [GenerateInterop]
-[StructLayout(LayoutKind.Explicit, Size = 0xE5C8)]
+[StructLayout(LayoutKind.Explicit, Size = 0xEB30)]
 public unsafe partial struct ConfigModule {
-    public static ConfigModule* Instance() => Framework.Instance()->GetUIModule()->GetConfigModule();
+    public static ConfigModule* Instance() {
+        var uiModule = UI.UIModule.Instance();
+        return uiModule == null ? null : uiModule->GetConfigModule();
+    }
 
     public const int ConfigOptionCount = 715;
     [FieldOffset(0x28)] public UIModule* UIModule;
@@ -30,7 +32,9 @@ public unsafe partial struct ConfigModule {
 
         public string GetName() {
             if ((short)OptionId < 0) return string.Empty;
-            var sysConfig = Framework.Instance()->SystemConfig;
+            var framework = Framework.Instance();
+            if (framework == null) return string.Empty;
+            var sysConfig = framework->SystemConfig;
             var id = (uint)OptionId;
             byte* namePtr = null;
             if (sysConfig.ConfigCount > id) namePtr = (sysConfig.ConfigEntry + id)->Name;

@@ -1,12 +1,14 @@
+using FFXIVClientStructs.FFXIV.Client.UI;
+
 namespace FFXIVClientStructs.FFXIV.Component.GUI;
 
 // Component::GUI::AtkUnitManager
 //   Component::GUI::AtkEventListener
-// ctor "E8 ?? ?? ?? ?? C6 83 ?? ?? ?? ?? ?? 48 8D 8B ?? ?? ?? ?? 48 8D 05"
 [GenerateInterop(isInherited: true)]
 [StructLayout(LayoutKind.Explicit, Size = 0x9C90)]
 public unsafe partial struct AtkUnitManager {
     [FieldOffset(0x0)] public AtkEventListener AtkEventListener;
+    [FieldOffset(0x30), FixedSizeArray, CExportIgnore] internal FixedSizeArray13<AtkUnitList> _depthLayers;
     [FieldOffset(0x30)] public AtkUnitList DepthLayerOneList;
     [FieldOffset(0x840)] public AtkUnitList DepthLayerTwoList;
     [FieldOffset(0x1050)] public AtkUnitList DepthLayerThreeList;
@@ -25,10 +27,22 @@ public unsafe partial struct AtkUnitManager {
     [FieldOffset(0x7920)] public AtkUnitList UnitList16;
     [FieldOffset(0x8130)] public AtkUnitList UnitList17;
     [FieldOffset(0x8940)] public AtkUnitList UnitList18;
+    [FieldOffset(0x9150)] private AtkUnitBase* UnkOperationGuideAddon1; // used by AtkOperationGuide in AtkStage
+    [FieldOffset(0x9158)] private AtkUnitBase* UnkOperationGuideAddon2; // used by AtkOperationGuide in AtkStage
+    [FieldOffset(0x9160)] public AddonCursor* AddonCursor;
+    [FieldOffset(0x9168)] public AddonOperationGuide* AddonOperationGuide;
+    [FieldOffset(0x9170)] public AddonFilter* AddonFilter;
+    [FieldOffset(0x9178)] public AddonFilter* AddonFilterSystem;
+    [FieldOffset(0x9180)] public AddonDragDrop* AddonDragDrop;
+    [FieldOffset(0x9188)] public AtkManagedInterface* ManagedScreenFrame;
+
     [FieldOffset(0x9C88)] public AtkUnitManagerFlags Flags;
 
     [VirtualFunction(8)]
     public partial bool SetAddonVisibility(ushort addonId, bool visible);
+
+    [VirtualFunction(9)]
+    public partial AddonStatus GetAddonStatus(ushort addonId);
 
     [VirtualFunction(10)]
     public partial bool RefreshAddon(AtkUnitBase* addon, uint valueCount, AtkValue* values);
@@ -41,6 +55,13 @@ public unsafe partial struct AtkUnitManager {
 
     [MemberFunction("E8 ?? ?? ?? ?? 8B 6B 20")]
     public partial AtkUnitBase* GetAddonById(ushort id);
+
+    public enum AddonStatus {
+        NotLoaded = 0,
+
+        Shown = 1 << 2,
+        Hidden = 1 << 3,
+    }
 }
 
 [Flags]

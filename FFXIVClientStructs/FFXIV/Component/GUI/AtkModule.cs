@@ -2,17 +2,18 @@ using FFXIVClientStructs.FFXIV.Client.System.Input;
 using FFXIVClientStructs.FFXIV.Client.System.Input.SoftKeyboards;
 using FFXIVClientStructs.FFXIV.Client.System.String;
 using FFXIVClientStructs.FFXIV.Common.Component.Excel;
+using TextServiceEvent = FFXIVClientStructs.FFXIV.Client.System.Input.TextServiceInterface.TextServiceEvent;
 
 namespace FFXIVClientStructs.FFXIV.Component.GUI;
 
 // Component::GUI::AtkModule
 //   Component::GUI::AtkModuleInterface
+//   Component::GUI::AtkExternalInterface
+//   Client::System::Input::TextServiceInterface::TextServiceEvent
 [GenerateInterop(isInherited: true)]
-[Inherits<AtkModuleInterface>]
+[Inherits<AtkModuleInterface>, Inherits<AtkExternalInterface>, Inherits<TextServiceEvent>]
 [StructLayout(LayoutKind.Explicit, Size = 0x82A0)]
 public unsafe partial struct AtkModule {
-    [FieldOffset(0x8)] public AtkExternalInterface AtkExternalInterface;
-
     [FieldOffset(0x20)] public ExcelSheet* AddonSheet;
 
     [FieldOffset(0x128)] public AtkStage* AtkStage;
@@ -32,6 +33,7 @@ public unsafe partial struct AtkModule {
     [FieldOffset(0x7280)] internal StdVector<nint> CallbackHandlerFunctions;
     //[FieldOffset(0x72A0)] internal StdMap<?,?> AgentAddonMapping; // maybe?
 
+    [FieldOffset(0x72B0)] public AtkMessageBoxManager* AtkMessageBoxManager;
     [FieldOffset(0x72B8)] public TextService TextService;
     [FieldOffset(0x72E8)] public AtkTextInput TextInput;
     [FieldOffset(0x7FA8)] internal Utf8String Unk7FA8;

@@ -24,7 +24,7 @@ public unsafe partial struct RetainerManager {
     /// <summary>
     /// Counts the number of Retainers that have an assigned ID.
     /// </summary>
-    [MemberFunction("E8 ?? ?? ?? ?? 48 8B CB 8B E8 E8 ?? ?? ?? FF 8B")]
+    [MemberFunction("48 83 39 00 4C 8B C9")]
     public partial byte GetRetainerCount();
 
     /// <summary>
@@ -53,7 +53,7 @@ public unsafe partial struct RetainerManager {
         [FieldOffset(0x30)] public RetainerTown Town;
         [FieldOffset(0x31)] public byte MarketItemCount;
         [FieldOffset(0x34)] public uint MarketExpire; // 7 Days after last opened retainer
-        [FieldOffset(0x38)] public uint VentureId; // TODO: this is a ushort ("66 41 89 54 CB")
+        [FieldOffset(0x38)] public ushort VentureId;
         [FieldOffset(0x3C)] public uint VentureComplete;
     }
 

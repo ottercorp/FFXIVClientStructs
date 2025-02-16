@@ -25,6 +25,10 @@ public sealed partial class InteropGenerator {
             writer.IncreaseIndent();
         }
 
+        // write struct size constant if available
+        if (structInfo.Size.HasValue)
+            writer.WriteLine($"public const int StructSize = {structInfo.Size};");
+
         // write addresses for resolver
         if (structInfo.HasSignatures()) {
             RenderAddresses(structInfo, writer);

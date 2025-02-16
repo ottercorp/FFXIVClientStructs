@@ -1,18 +1,19 @@
 using FFXIVClientStructs.FFXIV.Client.Game.Object;
-using FFXIVClientStructs.FFXIV.Client.System.Framework;
 using FFXIVClientStructs.FFXIV.Client.System.String;
 using FFXIVClientStructs.FFXIV.Common.Component.Excel;
-using FFXIVClientStructs.FFXIV.Component.Excel;
 using FFXIVClientStructs.FFXIV.Component.Text;
+using ExcelModuleInterface = FFXIVClientStructs.FFXIV.Component.Excel.ExcelModuleInterface;
 
 namespace FFXIVClientStructs.FFXIV.Client.UI.Misc;
 
 // Client::UI::Misc::PronounModule
-// ctor "E8 ?? ?? ?? ?? 48 8D 8F ?? ?? ?? ?? 48 8B D7 E8 ?? ?? ?? ?? 48 8B 44 24"
 [GenerateInterop]
 [StructLayout(LayoutKind.Explicit, Size = 0x3B0)]
 public unsafe partial struct PronounModule {
-    public static PronounModule* Instance() => Framework.Instance()->GetUIModule()->GetPronounModule();
+    public static PronounModule* Instance() {
+        var uiModule = UI.UIModule.Instance();
+        return uiModule == null ? null : uiModule->GetPronounModule();
+    }
 
     [FieldOffset(0x08)] public ExcelModuleInterface* ExcelModuleInterface;
     [FieldOffset(0x10)] public RaptureTextModule* RaptureTextModule;

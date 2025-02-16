@@ -6,6 +6,7 @@ namespace FFXIVClientStructs.FFXIV.Client.Graphics.Render;
 // Client::Graphics::Render::ModelRenderer
 //   Client::Graphics::Render::BaseRenderer
 [GenerateInterop]
+[Inherits<BaseRenderer>]
 [StructLayout(LayoutKind.Explicit, Size = 0x380)]
 public unsafe partial struct ModelRenderer {
     [StructLayout(LayoutKind.Explicit, Size = 0x20)]
@@ -93,15 +94,15 @@ public unsafe partial struct ModelRenderer {
 
     [FieldOffset(0x170), FixedSizeArray] internal FixedSizeArray5<ShaderSubViewKey> _subViewKeys;
 
-    [FieldOffset(0x1C0)] public ShaderCodeResourceHandle* CharacterSelectionModelVS;
-    [FieldOffset(0x1C8)] public ShaderCodeResourceHandle* CharacterSelectionModelPS;
-    [FieldOffset(0x1D0)] public TextureResourceHandle* DitherTexture;
-    [FieldOffset(0x1D8)] public ShaderPackageResourceHandle* IrisShaderPackage;
-    [FieldOffset(0x1E0)] public ShaderPackageResourceHandle* CharacterGlassShaderPackage;
-    [FieldOffset(0x1E8)] public ShaderPackageResourceHandle* CharacterTransparencyShaderPackage;
-    [FieldOffset(0x1F0)] public ShaderPackageResourceHandle* CharacterTattooShaderPackage;
-    [FieldOffset(0x1F8)] public ShaderPackageResourceHandle* CharacterOcclusionShaderPackage;
-    [FieldOffset(0x200)] public ShaderPackageResourceHandle* HairMaskShaderPackage;
+    [FieldOffset(0x1C8)] public ShaderCodeResourceHandle* CharacterSelectionModelVS;
+    [FieldOffset(0x1D0)] public ShaderCodeResourceHandle* CharacterSelectionModelPS;
+    [FieldOffset(0x1D8)] public TextureResourceHandle* DitherTexture;
+    [FieldOffset(0x1E0)] public ShaderPackageResourceHandle* IrisShaderPackage;
+    [FieldOffset(0x1E8)] public ShaderPackageResourceHandle* CharacterGlassShaderPackage;
+    [FieldOffset(0x1F0)] public ShaderPackageResourceHandle* CharacterTransparencyShaderPackage;
+    [FieldOffset(0x1F8)] public ShaderPackageResourceHandle* CharacterTattooShaderPackage;
+    [FieldOffset(0x200)] public ShaderPackageResourceHandle* CharacterOcclusionShaderPackage;
+    [FieldOffset(0x208)] public ShaderPackageResourceHandle* HairMaskShaderPackage;
 
     // At 0x238: pointer to an unknown ConstantBuffer of size 1 vector (0x10 bytes).
     // At 0x240, ..., 0x2B8: pointers to 16 unknown ConstantBuffers of size 4 vectors (0x40 bytes) each.
@@ -109,6 +110,6 @@ public unsafe partial struct ModelRenderer {
     [FieldOffset(0x2C0)] public JobSystem JobSystem; // Client::Graphics::JobSystem<Client::Graphics::Render::ModelRenderer>
 
     // This function, among other things, constructs an OnRenderMaterialParams struct with its params and calls CharacterBase.OnRenderMaterial with it (through some indirections - see Model.RenderMaterialCallback).
-    [MemberFunction("E8 ?? ?? ?? ?? 44 0F B7 20")]
+    [MemberFunction("E8 ?? ?? ?? ?? 44 0F B7 28")]
     public partial ushort* OnRenderMaterial(ushort* outFlags, OnRenderModelParams* param, Material* material, uint materialIndex);
 }

@@ -13,8 +13,7 @@ public struct BoneSimulators {
 }
 
 // Client::Graphics::Physics::BonePhysicsModule
-// ctor "48 8D 05 ?? ?? ?? ?? C7 81 ?? ?? ?? ?? ?? ?? ?? ?? 45 33 C9"
-[StructLayout(LayoutKind.Explicit, Size = 0x1C0)]
+[StructLayout(LayoutKind.Explicit, Size = 0x590)]
 public unsafe struct BonePhysicsModule {
     [FieldOffset(0x10)] public Matrix4x4 SkeletonWorldMatrix;
     [FieldOffset(0x50)] public Matrix4x4 SkeletonInvWorldMatrix;

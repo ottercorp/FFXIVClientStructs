@@ -3,7 +3,6 @@ using FFXIVClientStructs.FFXIV.Client.System.Memory;
 namespace FFXIVClientStructs.FFXIV.Client.Game;
 
 // Client::Game::InventoryManager
-// ctor "48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 48 8B F9 33 ED B9 ?? ?? ?? ??"
 [GenerateInterop]
 [StructLayout(LayoutKind.Explicit, Size = 0x3620)]
 public unsafe partial struct InventoryManager {
@@ -12,7 +11,7 @@ public unsafe partial struct InventoryManager {
 
     [FieldOffset(0x1E08)] public InventoryContainer* Inventories;
 
-    [MemberFunction("E8 ?? ?? ?? ?? 40 38 78 10")]
+    [MemberFunction("E8 ?? ?? ?? ?? 88 58 18")]
     public partial InventoryContainer* GetInventoryContainer(InventoryType inventoryType);
 
     [MemberFunction("E9 ?? ?? ?? ?? 33 C0 C3 0F B6 51 51")]
@@ -21,10 +20,10 @@ public unsafe partial struct InventoryManager {
     [MemberFunction("E8 ?? ?? ?? ?? 8B 53 F1")]
     public partial int GetInventoryItemCount(uint itemId, bool isHq = false, bool checkEquipped = true, bool checkArmory = true, short minCollectability = 0);
 
-    [MemberFunction("E8 ?? ?? ?? ?? 03 F8 BB")]
+    [MemberFunction("E8 ?? ?? ?? ?? 8B F0 8D 4F FE")]
     public partial int GetItemCountInContainer(uint itemId, InventoryType inventoryType, bool isHq = false, short minCollectability = 0);
 
-    [MemberFunction("E8 ?? ?? ?? ?? 8B 4B 0C 66 FF C7")]
+    [MemberFunction("E8 ?? ?? ?? ?? EB 7A 83 F8 04")]
     public partial int MoveItemSlot(InventoryType srcContainer, ushort srcSlot, InventoryType dstContainer, ushort dstSlot, byte unk = 0);
 
     [MemberFunction("E8 ?? ?? ?? ?? 85 C0 7F 66")]
@@ -34,16 +33,16 @@ public unsafe partial struct InventoryManager {
     /// Get the number of gearsets the player is permitted to have/use.
     /// </summary>
     /// <returns>Returns the number of gearsets the player can use.</returns>
-    [MemberFunction("E8 ?? ?? ?? ?? 44 0F B6 C0 84 C0 74 23")]
+    [MemberFunction("E8 ?? ?? ?? ?? 0F B6 C0 85 F6")]
     public partial byte GetPermittedGearsetCount();
 
-    [MemberFunction("E8 ?? ?? ?? ?? 44 8B E8 44 3B F8")]
+    [MemberFunction("E8 ?? ?? ?? ?? 85 C0 74 39 48 8B 06")]
     public partial uint GetEmptySlotsInBag();
 
     [MemberFunction("E8 ?? ?? ?? ?? 3B 44 24 58")]
     public partial uint GetGil();
 
-    [MemberFunction("E8 ?? ?? ?? ?? 8B F0 39 43 78")]
+    [MemberFunction("E8 ?? ?? ?? ?? 03 86")]
     public partial uint GetRetainerGil();
 
     [MemberFunction("E8 ?? ?? ?? ?? 8B F8 39 BB ?? ?? ?? ?? 74 58 44 8B C7 BA ?? ?? ?? ?? 49 8B CF")]
@@ -64,17 +63,17 @@ public unsafe partial struct InventoryManager {
     [MemberFunction("E8 ?? ?? ?? ?? 8B 4C 24 48 03 CF")]
     public partial uint GetMaxCompanySeals(byte grandcompanyId);
 
-    [MemberFunction("E8 ?? ?? ?? ?? 03 C7 EB 19")]
+    [MemberFunction("E8 ?? ?? ?? ?? 8B F0 8D 4F FE")]
     public partial uint GetTomestoneCount(uint tomestoneItemId);
 
-    [MemberFunction("E8 ?? ?? ?? ?? 48 8D 0D ?? ?? ?? ?? 8B D8 E8 ?? ?? ?? ?? 42 8D 0C 3B")]
+    [MemberFunction("E8 ?? ?? ?? ?? 48 8D 0D ?? ?? ?? ?? 8B D8 E8 ?? ?? ?? ?? 42 8D 0C 23")]
     private partial int GetLimitedTomestoneCount(int a1);
 
     [MemberFunction("E8 ?? ?? ?? ?? 8D 4F DD")]
     private static partial int GetSpecialItemId(byte switchCase);
 
     /// <summary>  Gets the current maximum weekly number of limited tomestones tha player can earn. </summary>
-    [MemberFunction("E8 ?? ?? ?? ?? 42 8D 0C 3B")]
+    [MemberFunction("E8 ?? ?? ?? ?? 42 8D 0C 2B")]
     public static partial int GetLimitedTomestoneWeeklyLimit();
 
     /// <summary> Gets the number of (limited) tomestones the user has acquired during the current reset cycle. </summary>
@@ -82,42 +81,59 @@ public unsafe partial struct InventoryManager {
 }
 
 [GenerateInterop]
-[StructLayout(LayoutKind.Explicit, Size = 0x18)]
+[VirtualTable("48 8D 0D ?? ?? ?? ?? 48 89 6C 24 ?? BD ?? ?? ?? ?? 48 89 28", 3)]
+[StructLayout(LayoutKind.Explicit, Size = 0x20)]
 public unsafe partial struct InventoryContainer {
-    [FieldOffset(0x00)] public InventoryItem* Items;
-    [FieldOffset(0x08)] public InventoryType Type;
-    [FieldOffset(0x0C)] public uint Size;
-    [FieldOffset(0x10)] public byte Loaded;
+    [FieldOffset(0x08)] public InventoryItem* Items;
+    [FieldOffset(0x10)] public InventoryType Type;
+    [FieldOffset(0x14)] public uint Size;
+    [FieldOffset(0x18)] public byte Loaded;
 
-    [MemberFunction("E8 ?? ?? ?? ?? 8B 7B 06")]
+    [VirtualFunction(0)]
+    public partial void Dtor();
+
+    [VirtualFunction(1)]
+    public partial void SetInventoryType(InventoryType inventoryType);
+
+    [VirtualFunction(2)]
+    public partial void Clear();
+
+    // [VirtualFunction(3)]
+    // public partial void Noop();
+
+    [VirtualFunction(4)]
+    public partial uint GetSize();
+
+    [VirtualFunction(5)]
     public partial InventoryItem* GetInventorySlot(int index);
 }
 
 [GenerateInterop]
-[StructLayout(LayoutKind.Explicit, Size = 0x40)]
+[VirtualTable("66 89 51 0C 48 8D 05", 7)]
+[StructLayout(LayoutKind.Explicit, Size = 0x48)]
 public unsafe partial struct InventoryItem : ICreatable {
-    [FieldOffset(0x00)] public InventoryType Container;
-    [FieldOffset(0x04)] public short Slot;
+    [FieldOffset(0x08)] public InventoryType Container;
+    [FieldOffset(0x0C)] public short Slot;
     /// <summary>
     /// Indicates whether this InventoryItem is symbolic, serving as a link to another InventoryItem<br/>
     /// identified by <see cref="LinkedItemSlot"/> and <see cref="LinkedInventoryType"/>.
     /// </summary>
-    [FieldOffset(0x06)] public bool IsSymbolic;
+    [FieldOffset(0x0E)] public bool IsSymbolic;
     /// <remarks> Only used if <see cref="IsSymbolic"/> is <c>false</c>. </remarks>
-    [FieldOffset(0x08), CExporterUnion("Id")] public uint ItemId;
+    [FieldOffset(0x10), CExporterUnion("Id")] public uint ItemId;
     /// <remarks> Only used if <see cref="IsSymbolic"/> is <c>true</c>. </remarks>
-    [FieldOffset(0x08), CExporterUnion("Id", "Linked", true)] public ushort LinkedItemSlot;
+    [FieldOffset(0x10), CExporterUnion("Id", "Linked", true)] public ushort LinkedItemSlot;
     /// <remarks> Only used if <see cref="IsSymbolic"/> is <c>true</c>. </remarks>
-    [FieldOffset(0x0A), CExporterUnion("Id", "Linked", true)] public ushort LinkedInventoryType;
-    [FieldOffset(0x0C)] public uint Quantity;
-    [FieldOffset(0x10)] public ushort Spiritbond; // TODO: This field is also used for the collectability value. Not sure if it's the same data type. See also: GetSpiritbond()
-    [FieldOffset(0x12)] public ushort Condition;
-    [FieldOffset(0x14)] public ItemFlags Flags;
-    [FieldOffset(0x18)] public ulong CrafterContentId;
-    [FieldOffset(0x20), FixedSizeArray] internal FixedSizeArray5<ushort> _materia;
-    [FieldOffset(0x2A), FixedSizeArray] internal FixedSizeArray5<byte> _materiaGrades;
-    [FieldOffset(0x2F), FixedSizeArray] internal FixedSizeArray2<byte> _stains;
-    [FieldOffset(0x34)] public uint GlamourId;
+    [FieldOffset(0x12), CExporterUnion("Id", "Linked", true)] public ushort LinkedInventoryType;
+    [FieldOffset(0x14)] public int Quantity;
+    [FieldOffset(0x18)] public ushort Spiritbond; // TODO: This field is also used for the collectability value. Not sure if it's the same data type. See also: GetSpiritbond()
+    [FieldOffset(0x1A)] public ushort Condition;
+    [FieldOffset(0x1C)] public ItemFlags Flags;
+    [FieldOffset(0x20)] public ulong CrafterContentId;
+    [FieldOffset(0x28), FixedSizeArray] internal FixedSizeArray5<ushort> _materia;
+    [FieldOffset(0x32), FixedSizeArray] internal FixedSizeArray5<byte> _materiaGrades;
+    [FieldOffset(0x37), FixedSizeArray] internal FixedSizeArray2<byte> _stains;
+    [FieldOffset(0x3C)] public uint GlamourId;
 
     [Flags]
     public enum ItemFlags : byte {
@@ -128,15 +144,75 @@ public unsafe partial struct InventoryItem : ICreatable {
         Collectable = 8
     }
 
-    [MemberFunction("33 D2 C7 01 ?? ?? ?? ?? 33 C0")]
+    [MemberFunction("E8 ?? ?? ?? ?? 33 C0 48 8D 4B 58")]
     public partial void Ctor();
 
-    [MemberFunction("8B 42 08 4C 8B C9 39 41 08")]
-    public partial bool EqualTo(InventoryItem* other);
+    [VirtualFunction(0)]
+    public partial void Dtor();
 
     /// <summary>Copies the values from the other InventoryItem and, if it's symbolic, resolves its linked item.</summary>
-    [MemberFunction("E9 ?? ?? ?? ?? 48 8D 4B 48")]
-    public partial bool Copy(InventoryItem* other);
+    [VirtualFunction(1)]
+    public partial void Copy(InventoryItem* other);
+
+    [VirtualFunction(2)]
+    public partial void EqualTo(InventoryItem* other);
+
+    [VirtualFunction(3)]
+    public partial bool IsNotLinked();
+
+    [VirtualFunction(4)]
+    public partial void Clear();
+
+    [VirtualFunction(5)]
+    public partial uint GetBaseItemId();
+
+    [VirtualFunction(6)]
+    public partial uint GetItemId(); // with flags applied
+
+    [VirtualFunction(7)]
+    public partial void SetItemId(uint itemId, bool parseFlags);
+
+    [VirtualFunction(8)]
+    public partial InventoryType GetInventoryType();
+
+    [VirtualFunction(9)]
+    public partial void SetInventoryType(InventoryType inventoryType);
+
+    [VirtualFunction(10)]
+    public partial ushort GetSlot();
+
+    [VirtualFunction(11)]
+    public partial void SetSlot(ushort slot);
+
+    [VirtualFunction(12)]
+    public partial uint GetQuantity();
+
+    [VirtualFunction(13)]
+    public partial void SetQuantity(uint quantity);
+
+    [VirtualFunction(14)]
+    public partial ushort GetSpiritbondOrCollectability();
+
+    [VirtualFunction(15)]
+    public partial void SetSpiritbondOrCollectability(ushort value);
+
+    [VirtualFunction(16)]
+    public partial ItemFlags GetFlags();
+
+    [VirtualFunction(17)]
+    public partial void SetFlags(ItemFlags flags);
+
+    [VirtualFunction(16)]
+    public partial bool IsHighQuality();
+
+    [VirtualFunction(17)]
+    public partial void SetIsHighQuality(bool isHighQuality);
+
+    //[VirtualFunction(18)]
+    //public partial bool IsHighQuality2();
+
+    //[VirtualFunction(19)]
+    //public partial void SetIsHighQuality2(bool isHighQuality);
 
     /// <summary>
     /// Resolves a symbolic InventoryItem, returning a pointer to the linked InventoryItem or to itself if not symbolic.
@@ -145,35 +221,23 @@ public unsafe partial struct InventoryItem : ICreatable {
     /// If the resolved InventoryItem is also symbolic, it will NOT resolve this one too.<br/>
     /// Instead, this function must be called in a loop until the original InventoryItem is found (<see cref="IsSymbolic"/> == <c>false</c>).
     /// </remarks>
-    [MemberFunction("E8 ?? ?? ?? ?? 80 78 06 00 75 F2")]
+    [MemberFunction("E8 ?? ?? ?? ?? 48 85 C0 74 44 48 8B CB")]
     public partial InventoryItem* GetLinkedItem();
 
-    /// <summary>Gets the item id from the original InventoryItem or itself if not symbolic.</summary>
-    [MemberFunction("E8 ?? ?? ?? ?? 89 45 8B")]
-    public partial uint GetItemId();
-
-    /// <summary>Gets the quantity from the original InventoryItem or itself if not symbolic.</summary>
-    [MemberFunction("E8 ?? ?? ?? ?? 2B C6 89 43 0C")]
-    public partial uint GetQuantity();
-
-    /// <summary>Gets the spiritbond value from the original InventoryItem or itself if not symbolic.</summary>
-    [MemberFunction("E8 ?? ?? ?? ?? 66 89 47 0C")]
-    public partial ushort GetSpiritbond();
-
     /// <summary>Gets the condition from the original InventoryItem or itself if not symbolic.</summary>
-    [MemberFunction("E8 ?? ?? ?? ?? EB 04 0F B7 45 12")]
+    [MemberFunction("E9 ?? ?? ?? ?? 0F B7 43 1A")]
     public partial ushort GetCondition();
 
     /// <summary>Gets the crafter's content id from the original InventoryItem or itself if not symbolic.</summary>
-    [MemberFunction("E8 ?? ?? ?? ?? EB 04 49 8B 46 18")]
+    [MemberFunction("E8 ?? ?? ?? ?? EB 04 49 8B 47 20")]
     public partial ulong GetCrafterContentId();
 
     /// <summary>Gets the stain from the original InventoryItem or itself if not symbolic.</summary>
-    [MemberFunction("E8 ?? ?? ?? ?? 88 06 FF C7")]
+    [MemberFunction("E8 ?? ?? ?? ?? 38 45 F6")]
     public partial byte GetStain(int index);
 
     /// <summary>Gets the glamour id from the original InventoryItem or itself if not symbolic.</summary>
-    [MemberFunction("E8 ?? ?? ?? ?? 8B F8 EB 33")]
+    [MemberFunction("E8 ?? ?? ?? ?? 3B 47 FB")]
     public partial uint GetGlamourId();
 
     /// <summary>Gets the materia id from the specified slot of the original InventoryItem or itself if not symbolic.</summary>
@@ -185,7 +249,7 @@ public unsafe partial struct InventoryItem : ICreatable {
     public partial byte GetMateriaGrade(byte materiaSlot);
 
     /// <summary>Gets the materia count from the original InventoryItem or itself if not symbolic.</summary>
-    [MemberFunction("E8 ?? ?? ?? ?? 85 C0 75 1C 49 8B 4F 10")]
+    [MemberFunction("E8 ?? ?? ?? ?? 0F B6 57 67")]
     public partial byte GetMateriaCount();
 }
 
@@ -230,6 +294,8 @@ public enum InventoryType : uint {
     SaddleBag2 = 4001,
     PremiumSaddleBag1 = 4100,
     PremiumSaddleBag2 = 4101,
+
+    Invalid = 9999,
 
     RetainerPage1 = 10000,
     RetainerPage2 = 10001,

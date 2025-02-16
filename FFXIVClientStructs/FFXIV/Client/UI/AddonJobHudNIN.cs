@@ -9,12 +9,12 @@ namespace FFXIVClientStructs.FFXIV.Client.UI;
 [Addon("JobHudNIN0")]
 [GenerateInterop]
 [Inherits<AddonJobHud>]
-[StructLayout(LayoutKind.Explicit, Size = 0x318)]
+[StructLayout(LayoutKind.Explicit, Size = 0x320)]
 public unsafe partial struct AddonJobHudNIN0 {
-    [FieldOffset(0x270)] public NinkiGaugeData DataPrevious;
-    [FieldOffset(0x288)] public NinkiGaugeData DataCurrent;
-    [FieldOffset(0x2A0)] public NinkiGauge GaugeStandard;
-    [FieldOffset(0x2E0)] public NinkiGaugeSimple GaugeSimple;
+    [FieldOffset(0x278)] public NinkiGaugeData DataPrevious;
+    [FieldOffset(0x290)] public NinkiGaugeData DataCurrent;
+    [FieldOffset(0x2A8)] public NinkiGauge GaugeStandard;
+    [FieldOffset(0x2E8)] public NinkiGaugeSimple GaugeSimple;
 
     [GenerateInterop]
     [Inherits<AddonJobHudGaugeData>]
@@ -55,12 +55,12 @@ public unsafe partial struct AddonJobHudNIN0 {
 [Addon("JobHudNIN1v70")]
 [GenerateInterop]
 [Inherits<AddonJobHud>]
-[StructLayout(LayoutKind.Explicit, Size = 0x330)]
+[StructLayout(LayoutKind.Explicit, Size = 0x338)]
 public unsafe partial struct AddonJobHudNIN1 {
-    [FieldOffset(0x270)] public KazematoiGaugeData DataPrevious;
-    [FieldOffset(0x280)] public KazematoiGaugeData DataCurrent;
-    [FieldOffset(0x290)] public KazematoiGauge GaugeStandard;
-    [FieldOffset(0x2F0)] public KazematoiGaugeSimple GaugeSimple;
+    [FieldOffset(0x278)] public KazematoiGaugeData DataPrevious;
+    [FieldOffset(0x288)] public KazematoiGaugeData DataCurrent;
+    [FieldOffset(0x298)] public KazematoiGauge GaugeStandard;
+    [FieldOffset(0x2F8)] public KazematoiGaugeSimple GaugeSimple;
 
     [GenerateInterop]
     [Inherits<AddonJobHudGaugeData>]

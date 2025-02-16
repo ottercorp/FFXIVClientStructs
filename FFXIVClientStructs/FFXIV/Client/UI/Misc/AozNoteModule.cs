@@ -1,18 +1,19 @@
-using FFXIVClientStructs.FFXIV.Client.System.Framework;
-using FFXIVClientStructs.FFXIV.Client.UI.Misc.UserFileManager;
+using UserFileEvent = FFXIVClientStructs.FFXIV.Client.UI.Misc.UserFileManager.UserFileEvent;
 
 namespace FFXIVClientStructs.FFXIV.Client.UI.Misc;
 
 // Client::UI::Misc::AozNoteModule
 //   Client::UI::Misc::UserFileManager::UserFileEvent
-// ctor "E8 ?? ?? ?? ?? 48 8D 8F ?? ?? ?? ?? 49 8B D4 E8 ?? ?? ?? ?? 48 8D 8F ?? ?? ?? ?? 49 8B D4 E8 ?? ?? ?? ?? 48 8D 8F ?? ?? ?? ?? 49 8B D4 E8 ?? ?? ?? ?? 48 8D 8F ?? ?? ?? ?? 49 8B D4 E8 ?? ?? ?? ?? 33 C0"
 [GenerateInterop]
 [Inherits<UserFileEvent>]
-[StructLayout(LayoutKind.Explicit, Size = 0xD28)]
+[StructLayout(LayoutKind.Explicit, Size = 0xD30)]
 public unsafe partial struct AozNoteModule {
-    public static AozNoteModule* Instance() => Framework.Instance()->GetUIModule()->GetAozNoteModule();
+    public static AozNoteModule* Instance() {
+        var uiModule = UIModule.Instance();
+        return uiModule == null ? null : uiModule->GetAozNoteModule();
+    }
 
-    [FieldOffset(0x40), FixedSizeArray] internal FixedSizeArray5<ActiveSet> _activeSets;
+    [FieldOffset(0x48), FixedSizeArray] internal FixedSizeArray5<ActiveSet> _activeSets;
 
     [GenerateInterop]
     [StructLayout(LayoutKind.Explicit, Size = 0x290)]

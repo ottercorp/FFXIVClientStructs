@@ -8,11 +8,11 @@ namespace FFXIVClientStructs.FFXIV.Client.UI;
 [Addon("InventoryBuddy")]
 [GenerateInterop]
 [Inherits<AtkUnitBase>]
-[StructLayout(LayoutKind.Explicit, Size = 0x4A8)]
+[StructLayout(LayoutKind.Explicit, Size = 0x4B0)]
 public unsafe partial struct AddonInventoryBuddy {
-    [FieldOffset(0x230), FixedSizeArray] internal FixedSizeArray2<Pointer<AtkComponentRadioButton>> _tabs;
-    [FieldOffset(0x240), FixedSizeArray] internal FixedSizeArray70<Pointer<AtkComponentDragDrop>> _slots;
-    [FieldOffset(0x498)] public byte TabIndex;
+    [FieldOffset(0x238), FixedSizeArray] internal FixedSizeArray2<Pointer<AtkComponentRadioButton>> _tabs;
+    [FieldOffset(0x248), FixedSizeArray] internal FixedSizeArray70<Pointer<AtkComponentDragDrop>> _slots;
+    [FieldOffset(0x4A0)] public byte TabIndex;
 
     [MemberFunction("4C 8B DC 53 57 41 56 48 83 EC 70")]
     public partial void SetTab(byte tab);

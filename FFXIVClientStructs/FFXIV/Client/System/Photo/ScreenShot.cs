@@ -6,7 +6,7 @@ namespace FFXIVClientStructs.FFXIV.Client.System.Photo;
 [Inherits<Client.System.Framework.Task>]
 [StructLayout(LayoutKind.Explicit, Size = 0x288)]
 public unsafe partial struct ScreenShot {
-    [StaticAddress("48 8B 1D ?? ?? ?? ?? 48 85 DB 74 ?? 41 B0", 3)]
+    [StaticAddress("48 8B 1D ?? ?? ?? ?? 48 85 DB 74 ?? 41 B0", 3, isPointer: true)]
     public static partial ScreenShot* Instance();
 
     [FieldOffset(0x38)] public ScreenShotThread* ThreadPtr;
@@ -48,7 +48,7 @@ public unsafe partial struct ScreenShot {
     /// </summary>
     [FieldOffset(0x78)] private FileAccessPath ScreenShotLocation;
 
-    [MemberFunction("E8 ?? ?? ?? ?? 84 C0 75 ?? F3 0F 10 05 ?? ?? ?? ?? F3 0F 11 05")]
+    [MemberFunction("E8 ?? ?? ?? ?? 84 C0 75 15 C6 05")]
     public partial bool ScheduleScreenShot(delegate* unmanaged<void*, int, byte> callback, void* initialArg);
 
     public bool ScheduleScreenShot() => ScheduleScreenShot(null, null);

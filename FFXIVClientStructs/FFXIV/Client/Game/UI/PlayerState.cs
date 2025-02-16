@@ -6,7 +6,7 @@ namespace FFXIVClientStructs.FFXIV.Client.Game.UI;
 // Client::Game::UI::PlayerState
 // ctor "E8 ?? ?? ?? ?? 33 D2 45 33 E4"
 [GenerateInterop]
-[StructLayout(LayoutKind.Explicit, Size = 0x8A0)]
+[StructLayout(LayoutKind.Explicit, Size = 0x8B0)]
 public unsafe partial struct PlayerState {
     [StaticAddress("48 8D 0D ?? ?? ?? ?? E8 ?? ?? ?? ?? 84 C0 75 06 F6 43 18 02", 3)]
     public static partial PlayerState* Instance();
@@ -24,14 +24,22 @@ public unsafe partial struct PlayerState {
     /// </remarks>
     [FieldOffset(0x70), FixedSizeArray] internal FixedSizeArray2<int> _penaltyTimestamps;
 
+    /// <remarks> Causes LogMessage 906 when queueing into content. Seems to be unused. </remarks>
+    [FieldOffset(0x78)] public bool HasAddictionRestrictions;
+
     [FieldOffset(0x79)] public byte MaxLevel;
+    /// <remarks> Row Id of ExVersion sheet </remarks>
     [FieldOffset(0x7A)] public byte MaxExpansion;
+    /// <remarks> 0 = Male, 1 = Female </remarks>
     [FieldOffset(0x7B)] public byte Sex;
+    /// <remarks> Row Id of Race sheet </remarks>
     [FieldOffset(0x7C)] public byte Race;
+    /// <remarks> Row Id of Tribe sheet </remarks>
     [FieldOffset(0x7D)] public byte Tribe;
+    /// <remarks> Row Id of ClassJob sheet </remarks>
     [FieldOffset(0x7E)] public byte CurrentClassJobId;
 
-    [FieldOffset(0x80)] public nint CurrentClassJobRow;
+    [FieldOffset(0x80), CExporterExcel("ClassJob")] public nint CurrentClassJobRow;
     [FieldOffset(0x88)] public short CurrentLevel;
     /// <remarks> Index is ExpArrayIndex from the ClassJob sheet. </remarks>
     [FieldOffset(0x8A), FixedSizeArray] internal FixedSizeArray32<short> _classJobLevels;
@@ -71,30 +79,30 @@ public unsafe partial struct PlayerState {
 
     // Size: (MountSheet.Max(row => row.Order) + 7) / 8
     /// <remarks> Use <see cref="IsMountUnlocked"/> </remarks>
-    [FieldOffset(0x2DD), FixedSizeArray] internal FixedSizeArray37<byte> _unlockedMountsBitmask;
+    [FieldOffset(0x2DD), FixedSizeArray] internal FixedSizeArray38<byte> _unlockedMountsBitmask;
     // Size: (OrnamentSheet.RowCount + 7) / 8
     /// <remarks> Use <see cref="IsOrnamentUnlocked"/> </remarks>
     [FieldOffset(0x303), FixedSizeArray] internal FixedSizeArray7<byte> _unlockedOrnamentsBitmask;
     // Size: (GlassesStylesSheet.RowCount + 7) / 8
     /// <remarks> Use <see cref="IsGlassesUnlocked"/> </remarks>
-    [FieldOffset(0x30A), FixedSizeArray] internal FixedSizeArray2<byte> _unlockedGlassesStylesBitmask;
-    [FieldOffset(0x30C)] public ushort NumOwnedMounts;
+    [FieldOffset(0x30A), FixedSizeArray] internal FixedSizeArray4<byte> _unlockedGlassesStylesBitmask;
+    [FieldOffset(0x30E)] public ushort NumOwnedMounts;
 
-    // Ref: "48 89 5C 24 ?? 55 56 57 41 54 41 55 41 56 41 57 48 83 EC 50 48 8B 81"
-    // Size: (FishParameterSheet.Count(row => row.IsInLog) + 7) / 8
-    [FieldOffset(0x3EA), FixedSizeArray] internal FixedSizeArray159<byte> _caughtFishBitmask; // TODO: update size
-
-    [FieldOffset(0x4A0)] public uint NumFishCaught;
-    [FieldOffset(0x4A4)] public uint FishingBait;
     // Ref: "48 89 5C 24 ?? 55 56 57 41 54 41 55 41 56 41 57 48 8D 6C 24 ?? 48 81 EC ?? ?? ?? ?? 48 8B 05 ?? ?? ?? ?? 48 33 C4 48 89 45 30 48 8B 81 ?? ?? ?? ?? 49 8B D8"
     // Size: (SpearfishingNotebookSheet.RowCount + 7) / 8
-    [FieldOffset(0x3C0), FixedSizeArray] internal FixedSizeArray7<byte> _unlockedSpearfishingNotebookBitmask; // TODO: update size
+    [FieldOffset(0x3C2), FixedSizeArray] internal FixedSizeArray8<byte> _unlockedSpearfishingNotebookBitmask;
+
+    // Size: (FishParameterSheet.Count(row => row.IsInLog) + 7) / 8
+    /// <remarks> Use <see cref="IsFishCaught(uint)"/> </remarks>
+    [FieldOffset(0x3EC), FixedSizeArray] internal FixedSizeArray180<byte> _caughtFishBitmask;
+    [FieldOffset(0x4A0)] public uint NumFishCaught;
+    [FieldOffset(0x4A4)] public uint FishingBait;
     // Ref: "40 53 55 57 48 83 EC 50 48 8B 05 ?? ?? ?? ?? 48 33 C4 48 89 44 24 ?? 4C 8B 12"
     // Size: (SpearfishingItemSheet.RowCount + 7) / 8
-    [FieldOffset(0x4B0), FixedSizeArray] internal FixedSizeArray36<byte> _caughtSpearfishBitmask; // TODO: update size
-
+    /// <remarks> Use <see cref="IsSpearfishCaught(uint)"/> </remarks>
+    [FieldOffset(0x4B1), FixedSizeArray] internal FixedSizeArray39<byte> _caughtSpearfishBitmask;
     [FieldOffset(0x4D8)] public uint NumSpearfishCaught;
-
+    [FieldOffset(0x4DC)] internal int UnknownUnixTimestamp; // could be an array of size 1?!
     /// <remarks>
     /// Index is column 27 of ContentRoulette sheet.<br/>
     /// See also: <see cref="InstanceContent.IsRouletteComplete" />
@@ -103,9 +111,10 @@ public unsafe partial struct PlayerState {
     [FieldOffset(0x4EC)] public short PlayerCommendations;
 
     [FieldOffset(0x4EE), FixedSizeArray] internal FixedSizeArray7<byte> _selectedPoses;
-    [FieldOffset(0x4F5)] public byte PlayerStateFlags1;
-    [FieldOffset(0x4F6)] public byte PlayerStateFlags2;
-    [FieldOffset(0x4F7)] public byte PlayerStateFlags3;
+    [FieldOffset(0x4F5), FixedSizeArray] internal FixedSizeArray3<byte> _playerStateFlags;
+    [FieldOffset(0x4F5), Obsolete("Use PlayerStateFlags[0]")] public byte PlayerStateFlags1;
+    [FieldOffset(0x4F6), Obsolete("Use PlayerStateFlags[1]")] public byte PlayerStateFlags2;
+    [FieldOffset(0x4F7), Obsolete("Use PlayerStateFlags[2]")] public byte PlayerStateFlags3;
 
     [FieldOffset(0x522)] public byte SightseeingLogUnlockState; // 0 = Not Unlocked, 1 = ARR Part 1, 2 = ARR Part 2
     [FieldOffset(0x523)] public byte SightseeingLogUnlockStateEx; // 3 = Quest "Sights of the North" completed (= AdventureExPhase unlocked?)
@@ -129,6 +138,7 @@ public unsafe partial struct PlayerState {
     /// <see cref="IsMeisterFlagAndHasSoulStoneEquipped" />
     /// </remarks>
     [FieldOffset(0x5BF)] public byte MeisterFlag;
+    [FieldOffset(0x5C0)] internal byte WeeklyLockoutInfo; // unsure how exactly it's processed
 
     [FieldOffset(0x5C4)] public int SquadronMissionCompletionTimestamp;
     [FieldOffset(0x5C8)] public int SquadronTrainingCompletionTimestamp;
@@ -140,45 +150,50 @@ public unsafe partial struct PlayerState {
     [FieldOffset(0x5D2), FixedSizeArray] internal FixedSizeArray2<byte> _unlockedMinerFolkloreTomeBitmask;
     [FieldOffset(0x5D4), FixedSizeArray] internal FixedSizeArray2<byte> _unlockedBotanistFolkloreTomeBitmask;
     [FieldOffset(0x5D6), FixedSizeArray] internal FixedSizeArray2<byte> _unlockedFishingFolkloreTomeBitmask;
+    [FieldOffset(0x5D8), FixedSizeArray] internal FixedSizeArray92<byte> _unlockedOrchestrionRollBitmask;
 
     #region Weekly Bonus/Weekly Bingo/Wondrous Tails Fields (packet reader in "48 83 EC 28 48 8B D1 48 8D 0D ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 8B 0D ?? ?? ?? ??")
 
     /// <summary>RowIds of WeeklyBingoOrderData sheet</summary>
-    [FieldOffset(0x6E0), FixedSizeArray] internal FixedSizeArray16<byte> _weeklyBingoOrderData;
+    [FieldOffset(0x6E8), FixedSizeArray] internal FixedSizeArray16<byte> _weeklyBingoOrderData;
     /// <summary>RowIds of WeeklyBingoRewardData sheet</summary>
-    [FieldOffset(0x6F0), FixedSizeArray] internal FixedSizeArray4<byte> _weeklyBingoRewardData;
+    [FieldOffset(0x6F8), FixedSizeArray] internal FixedSizeArray4<byte> _weeklyBingoRewardData;
     /// <summary>Bitflags of placed stickers.</summary>
     /// <remarks>Use IsWeeklyBingoStickerPlaced(index) and WeeklyBingoNumPlacedStickers instead.</remarks>
-    [FieldOffset(0x6F4)] private ushort _weeklyBingoStickers;
+    [FieldOffset(0x6FC)] private ushort _weeklyBingoStickers;
 
     /// <remarks>Use GetWeeklyBingoExpireUnixTimestamp(), WeeklyBingoNumSecondChancePoints and HasWeeklyBingoJournal instead</remarks>
-    [FieldOffset(0x6F8)] private uint _weeklyBingoFlags;
-    [FieldOffset(0x6FC), FixedSizeArray] internal FixedSizeArray4<byte> __weeklyBingoTaskStatus;
-    [FieldOffset(0x700)] public byte WeeklyBingoRequestOpenBingoNo;
+    [FieldOffset(0x700)] private uint _weeklyBingoFlags;
+    [FieldOffset(0x704), FixedSizeArray] internal FixedSizeArray4<byte> __weeklyBingoTaskStatus;
+    [FieldOffset(0x708)] public byte WeeklyBingoRequestOpenBingoNo;
 
-    [FieldOffset(0x73C)] public byte WeeklyBingoExpMultiplier;
-    [FieldOffset(0x73D)] public bool WeeklyBingoUnk63;
+    [FieldOffset(0x744)] public byte WeeklyBingoExpMultiplier;
+    [FieldOffset(0x745)] public bool WeeklyBingoUnk63;
 
     #endregion
 
     /// <remarks> For easier access, use <see cref="GetContentValue"/>. </remarks>
-    [FieldOffset(0x744), FixedSizeArray] internal FixedSizeArray3<StdPair<uint, uint>> _contentKeyValueData;
+    [FieldOffset(0x74C), FixedSizeArray] internal FixedSizeArray3<StdPair<uint, uint>> _contentKeyValueData;
 
     /// <remarks>
     /// 1 = Shadowbringers
     /// 2 = Endwalker
     /// 3 = Dawntrail
     /// </remarks>
-    [FieldOffset(0x7D4)] public byte MentorVersion;
+    [FieldOffset(0x7DC)] public byte MentorVersion;
 
     /// <remarks> Index is DohDolJobIndex from the ClassJob sheet. </remarks>
-    [FieldOffset(0x7D8), FixedSizeArray] internal FixedSizeArray8<uint> _desynthesisLevels;
+    [FieldOffset(0x7E0), FixedSizeArray] internal FixedSizeArray8<uint> _desynthesisLevels;
+    // 0x800 (int): some Faux Hollows timestamp?
+    // 0x804 (int): some Faux Hollows state?
 
-    [FieldOffset(0x858)] public StdMap<uint, bool> TrackedStatuses;
-    [FieldOffset(0x868)] public StdMap<uint, bool> TrackedActionUnlocks;
-    [FieldOffset(0x878)] public StdMap<uint, bool> TrackedTraitUnlocks;
-    [FieldOffset(0x888)] public bool TrackedTraitUnlocksDirty;
-    [FieldOffset(0x889)] public bool TrackedActionUnlocksDirty;
+    [FieldOffset(0x830), FixedSizeArray] internal FixedSizeArray26<byte> _unlockedFramersKitsBitmask;
+
+    [FieldOffset(0x868)] public StdMap<uint, bool> TrackedStatuses;
+    [FieldOffset(0x878)] public StdMap<uint, bool> TrackedActionUnlocks;
+    [FieldOffset(0x888)] public StdMap<uint, bool> TrackedTraitUnlocks;
+    [FieldOffset(0x898)] public bool TrackedTraitUnlocksDirty;
+    [FieldOffset(0x899)] public bool TrackedActionUnlocksDirty;
 
     public bool IsLegacy => (QuestSpecialFlags & 1) != 0;
     public bool IsWarriorOfLight => (QuestSpecialFlags & 2) != 0;
@@ -298,6 +313,16 @@ public unsafe partial struct PlayerState {
     [MemberFunction("E9 ?? ?? ?? ?? 0F B7 57 70")]
     public partial bool IsFolkloreBookUnlocked(uint tomeId);
 
+    /// <remarks>Only call this for FishParameter rows where IsInLog is true.</remarks>
+    public bool IsFishCaught(uint fishParameterId) {
+        return ((CaughtFishBitmask[(int)fishParameterId / 8] >> (byte)(fishParameterId % 8)) & 1) == 1;
+    }
+
+    public bool IsSpearfishCaught(uint spearfishingItemId) {
+        var id = spearfishingItemId - 20000;
+        return ((CaughtSpearfishBitmask[(int)id / 8] >> (byte)(id % 8)) & 1) == 1;
+    }
+
     /// <summary>
     /// Check if a specific McGuffin (Collectible/Curiosity) has been unlocked by the player.
     /// </summary>
@@ -315,7 +340,7 @@ public unsafe partial struct PlayerState {
     /// </remarks>
     /// <param name="kitId">The kit ID to check for.</param>
     /// <returns>Returns true if the framer's kit is unlocked.</returns>
-    [MemberFunction("E9 ?? ?? ?? ?? 33 FF 90")]
+    [MemberFunction("E9 ?? ?? ?? ?? 33 FF 8B 03")]
     public partial bool IsFramersKitUnlocked(uint kitId);
 
     public bool IsAetherCurrentUnlocked(uint aetherCurrentId) {
@@ -330,15 +355,15 @@ public unsafe partial struct PlayerState {
     /// <summary>
     /// Returns whether all aether currents of a zone were discovered.
     /// </summary>
-    /// <param name="territoryTypeColumn32">Column 32 of TerritoryType</param>
+    /// <param name="aetherCurrentCompFlgSetId">RowId of AetherCurrentCompFlgSet</param>
     [MemberFunction("4C 8B C9 85 D2 74 1D")]
-    public partial bool IsAetherCurrentZoneComplete(uint territoryTypeColumn32);
+    public partial bool IsAetherCurrentZoneComplete(uint aetherCurrentCompFlgSetId);
 
     /// <summary>
     /// Check if all vistas of an expansion in the Sightseeing Log have been discovered.
     /// </summary>
     /// <param name="adventureExPhaseId">AdventureExPhase RowId</param>
-    [Obsolete("The signature is wrong. There is currently no alternative to this function.")]
+    [Obsolete("The signature is wrong. There is currently no alternative to this function.", true)]
     [MemberFunction("81 FA ?? ?? ?? ?? 73 1F 0F B6 C2")]
     public partial bool IsAdventureExPhaseComplete(uint adventureExPhaseId);
 
@@ -346,7 +371,7 @@ public unsafe partial struct PlayerState {
     /// Check if a Sightseeing Log vista has been discovered.
     /// </summary>
     /// <param name="adventureIndex">Index of the Adventure Row</param>
-    [MemberFunction("E8 ?? ?? ?? ?? 84 C0 75 90")]
+    [MemberFunction("E8 ?? ?? ?? ?? 84 C0 75 AA")]
     public partial bool IsAdventureComplete(uint adventureIndex);
 
     /// <summary>

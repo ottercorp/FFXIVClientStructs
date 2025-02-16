@@ -1,14 +1,15 @@
 using System.Diagnostics.CodeAnalysis;
+using FFXIVClientStructs.FFXIV.Client.Game.Network;
 using FFXIVClientStructs.FFXIV.Client.Graphics.Scene;
+using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 
 namespace FFXIVClientStructs.FFXIV.Client.Game.Character;
 
 // Client::Game::Character::DrawDataContainer
 //   Client::Game::Character::ContainerInterface
-// ctor "E8 ?? ?? ?? ?? 48 8D 8F ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? 48 89 59 ?? 48 89 01 E8"
 [GenerateInterop]
 [Inherits<ContainerInterface>]
-[StructLayout(LayoutKind.Explicit, Size = 0x1E0)]
+[StructLayout(LayoutKind.Explicit, Size = 0x1F8)]
 public unsafe partial struct DrawDataContainer {
     [FieldOffset(0x010), FixedSizeArray] internal FixedSizeArray3<DrawObjectData> _weaponData;
     [FieldOffset(0x160), FixedSizeArray] internal FixedSizeArray10<EquipmentModelId> _equipmentModelIds;
@@ -16,6 +17,10 @@ public unsafe partial struct DrawDataContainer {
 
     [FieldOffset(0x1CE)] public byte Flags1;
     [FieldOffset(0x1CF)] public byte Flags2;
+    [FieldOffset(0x1D0), FixedSizeArray] internal FixedSizeArray2<ushort> _glassesIds;
+
+    [FieldOffset(0x1E8)] public CrestData FreeCompanyCrestData;
+    [FieldOffset(0x1F0)] public byte FreeCompanyCrestBitfield; // & 0x01 for offhand weapon, & 0x02 for head, & 0x04 for top, ..., & 0x20 for feet
 
     [UnscopedRef]
     public ref DrawObjectData Weapon(WeaponSlot slot) {
@@ -27,11 +32,8 @@ public unsafe partial struct DrawDataContainer {
         return ref EquipmentModelIds[(int)slot];
     }
 
-    [FieldOffset(0x1D0), FixedSizeArray] internal FixedSizeArray2<ushort> _glassesIds;
-
     [MemberFunction("E8 ?? ?? ?? ?? B1 01 41 FF C6")]
     public partial void LoadEquipment(EquipmentSlot slot, EquipmentModelId* modelId, bool force);
-
 
     [MemberFunction("E8 ?? ?? ?? ?? 4C 8B 45 7F")]
     public partial void LoadWeapon(WeaponSlot slot, WeaponModelId weaponData, byte redrawOnEquality, byte unk2, byte skipGameObject, byte unk4);
@@ -69,6 +71,9 @@ public unsafe partial struct DrawDataContainer {
     [MemberFunction("E8 ?? ?? ?? ?? EB 50 44 8B 03")]
     public partial void SetGlasses(int index, ushort id);
 
+    [MemberFunction("48 89 5C 24 ?? 55 56 57 41 54 41 55 41 56 41 57 48 81 EC ?? ?? ?? ?? 48 8B 05 ?? ?? ?? ?? 48 33 C4 48 89 84 24 ?? ?? ?? ?? 44 0F B6 B9")]
+    public partial void LoadGearsetData(PacketPlayerGearsetData* gearsetData);
+
     public enum EquipmentSlot : uint {
         Head = 0,
         Body = 1,
@@ -104,7 +109,7 @@ public unsafe partial struct DrawDataContainer {
     }
 }
 
-// ctor: "E8 ?? ?? ?? ?? 48 8B E8 EB ?? 33 ED 48 89 AB"
+// ctor E8 ?? ?? ?? ?? 48 8B E8 EB ?? 33 ED 48 89 AB
 [StructLayout(LayoutKind.Explicit, Size = 0x70)]
 public unsafe partial struct DrawObjectData {
     public const int Size = 0x70;
@@ -198,4 +203,12 @@ public struct EquipmentModelId {
     [FieldOffset(4)] public byte Stain1;
 
     [FieldOffset(0), CExportIgnore] public ulong Value;
+}
+
+[StructLayout(LayoutKind.Explicit, Size = 4)]
+public struct LegacyEquipmentModelId {
+    [FieldOffset(0)] public ushort Id;
+    [FieldOffset(2)] public byte Variant;
+    [FieldOffset(3)] public byte Stain;
+    // Second Stain id is stored separately
 }

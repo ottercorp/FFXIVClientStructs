@@ -11,12 +11,11 @@ namespace FFXIVClientStructs.FFXIV.Client.Graphics.Scene;
 // Client::Graphics::Scene::CharacterBase
 //   Client::Graphics::Scene::DrawObject
 //     Client::Graphics::Scene::Object
-// ctor "E8 ?? ?? ?? ?? 33 C9 48 8D 05 ?? ?? ?? ?? 48 89 03 48 B8"
 // base class for graphics objects representing characters (human, demihuman, monster, and weapons)
 [GenerateInterop(isInherited: true)]
 [Inherits<DrawObject>]
 [VirtualTable("48 8D 05 ?? ?? ?? ?? 89 AF ?? ?? ?? ?? 48 89 07 48 8D 9F ?? ?? ?? ?? B8 ?? ?? ?? ?? 89 AF ?? ?? ?? ?? 66 89 87 ?? ?? ?? ?? 48 8B CB", 3)]
-[StructLayout(LayoutKind.Explicit, Size = 0x9D0)]
+[StructLayout(LayoutKind.Explicit, Size = 0xA10)]
 public unsafe partial struct CharacterBase {
     public const int PathBufferSize = 260;
     public const int MaterialsPerSlot = 10;
@@ -75,19 +74,19 @@ public unsafe partial struct CharacterBase {
 
     [FieldOffset(0x308)] public void* TempSlotData; // struct with temporary data for each slot (size = 0x88 * slot count)
 
-    [FieldOffset(0x318)] public Material** Materials; // size = SlotCount * MaterialsPerSlot
+    [FieldOffset(0x350)] public Material** Materials; // size = SlotCount * MaterialsPerSlot
 
-    [FieldOffset(0x320)] public void* EID; // Client::System::Resource::Handle::ElementIdResourceHandle - EID file for base skeleton
+    [FieldOffset(0x358)] public void* EID; // Client::System::Resource::Handle::ElementIdResourceHandle - EID file for base skeleton
 
-    [FieldOffset(0x328)] public void** IMCArray; // array of Client::System::Resource::Handle::ImageChangeDataResourceHandle ptrs size = SlotCount - IMC file for model in slot
+    [FieldOffset(0x360)] public void** IMCArray; // array of Client::System::Resource::Handle::ImageChangeDataResourceHandle ptrs size = SlotCount - IMC file for model in slot
 
-    [FieldOffset(0x918)] public byte AnimationVariant; // the "a%04d" part in "%s/animation/a%04d/%s/%s.pap"
+    [FieldOffset(0x958)] public byte AnimationVariant; // the "a%04d" part in "%s/animation/a%04d/%s/%s.pap" in LoadAnimation
 
     public Span<Pointer<Model>> ModelsSpan => new(Models, SlotCount);
     public Span<Pointer<Texture>> ColorTableTexturesSpan => new(ColorTableTextures, SlotCount * MaterialsPerSlot);
     public Span<Pointer<Material>> MaterialsSpan => new(Materials, SlotCount * MaterialsPerSlot);
 
-    [MemberFunction("E8 ?? ?? ?? ?? 48 8B 4E 08 48 8B D0 4C 8B 01")]
+    [MemberFunction("E8 ?? ?? ?? ?? 48 8B 4F 08 48 8B D0 4C 8B 01")]
     public static partial CharacterBase* Create(uint modelId, CustomizeData* customize, EquipmentModelId* equipData /* 10 times, 80 byte */, byte unk);
 
     [MemberFunction("E8 ?? ?? ?? ?? 40 F6 C7 01 74 3A 40 F6 C7 04 75 27 48 85 DB 74 2F 48 8B 05 ?? ?? ?? ?? 48 8B D3 48 8B 48 30")]

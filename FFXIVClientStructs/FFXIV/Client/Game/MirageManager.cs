@@ -1,7 +1,6 @@
 namespace FFXIVClientStructs.FFXIV.Client.Game;
 
 // Client::Game::MirageManager
-// ctor "48 89 5C 24 ?? 57 48 83 EC 20 48 8B D9 C6 01 00 48 83 C1 04"
 // Note: Data is cleared when switching zones
 [GenerateInterop]
 [StructLayout(LayoutKind.Explicit, Size = 0x1888)]
@@ -29,7 +28,7 @@ public unsafe partial struct MirageManager {
     /// Returns <c>true</c> if the command was sent to the server, or <c>false</c>
     /// if the player already possess a unique item or if inventory space is insufficient.
     /// </returns>
-    [MemberFunction("E8 ?? ?? ?? ?? 84 C0 74 0F 41 B0 01")]
+    [MemberFunction("E8 ?? ?? ?? ?? 84 C0 0F 84 ?? ?? ?? ?? 41 B0 01 48 8B CF")]
     public partial bool RestorePrismBoxItem(uint itemIndex);
 
     [GenerateInterop]

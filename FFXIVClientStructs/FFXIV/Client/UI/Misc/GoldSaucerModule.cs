@@ -1,20 +1,21 @@
-using FFXIVClientStructs.FFXIV.Client.System.Framework;
-using FFXIVClientStructs.FFXIV.Client.UI.Misc.UserFileManager;
+using UserFileEvent = FFXIVClientStructs.FFXIV.Client.UI.Misc.UserFileManager.UserFileEvent;
 
 namespace FFXIVClientStructs.FFXIV.Client.UI.Misc;
 
 // Client::UI::Misc::GoldSaucerModule
 //   Client::UI::Misc::UserFileManager::UserFileEvent
-// ctor "E8 ?? ?? ?? ?? 48 8D 8F ?? ?? ?? ?? 49 8B D4 E8 ?? ?? ?? ?? 48 8D 8F ?? ?? ?? ?? 49 8B D4 E8 ?? ?? ?? ?? 48 8D 8F ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 8D 8F ?? ?? ?? ?? 49 8B D4"
 [GenerateInterop]
 [Inherits<UserFileEvent>]
-[StructLayout(LayoutKind.Explicit, Size = 0x2C8)]
+[StructLayout(LayoutKind.Explicit, Size = 0x2D0)]
 public unsafe partial struct GoldSaucerModule {
-    public static GoldSaucerModule* Instance() => Framework.Instance()->GetUIModule()->GetGoldSaucerModule();
+    public static GoldSaucerModule* Instance() {
+        var uiModule = UIModule.Instance();
+        return uiModule == null ? null : uiModule->GetGoldSaucerModule();
+    }
 
-    [FieldOffset(0x40), FixedSizeArray] internal FixedSizeArray10<TripleTriadDeck> _decks;
-    [FieldOffset(0x284), FixedSizeArray] internal FixedSizeArray23<ushort> _hotbarMinions; // Companion RowIds
-    [FieldOffset(0x2B4), FixedSizeArray] internal FixedSizeArray10<ushort> _unseenCards; // TripleTriadCard RowIds, the ones indicated with a green dot
+    [FieldOffset(0x48), FixedSizeArray] internal FixedSizeArray10<TripleTriadDeck> _decks;
+    [FieldOffset(0x28C), FixedSizeArray] internal FixedSizeArray23<ushort> _hotbarMinions; // Companion RowIds
+    [FieldOffset(0x2BC), FixedSizeArray] internal FixedSizeArray10<ushort> _unseenCards; // TripleTriadCard RowIds, the ones indicated with a green dot
 
     [GenerateInterop]
     [StructLayout(LayoutKind.Explicit, Size = 0x3A)]

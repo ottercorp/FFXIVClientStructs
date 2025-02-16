@@ -30,10 +30,10 @@ public unsafe partial struct InfoProxyCommonList {
     [MemberFunction("3B 51 10 73 12 8B C2 48 6B D0 70")]
     public partial ulong GetContentIdForEntry(uint idx);
 
-    [MemberFunction("3B 51 10 73 0E")]
+    [MemberFunction("8B 41 10 48 3B D0 73 0C")]
     public partial CharacterData* GetEntry(uint idx);
 
-    [MemberFunction("E9 ?? ?? ?? ?? 3B 5F 10")]
+    [MemberFunction("E8 ?? ?? ?? ?? 48 85 C0 74 12 8B 40 20")]
     public partial CharacterData* GetEntryByContentId(ulong contentId, uint nameCrc32 = 0, byte a4 = 0);
 
     [MemberFunction("E8 ?? ?? ?? ?? EB 44 41 8D 46 EF"), GenerateStringOverloads]
@@ -41,6 +41,12 @@ public unsafe partial struct InfoProxyCommonList {
 
     [MemberFunction("E8 ?? ?? ?? ?? 48 8B 13 45 33 C9")]
     public partial void ApplyFilters();
+
+    /// <summary>
+    /// Sets the value of <see cref="InfoProxyInterface.EntryCount"/> to 0 for this proxy. Does not actually delete any data from any arrays. 
+    /// </summary>
+    [VirtualFunction(20)]
+    public partial void ClearData();
 
     [GenerateInterop]
     [StructLayout(LayoutKind.Explicit, Size = 0x70)]
@@ -55,7 +61,7 @@ public unsafe partial struct InfoProxyCommonList {
         /// 0x10000->0x70000 = DisplayGroup.Star -> DisplayGroup.Club
         /// 0x1000000 = OtherServer (FCTag not available)
         /// </summary>
-        [FieldOffset(0x18)] public uint ExtraFlags;
+        [FieldOffset(0x20)] public uint ExtraFlags;
         public DisplayGroup Group => (DisplayGroup)(ExtraFlags >> 16);
         public bool IsOtherServer => (ExtraFlags & 0x1000000) != 0;
         // 4 bytes empty

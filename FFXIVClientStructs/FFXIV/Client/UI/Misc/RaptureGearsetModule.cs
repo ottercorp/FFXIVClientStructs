@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using FFXIVClientStructs.FFXIV.Client.System.String;
-using FFXIVClientStructs.FFXIV.Client.UI.Misc.UserFileManager;
+using UserFileEvent = FFXIVClientStructs.FFXIV.Client.UI.Misc.UserFileManager.UserFileEvent;
 
 namespace FFXIVClientStructs.FFXIV.Client.UI.Misc;
 
@@ -9,17 +9,21 @@ namespace FFXIVClientStructs.FFXIV.Client.UI.Misc;
 // ctor "48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 41 56 48 83 EC 20 45 33 F6 48 89 51 10 48 8D 05 ?? ?? ?? ?? 4C 89 71 08 49 8B D8"
 [GenerateInterop]
 [Inherits<UserFileEvent>]
-[VirtualTable("48 8D 05 ?? ?? ?? ?? 48 89 7B 40 48 8D 73 48", 3)]
-[StructLayout(LayoutKind.Explicit, Size = 0xB808)]
+[VirtualTable("48 8D 05 ?? ?? ?? ?? 4C 89 79 08 49 8B F8", 3)]
+[StructLayout(LayoutKind.Explicit, Size = 0xB810)]
 public unsafe partial struct RaptureGearsetModule {
-    public static RaptureGearsetModule* Instance() => UIModule.Instance()->GetRaptureGearsetModule();
+    public static RaptureGearsetModule* Instance() {
+        var uiModule = UIModule.Instance();
+        return uiModule == null ? null : uiModule->GetRaptureGearsetModule();
+    }
 
-    [FieldOffset(0x48), FixedSizeArray] internal FixedSizeArray100<GearsetEntry> _entries;
+    [FieldOffset(0x48)] public UIModule* UIModulePtr;
+    [FieldOffset(0x50), FixedSizeArray] internal FixedSizeArray100<GearsetEntry> _entries;
 
-    [FieldOffset(0xB5C8)] public int CurrentGearsetIndex;
+    [FieldOffset(0xB5D0)] public int CurrentGearsetIndex;
 
-    [FieldOffset(0xB79C), FixedSizeArray] internal FixedSizeArray100<byte> _enabledGearsetIndex2EntryIndex;
-    [FieldOffset(0xB801)] public byte NumGearsets;
+    [FieldOffset(0xB7A4), FixedSizeArray] internal FixedSizeArray100<byte> _enabledGearsetIndex2EntryIndex;
+    [FieldOffset(0xB809)] public byte NumGearsets;
 
     /// <summary>
     /// Return a pointer to a <see cref="GearsetEntry"/> by index/ID.
@@ -61,6 +65,9 @@ public unsafe partial struct RaptureGearsetModule {
     [MemberFunction("48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 48 8B F9 41 0F B6 F0 48 8D 0D")]
     public partial int EquipGearset(int gearsetId, byte glamourPlateId = 0);
 
+    [MemberFunction("40 55 53 56 57 41 57 48 8D AC 24 ?? ?? ?? ?? 48 81 EC ?? ?? ?? ?? 48 8B 05 ?? ?? ?? ?? 48 33 C4 48 89 85 ?? ?? ?? ?? 4C 63 FA")]
+    public partial int EquipGearsetInternal(int gearsetId, byte glamourPlateId = 0);
+
     /// <summary>
     /// Save the player's current inventory to a new gearset at the next possible ID.
     /// </summary>
@@ -80,7 +87,7 @@ public unsafe partial struct RaptureGearsetModule {
     /// </summary>
     /// <param name="gearsetId">The gearset ID to delete.</param>
     [MemberFunction("48 89 6C 24 ?? 57 48 83 EC 20 48 8B F9 48 63 EA")]
-    public partial void UpdateGearset(int gearsetId);
+    public partial int UpdateGearset(int gearsetId);
 
     /// <summary>
     /// Reassigns the ID of a gearset, effectively swapping the positions of two gearsets.
@@ -123,7 +130,7 @@ public unsafe partial struct RaptureGearsetModule {
     /// </summary>
     /// <param name="gearsetId">The ID of the gearset.</param>
     /// <returns>The Banner index, or -1 if it was not linked.</returns>
-    [MemberFunction("E8 ?? ?? ?? ?? 0F B6 C0 41 3B C4")]
+    [MemberFunction("E8 ?? ?? ?? ?? 49 8B 4E 08 0F B6 D8")]
     public partial sbyte GetBannerIndex(byte gearsetId);
 
     /// <summary>
@@ -131,7 +138,7 @@ public unsafe partial struct RaptureGearsetModule {
     /// </summary>
     /// <param name="gearsetId">The ID of the gearset.</param>
     /// <param name="bannerIndex">The Banner index, or -1 to unlink the Banner.</param>
-    [MemberFunction("E8 ?? ?? ?? ?? EB 70 41 0F B6 D7")]
+    [MemberFunction("E8 ?? ?? ?? ?? EB 62 41 0F B6 D7")]
     public partial void SetBannerIndex(byte gearsetId, sbyte bannerIndex);
 
     /// <summary>
@@ -140,8 +147,17 @@ public unsafe partial struct RaptureGearsetModule {
     /// <param name="gearsetId">The ID of the gearset.</param>
     /// <returns>Returns <c>true</c> if the gearset has a Banner linked to it, <c>false</c> otherwise.</returns>
     /// <remarks>Equivalent to Flags.HasFlag(GearsetFlag.Exists) &amp;&amp; BannerIndex != 0.</remarks>
-    [MemberFunction("E8 ?? ?? ?? ?? 84 C0 74 4F 0F B6 D3")]
+    [MemberFunction("E8 ?? ?? ?? ?? 84 C0 74 68 48 8B 4F 48")]
     public partial bool HasLinkedBanner(byte gearsetId);
+
+    /// <summary>
+    /// Check if a specified gearset has a Banner linked to it.
+    /// </summary>
+    /// <param name="enabledGearsetIndex">The position of the list.</param>
+    /// <returns>Returns <c>true</c> if the gearset has a Banner linked to it, <c>false</c> otherwise.</returns>
+    /// <remarks>Equivalent to Flags.HasFlag(GearsetFlag.Exists) &amp;&amp; BannerIndex != 0.</remarks>
+    [MemberFunction("E8 ?? ?? ?? ?? 84 C0 74 4F 0F B6 D3")]
+    public partial bool HasLinkedBannerByEnabledIndex(byte enabledGearsetIndex);
 
     /// <summary>
     /// Resolves the index of a GearsetEntry array that only contains enabled gearsets to the index in the actual <see cref="Entries"/> array.
@@ -263,7 +279,8 @@ public unsafe partial struct RaptureGearsetModule {
         [FieldOffset(0x36)] public byte BannerIndex;
         [FieldOffset(0x37)] public GearsetFlag Flags;
         [FieldOffset(0x38), FixedSizeArray] internal FixedSizeArray14<GearsetItem> _items;
-        [FieldOffset(0x1C0)] public ushort GlassesId;
+        [FieldOffset(0x1C0), Obsolete("Use GlassesIds[0]")] public ushort GlassesId;
+        [FieldOffset(0x1C0), FixedSizeArray] internal FixedSizeArray2<ushort> _glassesIds;
 
         [UnscopedRef] public ref GearsetItem GetItem(GearsetItemIndex index) => ref Items[(int)index];
 

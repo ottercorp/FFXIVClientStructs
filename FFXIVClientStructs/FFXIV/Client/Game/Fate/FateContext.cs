@@ -6,7 +6,7 @@ namespace FFXIVClientStructs.FFXIV.Client.Game.Fate;
 // Client::Game::Fate::FateContext
 // ctor "48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 66 89 51 18"
 [GenerateInterop]
-[StructLayout(LayoutKind.Explicit, Size = 0x10A0)]
+[StructLayout(LayoutKind.Explicit, Size = 0x10B0)]
 public partial struct FateContext {
     [FieldOffset(0x18)] public ushort FateId;
     [FieldOffset(0x1A)] public byte EurekaFate;
@@ -17,7 +17,7 @@ public partial struct FateContext {
     [FieldOffset(0x128)] public Utf8String Description;
     [FieldOffset(0x190)] public Utf8String Objective;
 
-    [FieldOffset(0x3AC)] public byte State;
+    [FieldOffset(0x3AC)] public FateState State;
     [FieldOffset(0x3AF)] public byte HandInCount;
     [FieldOffset(0x3B8)] public byte Progress;
     /// <summary>
@@ -41,8 +41,16 @@ public partial struct FateContext {
     [FieldOffset(0x400)] public ushort ScreenImageFailed;
     [FieldOffset(0x40A)] public ushort FATEChain;
     [FieldOffset(0x430)] public uint RequiredQuest;
-    [FieldOffset(0x450)] public Vector3 Location;
-    [FieldOffset(0x464)] public float Radius;
+    [FieldOffset(0x460)] public Vector3 Location;
+    [FieldOffset(0x474)] public float Radius;
 
-    [FieldOffset(0x79A)] public ushort TerritoryId;
+    [FieldOffset(0x7AA)] public ushort TerritoryId;
+}
+
+public enum FateState : byte {
+    Running = 2,
+    Ended = 4,
+    Failed = 5,
+    Preparing = 7,
+    Ending = 8,
 }

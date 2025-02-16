@@ -1,14 +1,15 @@
 using FFXIVClientStructs.FFXIV.Client.Game;
-using FFXIVClientStructs.FFXIV.Client.System.Framework;
 
 namespace FFXIVClientStructs.FFXIV.Client.UI.Misc;
 
 // Client::UI::RecommendEquipModule
-// ctor "48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 41 56 48 83 EC 20 33 ED 48 8D 59 08 4C 8B F1"
 [GenerateInterop]
 [StructLayout(LayoutKind.Explicit, Size = 0x80)]
 public unsafe partial struct RecommendEquipModule {
-    public static RecommendEquipModule* Instance() => Framework.Instance()->GetUIModule()->GetRecommendEquipModule();
+    public static RecommendEquipModule* Instance() {
+        var uiModule = UIModule.Instance();
+        return uiModule == null ? null : uiModule->GetRecommendEquipModule();
+    }
 
     [FieldOffset(0x00)] public bool IsUpdating;
     [FieldOffset(0x01)] public bool IsSetupForDifferentClassJob;

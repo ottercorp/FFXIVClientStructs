@@ -7,21 +7,24 @@ namespace FFXIVClientStructs.FFXIV.Client.Game.Event;
 // Client::Game::Event::EventFramework
 // ctor "E8 ?? ?? ?? ?? 48 89 05 ?? ?? ?? ?? 48 83 C4 28 E9"
 [GenerateInterop]
-[StructLayout(LayoutKind.Explicit, Size = 0x3C10)]
+[StructLayout(LayoutKind.Explicit, Size = 0x44A0)]
 public unsafe partial struct EventFramework {
     [FieldOffset(0x00)] public EventHandlerModule EventHandlerModule;
     [FieldOffset(0xC0)] public DirectorModule DirectorModule;
     [FieldOffset(0x160)] public LuaActorModule LuaActorModule;
     [FieldOffset(0x1B0)] public EventSceneModule EventSceneModule;
-    [FieldOffset(0x3370)] public int LoadState; //0=Exd, 1=EventHandler, 2=Director, 3=LuaActor, 4=EventScene, 5=Idle?, 6=Ready?
+    // 7.1: something new
+    [FieldOffset(0x3BE8)] public int LoadState; //0=Exd, 1=EventHandler, 2=Director, 3=LuaActor, 4=EventScene, 5=Idle?, 6=Ready?
 
-    [FieldOffset(0x3378)] public LuaState* LuaState;
-    [FieldOffset(0x3380)] public LuaThread LuaThread;
+    [FieldOffset(0x3BF0)] public LuaState* LuaState;
+    [FieldOffset(0x3BF8)] public LuaThread LuaThread;
 
-    [FieldOffset(0x33D8)] public EventState EventState1;
-    [FieldOffset(0x3438)] public EventState EventState2;
+    [FieldOffset(0x3C50)] public EventState EventState1;
+    [FieldOffset(0x3CB0)] public EventState EventState2;
 
-    [StaticAddress("48 8B 35 ?? ?? ?? ?? 0F B6 EA 4C 8B F1", 3, isPointer: true)]
+    [FieldOffset(0x42A8)] public DailyQuestMap DailyQuests;
+
+    [StaticAddress("4C 39 2D ?? ?? ?? ?? 74 14", 3, isPointer: true)]
     public static partial EventFramework* Instance();
 
     [MemberFunction("E8 ?? ?? ?? ?? 48 85 C0 74 0D 0F B6 CB")]
@@ -30,14 +33,17 @@ public unsafe partial struct EventFramework {
     [MemberFunction("E8 ?? ?? ?? ?? 0F B6 98")]
     public partial InstanceContentDirector* GetInstanceContentDirector();
 
-    [MemberFunction("E8 ?? ?? ?? ?? 48 85 C0 74 0B 0F B6 90")]
+    [MemberFunction("E8 ?? ?? ?? ?? 48 85 C0 0F 84 ?? ?? 00 00 83 B8 38 03 00 00 02")]
     public partial PublicContentDirector* GetPublicContentDirector();
+
+    [MemberFunction("E8 ?? ?? ?? ?? 48 8B 4F 10 48 8B F0 48 8B 11 FF 52 40")]
+    public static partial PublicContentDirector* GetPublicContentDirectorByType(PublicContentDirectorType publicContentDirectorType);
 
     /// <summary>
     /// When EventHandlerSelector is active, this function is used to select specific event handler to interact with.
     /// </summary>
     /// <param name="index">Index of the option in EventHandlerSelector singleton.</param>
-    [MemberFunction("E8 ?? ?? ?? ?? 44 89 A7 ?? ?? ?? ?? 44 38 A7")]
+    [MemberFunction("E8 ?? ?? ?? ?? 44 89 B7 ?? ?? ?? ?? 80 BF")]
     public partial void InteractWithHandlerFromSelector(int index);
 
     [MemberFunction("E8 ?? ?? ?? ?? 48 85 C0 74 1B 66 83 78 ?? ??")]
@@ -46,6 +52,9 @@ public unsafe partial struct EventFramework {
 
     [MemberFunction("40 53 57 41 56 48 83 EC 70 48 8B 02")]
     public partial bool CheckInteractRange(GameObject* source, GameObject* target, byte interactionType, bool logErrorsToUser);
+
+    [MemberFunction("48 89 5C 24 ?? 48 89 7C 24 ?? 41 56 48 83 EC ?? 48 8B D9 48 89 6C 24")]
+    public partial void SetTerritoryTypeId(ushort territoryType);
 
     [MemberFunction("E8 ?? ?? ?? ?? 41 0F B7 4E ?? 3B C8")]
     public static partial uint GetCurrentContentId();

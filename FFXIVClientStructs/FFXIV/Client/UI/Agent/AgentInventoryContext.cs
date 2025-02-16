@@ -10,7 +10,7 @@ namespace FFXIVClientStructs.FFXIV.Client.UI.Agent;
 [Agent(AgentId.InventoryContext)]
 [GenerateInterop]
 [Inherits<AgentInterface>]
-[StructLayout(LayoutKind.Explicit, Size = 0x788)]
+[StructLayout(LayoutKind.Explicit, Size = 0x798)]
 public unsafe partial struct AgentInventoryContext {
     [FieldOffset(0x28)] public uint BlockingAddonId;
     [FieldOffset(0x2C)] public int ContexItemStartIndex;
@@ -35,11 +35,11 @@ public unsafe partial struct AgentInventoryContext {
 
     [FieldOffset(0x6E8)] public InventoryItem* TargetInventorySlot;
     [FieldOffset(0x6F0)] public InventoryItem TargetDummyItem;
-    [FieldOffset(0x730)] public InventoryType BlockedInventoryId;
-    [FieldOffset(0x734)] public int BlockedInventorySlotId;
+    [FieldOffset(0x738)] public InventoryType BlockedInventoryId;
+    [FieldOffset(0x73C)] public int BlockedInventorySlotId;
 
-    [FieldOffset(0x740)] public InventoryItem DiscardDummyItem;
-    [FieldOffset(0x780)] public int DialogType; // ?? 1 = Discard, 2 = LowerQuality
+    [FieldOffset(0x748)] public InventoryItem DiscardDummyItem;
+    [FieldOffset(0x790)] public int DialogType; // ?? 1 = Discard, 2 = LowerQuality
 
     [MemberFunction("83 B9 ?? ?? ?? ?? ?? 7E ?? 39 91")]
     public partial void OpenForItemSlot(uint inventory, int slot, int a4, uint addonId);
@@ -49,15 +49,19 @@ public unsafe partial struct AgentInventoryContext {
     }
 
     [MemberFunction("E8 ?? ?? ?? ?? E9 ?? ?? ?? ?? 48 8D 0D ?? ?? ?? ?? E8 ?? ?? ?? ?? 4C 89 74 24 ??")]
-    public partial long UseItem(uint itemId, uint inventoryType = 9999, uint itemSlot = 0, short a5 = 0);
+    public partial long UseItem(uint itemId, uint inventoryType = 9999, uint itemSlot = 0, short a5 = 0); // TODO: use InventoryType.Invalid
 
     public bool IsContextItemDisabled(int index) {
         return index >= 0 && (ContextItemDisabledMask & (1 << index)) != 0;
     }
 
-    [MemberFunction("E8 ?? ?? ?? ?? E9 ?? ?? ?? ?? 48 8D 0D ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 85 C0 74 ?? 0F B7 48")]
+    [MemberFunction("E8 ?? ?? ?? ?? 48 8B B4 24 ?? ?? ?? ?? 0F B6 D8")]
     public partial void DiscardItem(InventoryItem* itemSlot, InventoryType inventory, int slot, uint addonId, int position = -1); //position = YesNoPosition
 
     [MemberFunction("E8 ?? ?? ?? ?? 48 83 C4 ?? 5B C3 8B 83")]
     public partial void LowerItemQuality(InventoryItem* itemSlot, InventoryType inventory, int slot, uint addonId);
+
+    [GenerateInterop(isInherited: true)]
+    [StructLayout(LayoutKind.Explicit, Size = 0x8)]
+    public partial struct InventoryContextEvent; // contains 2 vfs
 }

@@ -1,40 +1,41 @@
-using FFXIVClientStructs.FFXIV.Client.System.Framework;
 using FFXIVClientStructs.FFXIV.Client.System.String;
-using FFXIVClientStructs.FFXIV.Client.UI.Misc.UserFileManager;
+using UserFileEvent = FFXIVClientStructs.FFXIV.Client.UI.Misc.UserFileManager.UserFileEvent;
 
 namespace FFXIVClientStructs.FFXIV.Client.UI.Misc;
 
 // Client::UI::Misc::ItemFinderModule
 //   Client::UI::Misc::UserFileManager::UserFileEvent
-// ctor "48 89 5C 24 ?? 57 48 83 EC 20 33 FF 48 89 51 10 48 8D 05 ?? ?? ?? ?? 48 89 79 08 48 8B D9 48 89 01 48 89 79 18 4C 8D 05 ?? ?? ?? ?? 89 79 20 8D 57 0C 48 89 79 28 89 79 3C 48 83 C1 30 E8 ?? ?? ?? ?? 89 BB"
 [GenerateInterop]
 [Inherits<UserFileEvent>]
-[StructLayout(LayoutKind.Explicit, Size = 0x11D0)]
+[StructLayout(LayoutKind.Explicit, Size = 0x11D8)]
 public unsafe partial struct ItemFinderModule {
-    public static ItemFinderModule* Instance() => Framework.Instance()->GetUIModule()->GetItemFinderModule();
+    public static ItemFinderModule* Instance() {
+        var uiModule = UIModule.Instance();
+        return uiModule == null ? null : uiModule->GetItemFinderModule();
+    }
 
-    [FieldOffset(0x40), FixedSizeArray] internal FixedSizeArray24<uint> _requestItemIds;
-    [FieldOffset(0xA0)] public bool IsRequestUnfulfilled;
-    [FieldOffset(0xA1)] public bool IsCabinetCached;
-    [FieldOffset(0xA2)] public bool IsRetainerManagerReady; // only temporary set to true until request is complete
-    [FieldOffset(0xA3)] public bool IsSaddleBagCached;
-    [FieldOffset(0xA4)] public bool IsGlamourDresserCached;
-    [FieldOffset(0xA5)] public bool ShouldResetInvalid; // only clears data if player does not meet criteria (for example: has glamour dresser NOT unlocked)
-    [FieldOffset(0xA6)] public byte UnkA6;
-    [FieldOffset(0xA7)] public byte UnkA7;
-    [FieldOffset(0xA8)] public StdList<ulong> UpdatedRetainerIds;
-    [FieldOffset(0xA8), Obsolete("Use UpdatedRetainerIds instead")] public nint Retainer;
-    [FieldOffset(0xB0), Obsolete("Use UpdatedRetainerIds.LongCount instead")] public long RetainerCount;
-    [FieldOffset(0xB8)] public StdMap<ulong, Pointer<ItemFinderRetainerInventory>> RetainerInventories;
-    [FieldOffset(0xB8), Obsolete("Use RetainerInventories instead")] public nint RetainerInventory;
-    [FieldOffset(0xC0), Obsolete("Use RetainerInventories.LongCount instead")] public long RetainerInventoryCount;
-    [FieldOffset(0xC8), FixedSizeArray] internal FixedSizeArray70<uint> _saddleBagItemIds;
-    [FieldOffset(0x1E0), FixedSizeArray] internal FixedSizeArray70<uint> _premiumSaddleBagItemIds;
-    [FieldOffset(0x2F8), FixedSizeArray] internal FixedSizeArray70<ushort> _saddleBagItemCount;
-    [FieldOffset(0x384), FixedSizeArray] internal FixedSizeArray70<ushort> _premiumSaddleBagItemCount;
-    [FieldOffset(0x410), FixedSizeArray] internal FixedSizeArray800<uint> _glamourDresserItemIds;
+    [FieldOffset(0x48), FixedSizeArray] internal FixedSizeArray24<uint> _requestItemIds;
+    [FieldOffset(0xA8)] public bool IsRequestUnfulfilled;
+    [FieldOffset(0xA9)] public bool IsCabinetCached;
+    [FieldOffset(0xAA)] public bool IsRetainerManagerReady; // only temporary set to true until request is complete
+    [FieldOffset(0xAB)] public bool IsSaddleBagCached;
+    [FieldOffset(0xAC)] public bool IsGlamourDresserCached;
+    [FieldOffset(0xAD)] public bool ShouldResetInvalid; // only clears data if player does not meet criteria (for example: has glamour dresser NOT unlocked)
+    [FieldOffset(0xAE)] public byte UnkA6;
+    [FieldOffset(0xAF)] public byte UnkA7;
+    [FieldOffset(0xB0)] public StdList<ulong> UpdatedRetainerIds;
+    [FieldOffset(0xB0), Obsolete("Use UpdatedRetainerIds instead")] public nint Retainer;
+    [FieldOffset(0xB8), Obsolete("Use UpdatedRetainerIds.LongCount instead")] public long RetainerCount;
+    [FieldOffset(0xC0)] public StdMap<ulong, Pointer<ItemFinderRetainerInventory>> RetainerInventories;
+    [FieldOffset(0xC0), Obsolete("Use RetainerInventories instead")] public nint RetainerInventory;
+    [FieldOffset(0xC8), Obsolete("Use RetainerInventories.LongCount instead")] public long RetainerInventoryCount;
+    [FieldOffset(0xD0), FixedSizeArray] internal FixedSizeArray70<uint> _saddleBagItemIds;
+    [FieldOffset(0x1E8), FixedSizeArray] internal FixedSizeArray70<uint> _premiumSaddleBagItemIds;
+    [FieldOffset(0x300), FixedSizeArray] internal FixedSizeArray70<ushort> _saddleBagItemCount;
+    [FieldOffset(0x38C), FixedSizeArray] internal FixedSizeArray70<ushort> _premiumSaddleBagItemCount;
+    [FieldOffset(0x418), FixedSizeArray] internal FixedSizeArray800<uint> _glamourDresserItemIds;
 
-    [FieldOffset(0x10A0)] public ItemFinderModuleResult* Result;
+    [FieldOffset(0x10A8)] public ItemFinderModuleResult* Result;
 
     /// <summary>
     /// Searches inventories for the specified item id and opens the Item Search List window to display the results.

@@ -1,11 +1,15 @@
 using FFXIVClientStructs.FFXIV.Client.System.String;
+using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using FFXIVClientStructs.FFXIV.Common.Component.Excel;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 
 namespace FFXIVClientStructs.FFXIV.Client.Game.Event;
 
+// Client::Game::Event::ShopEventHandler
+//   Client::Game::Event::EventHandler
+//   Client::UI::Agent::AgentInventoryContext::InventoryContextEvent
 [GenerateInterop]
-[Inherits<EventHandler>]
+[Inherits<EventHandler>, Inherits<AgentInventoryContext.InventoryContextEvent>]
 [StructLayout(LayoutKind.Explicit, Size = 0x32F0)]
 public unsafe partial struct ShopEventHandler {
     // 0x210: second base class, related to context menu integration for selling items
@@ -103,6 +107,9 @@ public unsafe partial struct ShopEventHandler {
     [Inherits<AtkModuleInterface.AtkEventInterface>]
     [StructLayout(LayoutKind.Explicit, Size = 0x30)]
     public unsafe partial struct AgentProxy {
+        [StaticAddress("48 8D 15 ?? ?? ?? ?? 48 8B C8 E8 ?? ?? ?? ?? 45 33 C9", 3)]
+        public static partial AgentProxy* Instance();
+
         [FieldOffset(0x10)] public ShopEventHandler* Handler;
         [FieldOffset(0x18)] public uint AddonId;
     }
@@ -121,6 +128,6 @@ public unsafe partial struct ShopEventHandler {
     /// Note: BuyItemIndex field must be set before calling this function!
     /// </summary>
     /// <param name="count">Number of items to buy.</param>
-    [MemberFunction("48 83 EC 38 80 B9 ?? ?? ?? ?? ?? C7 44 24")]
+    [MemberFunction("48 83 EC 48 48 8B 05 ?? ?? ?? ?? 48 33 C4 48 89 44 24 ?? 80 B9")]
     public partial void ExecuteBuy(int count);
 }

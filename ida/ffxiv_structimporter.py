@@ -1,7 +1,13 @@
 # @category __UserScripts
 # @menupath Tools.Scripts.ffxiv_structimport
+# @runtime Jython
 
-from yaml import safe_load
+from yaml import load
+try:
+    from yaml import CSafeLoader as Loader
+except ImportError:
+    from yaml import SafeLoader as Loader
+
 import os
 from abc import abstractmethod
 from time import time
@@ -65,6 +71,13 @@ class DefinedFuncField(DefinedField, object):
         self.return_type = return_type
         self.parameters = params
 
+class DefinedStaticMember:
+    def __init__(self, signature, relative_offsets, return_type, is_pointer):
+        # type: (str, list[int], str, bool) -> None
+        self.signature = signature
+        self.relative_offsets = relative_offsets
+        self.return_type = return_type
+        self.is_pointer = is_pointer
 
 class DefinedFixedField(DefinedField, object):
     def __init__(self, name, type, offset, base, size):
@@ -84,14 +97,18 @@ class DefinedStruct(DefinedBase, object):
         virtual_functions,
         member_functions,
         union,
+        static_member_functions,
+        static_members
     ):
-        # type: (str, str, str, list[DefinedField], int | None, list[DefinedVFunc], list[DefinedMemFunc], str) -> None
+        # type: (str, str, str, list[DefinedField], int | None, list[DefinedVFunc] | None, list[DefinedMemFunc], str, list[DefinedMemFunc] | None, list[DefinedStaticMember] | None) -> None
         super(DefinedStruct, self).__init__(name, type, namespace)
         self.fields = fields
         self.size = size
         self.virtual_functions = virtual_functions
         self.member_functions = member_functions
         self.union = bool(union)
+        self.static_member_functions = static_member_functions
+        self.static_members = static_members
 
 
 class DefinedExport:
@@ -164,7 +181,14 @@ class BaseApi:
         """
         Updates a virtual function in the database.
         """
-
+        
+    @abstractmethod
+    def update_static_member(self, static_member, struct):
+        # type: (DefinedStaticMember, DefinedStruct) -> None
+        """
+        Updates a static member in the database.
+        """
+    
     @abstractmethod
     def should_update_member_func(self):
         # type: () -> bool
@@ -188,9 +212,7 @@ class BaseApi:
 
     def get_yaml(self):
         # type: () -> DefinedExport
-        dic = safe_load(
-            open(self.get_file_path)
-        )  # type: dict[str, dict[str, list[dict[str, str | int | list[dict[str, str | int]]]]]]
+        dic = load(open(self.get_file_path), Loader=Loader) # type: dict[str, dict[str, list[dict[str, str | int | list[dict[str, str | int]]]]]]
         enums = []
         structs = []
         for enum in dic["enums"]:
@@ -207,12 +229,18 @@ class BaseApi:
             fields = []
             virtual_functions = None
             member_functions = []
+            static_member_functions = None
+            static_members = None
             for field in struct["fields"]:
                 base = field["base"] if "base" in field else False
                 if "size" in field:
                     fields.append(
                         DefinedFixedField(
-                            field["name"], field["type"], field["offset"], base, field["size"]
+                            field["name"],
+                            field["type"],
+                            field["offset"],
+                            base,
+                            field["size"],
                         )
                     )
                 elif "return_type" in field:
@@ -233,15 +261,27 @@ class BaseApi:
                     )
                 else:
                     fields.append(
-                        DefinedField(field["name"], field["type"], field["offset"], base)
+                        DefinedField(
+                            field["name"], field["type"], field["offset"], base
+                        )
                     )
             if "virtual_functions" in struct:
                 virtual_functions = []
                 for vfunc in struct["virtual_functions"]:
-                    parameters = [DefinedFuncParam(param["name"], param["type"]) for param in vfunc["parameters"]] if "parameters" in vfunc else None
+                    parameters = (
+                        [
+                            DefinedFuncParam(param["name"], param["type"])
+                            for param in vfunc["parameters"]
+                        ]
+                        if "parameters" in vfunc
+                        else None
+                    )
                     virtual_functions.append(
                         DefinedVFunc(
-                            vfunc["name"], vfunc["return_type"] if "return_type" in vfunc else None, vfunc["offset"], parameters
+                            vfunc["name"],
+                            vfunc["return_type"] if "return_type" in vfunc else None,
+                            vfunc["offset"],
+                            parameters,
                         )
                     )
             for memfunc in struct["member_functions"]:
@@ -256,6 +296,28 @@ class BaseApi:
                         memfunc["name"],
                     )
                 )
+            if "static_member_functions" in struct:
+                static_member_functions = []
+                for smemfunc in struct["static_member_functions"]:
+                    parameters = []
+                    for param in smemfunc["parameters"]:
+                        parameters.append(
+                            DefinedFuncParam(param["name"], param["type"])
+                        )
+                    static_member_functions.append(
+                        DefinedMemFunc(
+                            smemfunc["signature"],
+                            smemfunc["return_type"],
+                            parameters,
+                            smemfunc["name"],
+                        )
+                    )
+            if "static_members" in struct:
+                static_members = []
+                for sm in struct["static_members"]:
+                    static_members.append(
+                        DefinedStaticMember(sm["signature"], sm["relative_follow_offsets"], sm["return_type"], sm["is_pointer"] if "is_pointer" in sm else False)
+                    )
             if "size" in struct:
                 structs.append(
                     DefinedStruct(
@@ -267,6 +329,8 @@ class BaseApi:
                         virtual_functions,
                         member_functions,
                         struct["union"],
+                        static_member_functions,
+                        static_members
                     )
                 )
             else:
@@ -280,6 +344,8 @@ class BaseApi:
                         virtual_functions,
                         member_functions,
                         struct["union"],
+                        static_member_functions,
+                        static_members
                     )
                 )
         return DefinedExport(enums, structs)
@@ -306,6 +372,10 @@ if api is None:
     else:
         # noinspection PyUnresolvedReferences
         class IdaApi(BaseApi):
+            def __init__(self, full_padding):
+                # type: (bool) -> None
+                self.full_padding = full_padding
+
             def get_idc_type_from_ida_type(self, type):
                 # type: (str) -> int
                 if (
@@ -340,6 +410,43 @@ if api is None:
                     return ida_bytes.enum_flag()
                 else:
                     return ida_bytes.stru_flag()
+
+            def get_idc_type_from_size(self, size):
+                if size == 1:
+                    return ida_bytes.byte_flag()
+                elif size >= 2 and size < 4:
+                    return ida_bytes.word_flag()
+                elif size >= 4 and size < 8:
+                    return ida_bytes.dword_flag()
+                else:
+                    return ida_bytes.qword_flag()
+
+            def get_idc_type_from_size(self, size, offset=0):
+                if offset == 0:
+                    offset = size
+                if offset % 8 == 0 and size >= 8:
+                    return ida_bytes.qword_flag()
+                elif offset % 4 == 0 and size >= 4:
+                    return ida_bytes.dword_flag()
+                elif offset % 2 == 0 and size >= 2:
+                    return ida_bytes.word_flag()
+                else:
+                    return ida_bytes.byte_flag()
+
+            def get_size_from_idc_type(self, type):
+                # type: (int) -> int
+                if type == ida_bytes.byte_flag():
+                    return 1
+                elif type == ida_bytes.word_flag():
+                    return 2
+                elif type == ida_bytes.dword_flag():
+                    return 4
+                elif type == ida_bytes.qword_flag():
+                    return 8
+                elif type == ida_bytes.float_flag():
+                    return 4
+                else:
+                    return 0
 
             def is_signed(self, type):
                 # type: (str) -> bool
@@ -392,28 +499,33 @@ if api is None:
             def get_named_type(self, name):
                 # type: (str) -> idaapi.tinfo_t
                 tinfo = ida_typeinf.tinfo_t()
+                clean_name = self.clean_struct_name(name)
                 if (
-                    ida_struct.get_struc_id(self.clean_struct_name(name))
+                    ida_struct.get_struc_id(clean_name)
+                    != idaapi.BADADDR
+                    or 
+                    ida_enum.get_enum(clean_name)
                     != idaapi.BADADDR
                 ):
-                    if not tinfo.get_named_type(idaapi.get_idati(), name):
-                        tinfo.get_named_type(
-                            idaapi.get_idati(), self.clean_struct_name(name)
-                        )
-                        return tinfo
-                    
+                    if not tinfo.get_named_type(idaapi.get_idati(), clean_name):
+                        raise ValueError("{0} not found in IDA database".format(clean_name))
+                        
+                    return tinfo
+
                 if name == "void":
-                    idaapi.parse_decl(tinfo, idaapi.get_idati(), "void (__fastcall)();", idaapi.PT_SIL)
+                    idaapi.parse_decl(
+                        tinfo, idaapi.get_idati(), "void (__fastcall)();", idaapi.PT_SIL
+                    )
                     return tinfo.get_rettype()
 
                 terminated = name + ";"
                 idaapi.parse_decl(tinfo, idaapi.get_idati(), terminated, idaapi.PT_SIL)
 
                 tinfo_str = tinfo.dstr()
-                if tinfo_str == name or tinfo_str == self.clean_struct_name(name):
+                if tinfo_str == name or tinfo_str == clean_name:
                     return tinfo
 
-                terminated = self.clean_struct_name(name) + ";"
+                terminated = clean_name + ";"
                 idaapi.parse_decl(tinfo, idaapi.get_idati(), terminated, idaapi.PT_SIL)
                 return tinfo
 
@@ -482,6 +594,8 @@ if api is None:
 
             def clean_struct_name(self, name):
                 # type: (str) -> str
+                if name == "Tm":
+                    return "tm" # tm is a keyword in IDA for the time struct but C# exports it as Tm
                 return (
                     name.replace(" ", "")
                     .replace("unsigned", "u")
@@ -500,6 +614,9 @@ if api is None:
                     16,
                     flag,
                 )
+                
+            def get_dword(self, ea):
+                return ida_bytes.get_original_dword(ea)
 
             def get_func_ea_by_name(self, name):
                 # type: (str) -> int
@@ -514,6 +631,9 @@ if api is None:
                     finf.start_ea = ea
                     finf.end_ea = idc.BADADDR
                     ida_funcs.add_func_ex(finf)
+
+                if ida_funcs.get_func(ea) is None:
+                    return idc.BADADDR
 
                 if ida_funcs.get_func(ea).start_ea == ea:
                     return ea
@@ -589,9 +709,11 @@ if api is None:
 
             def delete_struct(self, struct):
                 # type: (DefinedStruct) -> None
+                idaapi.begin_type_updating(idaapi.UTP_STRUCT)
                 fullname = self.clean_struct_name(struct.type)
                 self.delete_struct_members(fullname)
                 self.delete_struct_members(fullname + "_vtbl")
+                idaapi.end_type_updating(idaapi.UTP_STRUCT)
 
             def create_struct(self, struct):
                 # type: (DefinedStruct) -> None
@@ -601,36 +723,64 @@ if api is None:
                 if struct.virtual_functions:
                     ida_struct.add_struc(-1, fullname + "_vtbl")
 
+            def create_struct_member_fill(self, struct_name, offset):
+                # type: (str, int) -> None
+                s = ida_struct.get_struc(ida_struct.get_struc_id(struct_name))
+                prev_size = ida_struct.get_struc_size(s)
+                if self.full_padding:
+                    flag = self.get_idc_type_from_size(prev_size)
+                    size = self.get_size_from_idc_type(flag)
+                    if size > offset - prev_size:
+                        flag = self.get_idc_type_from_size(
+                            offset - prev_size, prev_size
+                        )
+                        size = self.get_size_from_idc_type(flag)
+
+                    ida_struct.add_struc_member(
+                        s, "field_{0:X}".format(prev_size), prev_size, flag, None, size
+                    )
+                else:
+                    ida_struct.add_struc_member(
+                        s,
+                        "field_{0:X}".format(prev_size),
+                        prev_size,
+                        ida_bytes.byte_flag(),
+                        None,
+                        offset - prev_size,
+                    )
+
             def create_struct_members(self, struct):
                 # type: (DefinedStruct) -> None
+                idaapi.begin_type_updating(idaapi.UTP_STRUCT)
                 fullname = self.clean_struct_name(struct.type)
                 s = ida_struct.get_struc(ida_struct.get_struc_id(fullname))
 
-                if struct.virtual_functions != None and (struct.fields == [] or struct.fields[0].offset > 0):
-                    ida_struct.add_struc_member(s, "__vftable", 0, ida_bytes.qword_flag(), None, 8)
+                if struct.virtual_functions != None and (
+                    struct.fields == [] or struct.fields[0].offset > 0
+                ):
+                    ida_struct.add_struc_member(
+                        s, "__vftable", 0, ida_bytes.qword_flag(), None, 8
+                    )
                     type = fullname + "_vtbl*" if struct.virtual_functions else "void**"
                     meminfo = ida_struct.get_member(s, 0)
-                    ida_struct.set_member_tinfo(s, meminfo, 0, self.get_tinfo_from_type(type), 0)
+                    ida_struct.set_member_tinfo(
+                        s, meminfo, 0, self.get_tinfo_from_type(type), 0
+                    )
 
                 contiguous_fields = True
                 for field in struct.fields:
                     offset = field.offset
 
-                    # add padding between previous field and current
                     prev_size = ida_struct.get_struc_size(s)
-                    if offset > prev_size:
+                    while offset > prev_size:
                         contiguous_fields = False
-                        ida_struct.add_struc_member(
-                            s,
-                            f"field_{prev_size:X}",
-                            prev_size,
-                            ida_bytes.byte_flag(),
-                            None,
-                            offset - prev_size
-                        )
+                        self.create_struct_member_fill(fullname, offset)
+                        prev_size = ida_struct.get_struc_size(s)
 
                     field_is_base = field.base and contiguous_fields
-                    field_name = field.name if not field_is_base else f'baseclass_{offset:X}'
+                    field_name = (
+                        field.name if not field_is_base else "baseclass_{0:X}".format(offset)
+                    )
                     field_type = self.clean_name(field.type)
                     if field_type == "__fastcall":
                         ida_struct.add_struc_member(
@@ -687,19 +837,21 @@ if api is None:
                     if field_is_base:
                         meminfo.props |= ida_struct.MF_BASECLASS
                     array_size = field.size if hasattr(field, "size") else 0
-                    ida_struct.set_member_tinfo(s, meminfo, 0, self.get_tinfo_from_type(field_type, array_size), 0)
+                    ida_struct.set_member_tinfo(
+                        s,
+                        meminfo,
+                        0,
+                        self.get_tinfo_from_type(field_type, array_size),
+                        0,
+                    )
 
                 if struct.size is not None and struct.size != 0:
                     prev_size = ida_struct.get_struc_size(s)
-                    if struct.size > prev_size:
-                        ida_struct.add_struc_member(
-                            s,
-                            f"field_{prev_size:X}",
-                            prev_size,
-                            ida_bytes.byte_flag(),
-                            None,
-                            struct.size - prev_size
-                        )
+                    while struct.size > prev_size:
+                        self.create_struct_member_fill(fullname, struct.size)
+                        prev_size = ida_struct.get_struc_size(s)
+
+                idaapi.end_type_updating(idaapi.UTP_STRUCT)
 
             def create_vtable(self, struct):
                 # type: (DefinedStruct) -> None
@@ -758,6 +910,13 @@ if api is None:
                 ea = self.get_func_ea_by_name(func_name)
                 if ea == idc.BADADDR:
                     ea = self.get_func_ea_by_sig(member_func.signature)
+                if ea == idc.BADADDR:
+                    print(
+                        "Error: {0} not found bad sig? {1}".format(
+                            func_name, member_func.signature
+                        )
+                    )
+                    return
                 if ida_funcs.get_func_name(ea) == "sub_{0:X}".format(ea):
                     idc.set_name(ea, func_name)
                 tif = ida_typeinf.tinfo_t()
@@ -798,6 +957,26 @@ if api is None:
                     func_data.push_back(arg)
                 tif.create_func(func_data)
                 ida_typeinf.apply_tinfo(ea, tif, ida_typeinf.TINFO_DEFINITE)
+            
+            def update_static_member(self, static_member, struct):
+                # type: (DefinedStaticMember, DefinedStruct) -> None
+                ea = self.search_binary(0, static_member.signature, ida_search.SEARCH_DOWN)
+                if ea == idc.BADADDR:
+                    print("Error: {0} not found something is wrong".format(static_member.signature))
+                    return
+                for follows in static_member.relative_offsets:
+                    ea = ea + follows
+                    ea = ea + 4 + self.get_dword(ea)
+                tif = ida_typeinf.tinfo_t()
+                ida_typeinf.guess_tinfo(tif, ea)
+                return_type = static_member.return_type
+                if static_member.is_pointer:
+                    return_type = return_type + "*"
+                ida_typeinf.apply_tinfo(ea, self.get_tinfo_from_type(return_type), ida_typeinf.TINFO_DEFINITE)
+                if static_member.is_pointer:
+                    ida_name.set_name(ea, "g_{0}_{1}".format(self.clean_name(struct.type), "PtrInstance"))
+                else:
+                    ida_name.set_name(ea, "g_{0}_{1}".format(self.clean_name(struct.type), "Instance"))
 
             def should_update_member_func(self):
                 return (
@@ -815,7 +994,18 @@ if api is None:
                     == ida_kernwin.ASKBTN_YES
                 )
 
-        api = IdaApi()
+        full_padding = (
+            ida_kernwin.ask_buttons(
+                "Full Padding",
+                "Array Padding",
+                "",
+                ida_kernwin.ASKBTN_YES,
+                "HIDECANCEL\nWhat padding style to use?\n\nFull Padding: Adds padding based on allignment of 1,2,4,8\nArray Padding: Adds padding based on the size between fields with byte arrays\n\nFull Padding will take longer to add padding between fields but is recommended for quick struct modifications.",
+            )
+            == ida_kernwin.ASKBTN_YES
+        )
+        api = IdaApi(full_padding)
+
 
 if api is None:
     try:
@@ -897,6 +1087,8 @@ if api is None:
             def get_datatype(self, typename):
                 # type: (str) -> DataType
                 raw_type = self.get_ghidra_type(typename)
+                if not raw_type:
+                    return raw_type
                 typename = raw_type.rstrip("*")
                 pointer_count = len(raw_type) - len(typename)
 
@@ -997,7 +1189,11 @@ if api is None:
                     return
 
                 dtsize = dt.getLength() if not dt.isZeroLength() else 0
-                if dtsize == 0 and struct.virtual_functions != None and not struct.union:
+                if (
+                    dtsize == 0
+                    and struct.virtual_functions != None
+                    and not struct.union
+                ):
                     dt.growStructure(8)
 
                 for field in struct.fields:
@@ -1062,21 +1258,30 @@ if api is None:
                         )
                     self.create_datatype(u_type)
 
+                void_ptr = dtm.getPointer(VoidDataType.dataType)
                 last_offset = int(struct.virtual_functions[-1].offset)
                 for func in struct.virtual_functions:
-                    func_def = self.create_function_def(func)
-                    func_def.setCategoryPath(
-                        CategoryPath(vt_type.getCategoryPath(), [vt_type.getName()])
-                    )
-                    vt_type.insertAtOffset(
-                        int(func.offset),
-                        dtm.getPointer(func_def),
-                        -1,
-                        func.name,
-                        "vf{0}".format(int(func.offset) / 8),
-                    )
+                    if func.return_type and func.parameters:
+                        func_def = self.create_function_def(func)
+                        func_def.setCategoryPath(
+                            CategoryPath(vt_type.getCategoryPath(), [vt_type.getName()])
+                        )
+                        vt_type.insertAtOffset(
+                            int(func.offset),
+                            dtm.getPointer(func_def),
+                            -1,
+                            func.name,
+                            "vf{0}".format(int(func.offset) / 8),
+                        )
+                    else:
+                        vt_type.insertAtOffset(
+                            int(func.offset),
+                            void_ptr,
+                            -1,
+                            func.name,
+                            "vf{0}".format(int(func.offset) / 8),
+                        )
 
-                void_ptr = dtm.getPointer(VoidDataType.dataType)
                 for offset in range(last_offset):
                     dtc = vt_type.getComponentContaining(offset)
                     if not dtc or Undefined.isUndefined(dtc.getDataType()):
@@ -1137,6 +1342,8 @@ if api is None:
                 # type: (DefinedMemFunc, DefinedStruct) -> None
                 if monitor.isCancelled():
                     return
+                if not member_func.parameters:
+                    return
                 func_name = "{0}.{1}".format(struct.type, member_func.name)
                 func = self.get_func_by_name(func_name)
                 if not func:
@@ -1178,6 +1385,10 @@ if api is None:
                     False,
                     SourceType.USER_DEFINED,
                 )
+            
+            def update_static_member(self, static_member, struct):
+                # type: (DefinedStaticMember, DefinedStruct) -> None
+                pass
 
             def should_update_member_func(self):
                 # type: () -> bool
@@ -1378,6 +1589,10 @@ if api is None:
                         if new_param_type is not None:
                             param_var.type = new_param_type
                         param_var.name = param.name
+            
+            def update_static_member(self, static_member, struct):
+                # type: (DefinedStaticMember, DefinedStruct) -> None
+                pass
 
             def should_update_member_func(self):
                 # type: () -> bool
@@ -1469,6 +1684,24 @@ def run():
                 )
                 for member_func in struct.member_functions:
                     api.update_member_func(member_func, struct)
+            
+            if struct.static_member_functions:
+                print(
+                    "{0} Updating static member functions for {1}".format(
+                        get_time(), struct.type
+                    )
+                )
+                for member_func in struct.static_member_functions:
+                    api.update_member_func(member_func, struct)
+            
+            if struct.static_members:
+                print(
+                    "{0} Updating static members for {1}".format(
+                        get_time(), struct.type
+                    )
+                )
+                for member in struct.static_members:
+                    api.update_static_member(member, struct)
 
 
 run()

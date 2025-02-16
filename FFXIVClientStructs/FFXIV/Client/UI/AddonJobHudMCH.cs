@@ -9,13 +9,13 @@ namespace FFXIVClientStructs.FFXIV.Client.UI;
 [Addon("JobHudMCH0")]
 [GenerateInterop]
 [Inherits<AddonJobHud>]
-[StructLayout(LayoutKind.Explicit, Size = 0x3C8)]
+[StructLayout(LayoutKind.Explicit, Size = 0x3D0)]
 public unsafe partial struct AddonJobHudMCH0 {
 
-    [FieldOffset(0x270)] public HeatGaugeData DataPrevious;
-    [FieldOffset(0x2A8)] public HeatGaugeData DataCurrent;
-    [FieldOffset(0x2E0)] public HeatGauge GaugeStandard;
-    [FieldOffset(0x358)] public HeatGaugeSimple GaugeSimple;
+    [FieldOffset(0x278)] public HeatGaugeData DataPrevious;
+    [FieldOffset(0x2B0)] public HeatGaugeData DataCurrent;
+    [FieldOffset(0x2E8)] public HeatGauge GaugeStandard;
+    [FieldOffset(0x360)] public HeatGaugeSimple GaugeSimple;
 
     [GenerateInterop]
     [Inherits<AddonJobHudGaugeData>]

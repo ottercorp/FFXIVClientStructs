@@ -1,14 +1,16 @@
+using FFXIVClientStructs.FFXIV.Client.System.Memory;
+
 namespace FFXIVClientStructs.FFXIV.Component.GUI;
 
 // Component::GUI::AtkComponentGaugeBar
 //   Component::GUI::AtkComponentBase
 //     Component::GUI::AtkEventListener
-// common CreateAtkComponent function "E8 ?? ?? ?? ?? 48 8B F8 48 85 C0 0F 84 ?? ?? ?? ?? 49 8B 0F"
+// common CreateAtkComponent function "E8 ?? ?? ?? ?? 4C 8B F0 48 85 C0 0F 84 ?? ?? ?? ?? 49 8B 4D 08"
 // type 5
 [GenerateInterop]
 [Inherits<AtkComponentBase>]
 [StructLayout(LayoutKind.Explicit, Size = 0x1A8)]
-public unsafe partial struct AtkComponentGaugeBar {
+public unsafe partial struct AtkComponentGaugeBar : ICreatable {
     /// <summary>
     /// Data describing a value transition. Informs the fields in <see cref="GaugeValue"/>. These fields aren't overwritten until the next transition of the same type occurs.
     /// </summary>
@@ -91,6 +93,6 @@ public unsafe partial struct AtkComponentGaugeBar {
     [MemberFunction("E8 ?? ?? ?? ?? 41 3B 1E")]
     public partial void SetGaugeValue(int value, int secondaryValue, bool instant);
 
-    [MemberFunction("E8 ?? ?? ?? ?? 89 B7 ?? ?? ?? ?? 48 8B 45 20")]
+    [MemberFunction("E8 ?? ?? ?? ?? 89 B7 ?? ?? ?? ?? 48 8B 45 28")]
     public partial void SetGaugeRange(int value);
 }

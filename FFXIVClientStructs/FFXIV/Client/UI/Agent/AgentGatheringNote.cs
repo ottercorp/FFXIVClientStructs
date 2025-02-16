@@ -6,13 +6,13 @@ namespace FFXIVClientStructs.FFXIV.Client.UI.Agent;
 [Agent(AgentId.GatheringNote)]
 [GenerateInterop]
 [Inherits<AgentInterface>]
-[StructLayout(LayoutKind.Explicit, Size = 0x178)]
+[StructLayout(LayoutKind.Explicit, Size = 0x180)]
 public unsafe partial struct AgentGatheringNote {
     [FieldOffset(0xA0)] public uint ContextMenuItemId;
 
     [FieldOffset(0xB8)] public GatheringAreaInfo* GatheringAreaInfo; // Represents the currently set gathering area
 
-    [MemberFunction("E8 ?? ?? ?? ?? EB 63 48 83 F8")]
+    [MemberFunction("E8 ?? ?? ?? ?? E9 ?? ?? ?? ?? 48 83 F8 08")]
     public partial void OpenGatherableByItemId(ushort itemId);
 }
 

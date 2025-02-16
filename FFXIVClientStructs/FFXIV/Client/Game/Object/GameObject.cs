@@ -30,7 +30,7 @@ public unsafe partial struct GameObject {
     [FieldOffset(0x90)] public byte YalmDistanceFromPlayerX;
     [FieldOffset(0x91)] public byte TargetStatus; // Goes from 6 to 2 when selecting a target and flashing a highlight
     [FieldOffset(0x92)] public byte YalmDistanceFromPlayerZ;
-    [FieldOffset(0x95)] public ObjectTargetableFlags TargetableStatus; // Determines whether the game object can be targeted by the user
+    [FieldOffset(0x96)] public ObjectTargetableFlags TargetableStatus; // Determines whether the game object can be targeted by the user
     [FieldOffset(0xB0)] public Vector3 Position;
     [FieldOffset(0xC0)] public float Rotation;
     [FieldOffset(0xC4)] public float Scale;
@@ -39,9 +39,9 @@ public unsafe partial struct GameObject {
     [FieldOffset(0xD0)] public float HitboxRadius;
     [FieldOffset(0xE0)] public Vector3 DrawOffset;
     [FieldOffset(0xF4)] public EventId EventId;
-    [FieldOffset(0xF8)] public uint FateId;
+    [FieldOffset(0xF8)] public ushort FateId;
     [FieldOffset(0x100)] public DrawObject* DrawObject;
-    [Obsolete("Use SharedGroupLayoutInstance")]
+    [Obsolete("Use SharedGroupLayoutInstance", true)]
     [FieldOffset(0x108)] public ILayoutInstance* LayoutInstance;
     [FieldOffset(0x108)] public SharedGroupLayoutInstance* SharedGroupLayoutInstance;
     [FieldOffset(0x110)] public uint NamePlateIconId;
@@ -62,10 +62,13 @@ public unsafe partial struct GameObject {
     public partial byte* GetName();
 
     [VirtualFunction(7)]
-    public partial float GetRadius();
+    public partial float GetRadius(bool adjustByTransformation = true);
 
     [VirtualFunction(8)]
     public partial float GetHeight();
+
+    [VirtualFunction(11)]
+    public partial byte GetSex();
 
     [VirtualFunction(12)]
     public partial void EnableDraw();

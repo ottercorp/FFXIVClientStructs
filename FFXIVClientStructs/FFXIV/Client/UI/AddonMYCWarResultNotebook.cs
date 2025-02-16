@@ -8,11 +8,11 @@ namespace FFXIVClientStructs.FFXIV.Client.UI;
 [Addon("MYCWarResultNotebook")]
 [GenerateInterop]
 [Inherits<AtkUnitBase>]
-[StructLayout(LayoutKind.Explicit, Size = 0x2E8)]
+[StructLayout(LayoutKind.Explicit, Size = 0x2F0)]
 public unsafe partial struct AddonMYCWarResultNotebook {
-    [FieldOffset(0x250)] public AtkCollisionNode* DescriptionCollisionNode;
+    [FieldOffset(0x258)] public AtkCollisionNode* DescriptionCollisionNode;
 
-    [FieldOffset(0x264)] public int MaxNoteIndex;
-    [FieldOffset(0x268)] public int CurrentNoteIndex;
-    [FieldOffset(0x26C)] public int CurrentPageIndex;
+    [FieldOffset(0x26C)] public int MaxNoteIndex;
+    [FieldOffset(0x270)] public int CurrentNoteIndex;
+    [FieldOffset(0x274)] public int CurrentPageIndex;
 }

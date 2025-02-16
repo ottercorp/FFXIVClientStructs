@@ -13,13 +13,13 @@ public unsafe partial struct CurrencyManager {
     /// |-----------|--------|-------------------------|<br/>
     /// | SpecialId | ItemId | Item Name               |<br/>
     /// |-----------|--------|-------------------------|<br/>
-    /// | 1         | 17833  | Yellow Crafters' Scrip  |<br/>
-    /// | 2         | 25199  | White Crafters' Scrip   |<br/>
-    /// | 3         | 17834  | Yellow Gatherers' Scrip |<br/>
-    /// | 4         | 25200  | White Gatherers' Scrip  |<br/>
+    /// | 1         | 25199  | White Crafters' Scrip   |<br/>
+    /// | 2         | 33913  | Purple Crafters' Scrip  |<br/>
+    /// | 3         | 25200  | White Gatherers' Scrip  |<br/>
+    /// | 4         | 33914  | Purple Gatherers' Scrip |<br/>
     /// | 5         | 10307  | Centurio Seal           |<br/>
-    /// | 6         | 33913  | Purple Crafters' Scrip  |<br/>
-    /// | 7         | 33914  | Purple Gatherers' Scrip |<br/>
+    /// | 6         | 41784  | Orange Crafters' Scrip  |<br/>
+    /// | 7         | 41785  | Orange Gatherers' Scrip |<br/>
     /// |-----------|--------|-------------------------|
     /// </code>
     /// </remarks>
@@ -60,6 +60,7 @@ public unsafe partial struct CurrencyManager {
     /// | 26807  | Bicolor Gemstone        |<br/>
     /// | 41079  | Aloalo Coin             |<br/>
     /// | 22525  | Namazu Koban            |<br/>
+    /// | 44472  | Pelu Pelplume           |<br/>
     /// |--------|-------------------------|
     /// </code>
     /// </remarks>
@@ -229,7 +230,7 @@ public unsafe partial struct CurrencyManager {
     /// <param name="maxCount">The maximum amount of this currency a player can have.</param>
     /// <param name="count">The amount of this currency currently held by the player.</param>
     /// <param name="isUnlimited">Wether the currency has a limit or not.</param>
-    [MemberFunction("E8 ?? ?? ?? ?? E9 ?? ?? ?? ?? 83 7D 80 00 48 8D 0D ?? ?? ?? ?? 8B 74 24 70")]
+    [MemberFunction("E8 ?? ?? ?? ?? E9 ?? ?? ?? ?? 8B 44 24 70 83 F8 01")]
     public partial void SetItemData(sbyte specialId, uint itemId, uint maxCount, uint count, bool isUnlimited);
 
     [StructLayout(LayoutKind.Explicit, Size = 0x20)]

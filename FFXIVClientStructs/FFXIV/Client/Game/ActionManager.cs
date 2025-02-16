@@ -123,7 +123,7 @@ public unsafe partial struct ActionManager {
     [MemberFunction("E8 ?? ?? ?? ?? F3 0F 5C F0 33 F6")]
     public partial float GetRecastTimeElapsed(ActionType actionType, uint actionId);
 
-    [MemberFunction("E8 ?? ?? ?? ?? 3C 01 74 19 FF C3")]
+    [MemberFunction("E8 ?? ?? ?? ?? 3C 01 74 1E FF C3")]
     public partial bool IsRecastTimerActive(ActionType actionType, uint actionId);
 
     [MemberFunction("E8 ?? ?? ?? ?? 8B D0 48 8B CD 8B F0")]
@@ -141,7 +141,7 @@ public unsafe partial struct ActionManager {
     [MemberFunction("E8 ?? ?? ?? ?? 8B 4F 44 33 D2")]
     public partial int GetAdditionalRecastGroup(ActionType actionType, uint actionId);
 
-    [MemberFunction("40 53 48 83 EC 20 48 63 DA 85 D2 78 50")]
+    [MemberFunction("40 53 48 83 EC 20 48 63 DA 85 D2")]
     public partial RecastDetail* GetRecastGroupDetail(int recastGroup);
 
     [MemberFunction("E8 ?? ?? ?? ?? 85 C0 75 15 4C 8B C6")]
@@ -157,7 +157,7 @@ public unsafe partial struct ActionManager {
     /// </remarks>
     /// <param name="actionType">The type of action (generally, Spell) to trigger a cooldown for.</param>
     /// <param name="actionId">The ID of the action to trigger a cooldown for.</param>
-    [MemberFunction("48 89 6C 24 ?? 56 57 41 56 48 83 EC 30 41 8B F0")]
+    [MemberFunction("48 89 6C 24 ?? 56 57 41 54 48 83 EC 30 44 8B E2")]
     public partial void StartCooldown(ActionType actionType, uint actionId);
 
     /// <summary>
@@ -185,7 +185,7 @@ public unsafe partial struct ActionManager {
     [MemberFunction("E8 ?? ?? ?? ?? 85 C0 75 02 33 C0")]
     public static partial uint GetActionInRangeOrLoS(uint actionId, GameObject* sourceObject, GameObject* targetObject);
 
-    [MemberFunction("E8 ?? ?? ?? ?? 3B F0 0F 83")]
+    [MemberFunction("E8 ?? ?? ?? ?? 8B C8 0F BE 43 0C")]
     public static partial int GetActionCost(ActionType actionType, uint actionId, byte a3, byte a4, byte a5, byte a6);
 
     /// <summary>
@@ -195,7 +195,7 @@ public unsafe partial struct ActionManager {
     /// <param name="actionId">The ID of the action to check.</param>
     /// <param name="applyClassMechanics">If true, applies various class mechanics (traits, etc).</param>
     /// <returns></returns>
-    [MemberFunction("E8 ?? ?? ?? ?? 8B D6 8B CD")]
+    [MemberFunction("E8 ?? ?? ?? ?? 85 C0 7E 1C")]
     public static partial int GetAdjustedRecastTime(ActionType actionType, uint actionId, bool applyClassMechanics = true);
 
     /// <summary>
@@ -209,7 +209,7 @@ public unsafe partial struct ActionManager {
     [MemberFunction("E8 ?? ?? ?? ?? 45 33 C0 33 D2 48 8B CF 66 0F 6E F8")]
     public static partial int GetAdjustedCastTime(ActionType actionType, uint actionId, bool applyProcs = true, CastTimeProc* outOptProc = null);
 
-    [MemberFunction("E8 ?? ?? ?? ?? 33 DB 8B C8")]
+    [MemberFunction("E8 ?? ?? ?? ?? 83 F8 01 7E 58")]
     public static partial ushort GetMaxCharges(uint actionId, uint level); // 0 for current level
 
     /// <summary>
@@ -218,7 +218,7 @@ public unsafe partial struct ActionManager {
     /// </summary>
     /// <param name="actionId">The Action ID to check against.</param>
     /// <returns>Returns a uint.</returns>
-    [MemberFunction("E8 ?? ?? ?? ?? 8B C8 83 E9 01 74 1E")]
+    [MemberFunction("48 89 6C 24 ?? 48 89 74 24 ?? 41 56 48 83 EC 50 8B EA")]
     public partial uint GetCurrentCharges(uint actionId);
 
     [MemberFunction("E8 ?? ?? ?? ?? B0 01 EB D6")]
@@ -251,7 +251,7 @@ public unsafe partial struct ActionManager {
     /// </summary>
     /// <param name="dutyActionSlot">The Duty Action slot number (0 or 1) to look up.</param>
     /// <returns>Returns an Action ID.</returns>
-    [MemberFunction("E9 ?? ?? ?? ?? 33 C9 E9")]
+    [MemberFunction("E9 ?? ?? ?? ?? B1 02")]
     public static partial uint GetDutyActionId(ushort dutyActionSlot);
 
     /// <summary>

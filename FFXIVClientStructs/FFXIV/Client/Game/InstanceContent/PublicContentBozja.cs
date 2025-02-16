@@ -11,11 +11,11 @@ namespace FFXIVClientStructs.FFXIV.Client.Game.InstanceContent;
 //           Client::Game::Event::EventHandler
 [GenerateInterop]
 [Inherits<PublicContentDirector>]
-[StructLayout(LayoutKind.Explicit, Size = 0x2E20)]
+[StructLayout(LayoutKind.Explicit, Size = 0x2F78)]
 public unsafe partial struct PublicContentBozja {
-    [FieldOffset(0x1180)] public DynamicEventContainer DynamicEventContainer;
-    [FieldOffset(0x2D28)] public BozjaState State;
-    [FieldOffset(0x2E18)] public bool StateInitialized;
+    [FieldOffset(0x11D8)] public DynamicEventContainer DynamicEventContainer;
+    [FieldOffset(0x2E80)] public BozjaState State;
+    [FieldOffset(0x2F70)] public bool StateInitialized;
 
     [MemberFunction("E8 ?? ?? ?? ?? 48 8B F8 E8 ?? ?? ?? ?? 48 85 FF 74 1D")]
     public static partial PublicContentBozja* GetInstance();
@@ -48,43 +48,50 @@ public partial struct BozjaState {
 // Client::Game::InstanceContent::DynamicEventContainer
 //   Client::Game::InstanceContent::ContentSheetWaiterInterface
 [GenerateInterop]
-[StructLayout(LayoutKind.Explicit, Size = 0x1B28)]
+[StructLayout(LayoutKind.Explicit, Size = 0x1CA8)]
 public unsafe partial struct DynamicEventContainer {
     [FieldOffset(0x08), FixedSizeArray] internal FixedSizeArray16<DynamicEvent> _events;
 }
 
 // Client::Game::InstanceContent::DynamicEvent
 //   Common::Component::Excel::ExcelSheetWaiter
-[StructLayout(LayoutKind.Explicit, Size = 0x1B0)]
+[StructLayout(LayoutKind.Explicit, Size = 0x1C8)]
 public unsafe partial struct DynamicEvent {
     // [FieldOffset(0)] public ExcelSheetWaiter ExcelSheetWaiter;
-    [FieldOffset(0x38)] public uint LGBEventObject;
-    [FieldOffset(0x3C)] public uint LGBMapRange;
-    [FieldOffset(0x40)] public uint Quest; // RowId of Quest Sheet
-    [FieldOffset(0x44)] public uint Announce; // RowId of LogMessage Sheet
-    [FieldOffset(0x48)] public ushort Unknown0;
-    [FieldOffset(0x4A)] public ushort Unknown1;
-    [FieldOffset(0x4C)] public ushort Unknown2;
-    [FieldOffset(0x4E)] public byte EventType; // RowId of DynamicEventType Sheet
-    [FieldOffset(0x4F)] public byte EnemyType; // RowId of DynamicEventEnemyType Sheet
-    [FieldOffset(0x50)] public byte MaxParticipants;
-    [FieldOffset(0x51)] public byte Unknown4;
-    [FieldOffset(0x52)] public byte Unknown5;
-    [FieldOffset(0x54)] public int StartTimestamp;
-    [FieldOffset(0x58)] public uint SecondsLeft;
-    [FieldOffset(0x5C)] public uint SecondsDuration;
-
-    [FieldOffset(0x63)] public DynamicEventState State;
-
-    [FieldOffset(0x65)] public byte Participants;
-    [FieldOffset(0x66)] public byte Progress;
-
-    [FieldOffset(0x53)] public byte SingleBattle; // RowId of DynamicEventSingleBattle Sheet
-    [FieldOffset(0x68)] public Utf8String Name;
-    [FieldOffset(0xD0)] public Utf8String Description;
-    [FieldOffset(0x138)] public uint IconObjective0;
-    [FieldOffset(0x13C)] public byte MaxParticipants2;
-    [FieldOffset(0x158)] public MapMarkerData MapMarker;
+    [FieldOffset(0x30 + 0x00), CExporterExcelBegin("DynamicEvent")] public uint NameOffset;
+    [FieldOffset(0x30 + 0x04)] public uint DescriptionOffset;
+    [FieldOffset(0x30 + 0x08)] public uint LGBEventObject;
+    [FieldOffset(0x30 + 0x0C)] public uint LGBMapRange;
+    /// <remarks>RowId of Quest Sheet</remarks>
+    [FieldOffset(0x30 + 0x10)] public uint Quest;
+    /// <remarks>RowId of LogMessage Sheet</remarks>
+    [FieldOffset(0x30 + 0x14)] public uint Announce;
+    [FieldOffset(0x30 + 0x18)] public uint Unknown0;
+    [FieldOffset(0x30 + 0x1C)] public uint Unknown1;
+    [FieldOffset(0x30 + 0x20)] public ushort Unknown6;
+    [FieldOffset(0x30 + 0x22)] public ushort Unknown7;
+    [FieldOffset(0x30 + 0x24)] public ushort Unknown2;
+    /// <remarks>RowId of DynamicEventType Sheet</remarks>
+    [FieldOffset(0x30 + 0x26)] public byte EventType;
+    /// <remarks>RowId of DynamicEventEnemyType Sheet</remarks>
+    [FieldOffset(0x30 + 0x27)] public byte EnemyType;
+    [FieldOffset(0x30 + 0x28)] public byte MaxParticipants;
+    [FieldOffset(0x30 + 0x29)] public byte Unknown4;
+    [FieldOffset(0x30 + 0x2A)] public byte Unknown5;
+    /// <remarks>RowId of DynamicEventSingleBattle Sheet</remarks>
+    [FieldOffset(0x30 + 0x2B), CExporterExcelEnd] public byte SingleBattle;
+    [FieldOffset(0x5C)] public int StartTimestamp;
+    [FieldOffset(0x60)] public uint SecondsLeft;
+    [FieldOffset(0x64)] public uint SecondsDuration;
+    [FieldOffset(0x6A)] public DynamicEventState State;
+    [FieldOffset(0x6D)] public byte Participants;
+    [FieldOffset(0x6E)] public byte Progress;
+    // new 1 byte field at 0x70 in 7.1
+    [FieldOffset(0x78)] public Utf8String Name;
+    [FieldOffset(0xE0)] public Utf8String Description;
+    [FieldOffset(0x148)] public uint IconObjective0;
+    [FieldOffset(0x14C)] public byte MaxParticipants2;
+    [FieldOffset(0x168)] public MapMarkerData MapMarker;
 }
 
 public enum DynamicEventState : byte {

@@ -1,4 +1,3 @@
-using FFXIVClientStructs.FFXIV.Client.System.Framework;
 using FFXIVClientStructs.FFXIV.Client.System.String;
 using FFXIVClientStructs.FFXIV.Common.Component.Excel;
 using FFXIVClientStructs.FFXIV.Component.Excel;
@@ -12,12 +11,14 @@ namespace FFXIVClientStructs.FFXIV.Client.UI.Misc;
 //     Component::Text::MacroDecoder
 //   Component::Text::TextChecker::ExecNonMacroFunc
 //   Component::Excel::ExcelLanguageEvent
-// ctor "E8 ?? ?? ?? ?? 48 8D 9F ?? ?? ?? ?? 4D 8B C5"
 [GenerateInterop]
 [Inherits<TextModule>, Inherits<TextChecker.ExecNonMacroFunc>, Inherits<ExcelLanguageEvent>]
 [StructLayout(LayoutKind.Explicit, Size = 0xE60)]
 public unsafe partial struct RaptureTextModule {
-    public static RaptureTextModule* Instance() => Framework.Instance()->GetUIModule()->GetRaptureTextModule();
+    public static RaptureTextModule* Instance() {
+        var uiModule = UI.UIModule.Instance();
+        return uiModule == null ? null : uiModule->GetRaptureTextModule();
+    }
 
     [FieldOffset(0x520)] public UIModule* UIModule;
     [FieldOffset(0x528)] public TextChecker TextChecker;
@@ -38,6 +39,12 @@ public unsafe partial struct RaptureTextModule {
     [FieldOffset(0xE30)] internal ExcelSheet* AkatsukiNoteStringSheet;
     [FieldOffset(0xE38)] public int SoundId;
     [FieldOffset(0xE3C)] public int IsJingle;
+    // [FieldOffset(0xE40)] public ExcelSheetWaiter* WeatherReportReplaceIdsLoader;
+    /// <remarks> Array of 4 (WeatherReportReplace row count - 1) * 2 ushorts (PlaceNameSub, PlaceNameParent). </remarks>
+    [FieldOffset(0xE48)] public ushort* WeatherReportReplaceIds;
+    // [FieldOffset(0xE50)] public ExcelSheetWaiter* AkatsukiNoteTitleIdsLoader;
+    /// <remarks> Array of 51 (AkatsukiNote row count) ushorts. Mapping AkatsukiNote RowId to AkatsukiNoteString RowId. </remarks>
+    [FieldOffset(0xE58)] public ushort* AkatsukiNoteTitleIds;
 
     [MemberFunction("E9 ?? ?? ?? ?? 80 EA 20")]
     public partial byte* GetAddonText(uint addonId);

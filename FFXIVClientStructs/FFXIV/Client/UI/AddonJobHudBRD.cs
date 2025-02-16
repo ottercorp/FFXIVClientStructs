@@ -9,12 +9,12 @@ namespace FFXIVClientStructs.FFXIV.Client.UI;
 [Addon("JobHudBRD0")]
 [GenerateInterop]
 [Inherits<AddonJobHud>]
-[StructLayout(LayoutKind.Explicit, Size = 0x4D0)]
+[StructLayout(LayoutKind.Explicit, Size = 0x4D8)]
 public unsafe partial struct AddonJobHudBRD0 {
-    [FieldOffset(0x270)] public SongGaugeData DataPrevious;
-    [FieldOffset(0x2B0)] public SongGaugeData DataCurrent;
-    [FieldOffset(0x2F0)] public SongGauge GaugeStandard;
-    [FieldOffset(0x3F0)] public SongGaugeSimple GaugeSimple;
+    [FieldOffset(0x278)] public SongGaugeData DataPrevious;
+    [FieldOffset(0x2B8)] public SongGaugeData DataCurrent;
+    [FieldOffset(0x2F8)] public SongGauge GaugeStandard;
+    [FieldOffset(0x3F8)] public SongGaugeSimple GaugeSimple;
 
     [GenerateInterop]
     [Inherits<AddonJobHudGaugeData>]

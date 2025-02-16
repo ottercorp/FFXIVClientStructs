@@ -1,7 +1,6 @@
 namespace FFXIVClientStructs.FFXIV.Client.Game.Group;
 
 // Client::Game::Group::GroupManager
-// ctor "48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 41 56 48 83 EC 20 33 ED C7 81"
 // group manager has two copies of the state - the normal one and a separate used when viewing recordings
 [GenerateInterop]
 [StructLayout(LayoutKind.Explicit, Size = 0xCB80)]
@@ -15,6 +14,9 @@ public unsafe partial struct GroupManager {
 
     [MemberFunction("E8 ?? ?? ?? ?? 0F B6 55 80")]
     public partial Group* GetGroup(bool replayGroup = false);
+
+    [MemberFunction("E8 ?? ?? ?? ?? 8D 57 DD")]
+    public partial Group* GetGroupWithCheck(bool replayGroup = false);
 
     [GenerateInterop]
     [StructLayout(LayoutKind.Explicit, Size = 0x65B0)]
@@ -56,7 +58,7 @@ public unsafe partial struct GroupManager {
         [MemberFunction("E8 ?? ?? ?? ?? 48 8B D8 4C 8B 07")]
         public partial PartyMember* GetPartyMemberByContentId(ulong contentId);
 
-        [MemberFunction("E8 ?? ?? ?? ?? 83 FF 32")]
+        [MemberFunction("E8 ?? ?? ?? ?? 83 FF 68")]
         public partial PartyMember* GetPartyMemberByEntityId(uint entityId);
     }
 }

@@ -20,7 +20,7 @@ public unsafe partial struct InfoProxyCrossRealm {
     [MemberFunction("E8 ?? ?? ?? ?? F6 D8 1A C0")]
     public static partial bool IsCrossRealmParty();
 
-    [MemberFunction("48 83 EC 28 80 3D ?? ?? ?? ?? ?? 75 2F")]
+    [MemberFunction("E8 ?? ?? ?? ?? 0F B6 5C 24 ?? 84 C0")]
     public static partial bool IsAllianceRaid();
 
     [MemberFunction("E8 ?? ?? ?? ?? 0F B6 D8 8B CB")]
@@ -43,6 +43,9 @@ public unsafe partial struct InfoProxyCrossRealm {
 
     [MemberFunction("E8 ?? ?? ?? ?? 84 C0 75 ?? 0F B6 5E")]
     public static partial bool IsContentIdInParty(ulong contentId);
+
+    [MemberFunction("40 53 41 57 48 83 EC 28 48 8B D9 4C 8B FA 48 8B 0D")]
+    public partial void ReceiveListing(nint packet);
 }
 
 [GenerateInterop]

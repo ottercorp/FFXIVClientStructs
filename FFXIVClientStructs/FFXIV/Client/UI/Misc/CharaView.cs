@@ -9,10 +9,10 @@ namespace FFXIVClientStructs.FFXIV.Client.UI.Misc;
 //
 // ClientObjectIndex:
 //  0 used in Character, PvPCharacter
-//  1 used in Inspect, CharaCard
+//  1 used in Inspect, CharaCard, Fashion, RetainerStatus
 //  2 used in TryOn, GearSetPreview
 //  3 used in Colorant
-//  4 used in BannerList, BannerEdit
+//  4 used in BannerList, BannerEdit, BannerUpdateView, FittingShop
 //  0 - 7 used in BannerParty
 //
 [GenerateInterop(isInherited: true)]
@@ -26,16 +26,23 @@ public unsafe partial struct CharaView : ICreatable {
     [FieldOffset(0x20)] public Camera* Camera;
     //[FieldOffset(0x28)] public nint Unk28; // float CharacterRotation?
     [FieldOffset(0x30)] public AgentInterface* Agent; // for example: AgentTryOn
-    //[FieldOffset(0x38)] public nint AgentCallbackReady; // if set, called when State changes to Ready
-    //[FieldOffset(0x40)] public nint AgentCallback; // not investigated, used inside vf7 and vf11
+    /// <remarks> (AgentInterface* agent, Texture* charaViewTexture) -> void </remarks>
+    [FieldOffset(0x38)] public nint AgentCallbackReady; // if set, called when State changes to Ready
+    /// <remarks> (AgentInterface* agent) -> Client::Game::Character::Character* </remarks>
+    [FieldOffset(0x40)] public nint AgentCallbackGetCharacter;
+    [FieldOffset(0x48)] public CharaViewModelData ModelData;
+    [Obsolete("Completely wrong. Use ModelData", true)]
     [FieldOffset(0x48)] public CharaViewCharacterData CharacterData;
-
+    [FieldOffset(0xE0)] public uint Race; // used to check EquipRestriction
+    [FieldOffset(0xE4)] public uint Sex; // used to check EquipRestriction
+    [FieldOffset(0xE8)] private uint UnkE8;
     [FieldOffset(0xEC)] public float ZoomRatio;
 
     [FieldOffset(0xF8), FixedSizeArray] internal FixedSizeArray14<CharaViewItem> _items;
 
-    [FieldOffset(0x308)] public bool CharacterDataCopied; // unsure if correct
-    [FieldOffset(0x309)] public bool CharacterLoaded; // unsure if correct
+    [FieldOffset(0x308)] public byte FreeCompanyCrestBitfield;
+    [FieldOffset(0x309)] public bool CharacterDataCopied;
+    [FieldOffset(0x30A)] public bool CharacterLoaded;
 
     public static CharaView* Create()
         => IMemorySpace.GetUISpace()->Create<CharaView>();
@@ -55,8 +62,26 @@ public unsafe partial struct CharaView : ICreatable {
     [VirtualFunction(3)]
     public partial void ResetPositions();
 
-    [MemberFunction("0F 10 02 0F 11 41 48")]
+    [VirtualFunction(4)]
+    public partial void SetCameraDistance(float deltaDistance);
+
+    [VirtualFunction(5)]
+    public partial void SetCameraYawAndPitch(float deltaRotation, float deltaPitch);
+
+    [VirtualFunction(6)]
+    public partial void SetCameraXAndY(float deltaX, float deltaY);
+
+    [VirtualFunction(8)]
+    public partial void OnReady();
+
+    [VirtualFunction(10)]
+    public partial void Update();
+
+    [MemberFunction("E8 ?? ?? ?? ?? 4D 8B CD 45 8B C4"), Obsolete("Completely wrong. Use SetModelData", true)]
     public partial void SetCustomizeData(CharaViewCharacterData* data);
+
+    [MemberFunction("E8 ?? ?? ?? ?? 4D 8B CD 45 8B C4")]
+    public partial void SetModelData(CharaViewModelData* data);
 
     [MemberFunction("E8 ?? ?? ?? ?? 49 8B 4C 24 ?? 8B 51 04")]
     public partial void Render(uint frameIndex);
@@ -65,10 +90,10 @@ public unsafe partial struct CharaView : ICreatable {
     public partial Character* GetCharacter();
 
     [MemberFunction("E8 ?? ?? ?? ?? 49 8D 4F 10 88 85")]
-    public partial bool IsAnimationPaused();
+    public partial bool IsAnimationPaused(); // TODO: While this works on CharaView, this is part of CharaViewPortrait. Move it there.
 
     [MemberFunction("E8 ?? ?? ?? ?? B2 01 48 8B CF E8 ?? ?? ?? ?? 32 C0")]
-    public partial void ToggleAnimationPlayback(bool paused);
+    public partial void ToggleAnimationPlayback(bool paused); // TODO: While this works on CharaView, this is part of CharaViewPortrait. Move it there.
 
     [MemberFunction("E8 ?? ?? ?? ?? 48 8B 45 77 48 8D 4D 87")]
     public partial void UnequipGear(bool hasCharacterData = false, bool characterLoaded = true);
@@ -76,21 +101,41 @@ public unsafe partial struct CharaView : ICreatable {
     [MemberFunction("E8 ?? ?? ?? ?? FF C5 48 83 C3 1C")]
     public partial void SetItemSlotData(byte slotId, uint itemId, byte stain0Id, byte stain1Id, uint glamourItemId = 0, bool applyCompanyCrest = true);
 
-    [MemberFunction("E8 ?? ?? ?? ?? 44 0F B6 8D ?? ?? ?? ?? B0 01")]
+    [MemberFunction("E8 ?? ?? ?? ?? 45 0F B6 8E ?? ?? ?? ?? B0 01")]
     public partial void ToggleDrawWeapon(bool drawn);
+}
+
+[GenerateInterop]
+[StructLayout(LayoutKind.Explicit, Size = 0x98)]
+public unsafe partial struct CharaViewModelData {
+    [FieldOffset(0)] public CustomizeData CustomizeData;
+    [FieldOffset(0x1A), FixedSizeArray] internal FixedSizeArray2<ushort> _glassesIds;
+    [FieldOffset(0x20), FixedSizeArray] internal FixedSizeArray10<EquipmentModelId> _equipmentModelIds;
+    [FieldOffset(0x70), FixedSizeArray] internal FixedSizeArray3<WeaponModelId> _weaponModelIds;
+    [FieldOffset(0x88)] public bool HeadgearHidden;
+    [FieldOffset(0x89)] public bool WeaponHidden;
+    [FieldOffset(0x8A)] public bool VisorClosed;
+    [FieldOffset(0x8B)] public byte FreeCompanyCrestBitfield;
+    [FieldOffset(0x90)] public CrestData FreeCompanyCrestData;
+
+    [MemberFunction("E8 ?? ?? ?? ?? 0F 28 55 87")]
+    public partial void CopyFromCharacter(Character* character);
 }
 
 [GenerateInterop]
 [StructLayout(LayoutKind.Explicit, Size = 0x78)]
 public unsafe partial struct CharaViewCharacterData : ICreatable {
     [FieldOffset(0)] public CustomizeData CustomizeData;
-    [FieldOffset(0x1A)] public ushort Glasses0Id;
-    [FieldOffset(0x1C)] public ushort Glasses1Id;
-    [FieldOffset(0x1E), FixedSizeArray] internal FixedSizeArray14<uint> _itemIds;
-    [FieldOffset(0x56), FixedSizeArray] internal FixedSizeArray14<byte> _itemStain0Ids; // unsure if correct
-    [FieldOffset(0x64), FixedSizeArray] internal FixedSizeArray14<byte> _itemStain1Ids; // unsure if correct
-
+    // Unk 2 bytes
+    [FieldOffset(0x1C), FixedSizeArray] internal FixedSizeArray14<uint> _itemIds;
+    [FieldOffset(0x54), FixedSizeArray] internal FixedSizeArray14<byte> _itemStain0Ids;
+    [FieldOffset(0x62), FixedSizeArray] internal FixedSizeArray14<byte> _itemStain1Ids;
+    [FieldOffset(0x70), Obsolete("Use GlassesIds[0]")] public ushort Glasses0Id;
+    [FieldOffset(0x72), Obsolete("Use GlassesIds[1]")] public ushort Glasses1Id;
+    [FieldOffset(0x70), FixedSizeArray] internal FixedSizeArray2<ushort> _glassesIds;
     [FieldOffset(0x74)] public byte ClassJobId;
+    [FieldOffset(0x75)] public bool HeadgearHidden;
+    [Obsolete("Renamed to HeadgearHidden")]
     [FieldOffset(0x75)] public bool VisorHidden;
     [FieldOffset(0x76)] public bool WeaponHidden;
     [FieldOffset(0x77)] public bool VisorClosed;
@@ -104,7 +149,7 @@ public unsafe partial struct CharaViewCharacterData : ICreatable {
         return obj;
     }
 
-    [MemberFunction("E8 ?? ?? ?? ?? 4D 8D 4E 30")]
+    [MemberFunction("E8 ?? ?? ?? ?? 4D 8D 4E 30 49 8B D6")]
     public partial void Ctor();
 
     [MemberFunction("E8 ?? ?? ?? ?? 48 8B 57 28 45 33 F6")]

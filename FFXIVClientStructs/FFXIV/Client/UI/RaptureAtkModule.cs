@@ -12,12 +12,16 @@ namespace FFXIVClientStructs.FFXIV.Client.UI;
 //     Component::GUI::AtkModuleInterface
 [GenerateInterop]
 [Inherits<AtkModule>]
-[StructLayout(LayoutKind.Explicit, Size = 0x29478)]
+[StructLayout(LayoutKind.Explicit, Size = 0x29720)]
 [VirtualTable("48 8D 05 ?? ?? ?? ?? 48 89 8F ?? ?? ?? ?? 48 89 07", 3)]
 public unsafe partial struct RaptureAtkModule {
-    public static RaptureAtkModule* Instance() => UIModule.Instance()->GetRaptureAtkModule();
+    public static RaptureAtkModule* Instance() {
+        var uiModule = UIModule.Instance();
+        return uiModule == null ? null : uiModule->GetRaptureAtkModule();
+    }
 
     [FieldOffset(0x82C0)] public ushort UiMode; // 0 = In Lobby, 1 = In Game
+    [FieldOffset(0x82C2)] public ushort UISetupStage; // unsure
 
     [FieldOffset(0x8338)] internal Utf8String Unk8338;
     [FieldOffset(0x83A0), FixedSizeArray] internal FixedSizeArray6<Utf8String> _unkArray;
@@ -27,44 +31,51 @@ public unsafe partial struct RaptureAtkModule {
     [FieldOffset(0x8748)] public Utf8String BoldOff; // <bold(0)>
 
     [FieldOffset(0x87F7)] public AgentUpdateFlags AgentUpdateFlag; // reset happens in RaptureAtkModule_OnUpdate
-    [FieldOffset(0x87F8)] internal fixed byte AddonAllocators[0x28 * 873];
-    [FieldOffset(0x11050)] public StdVector<Utf8String> AddonNames;
-    [FieldOffset(0x11068)] public AddonConfig* AddonConfigPtr;
+    [FieldOffset(0x87F8)] internal fixed byte AddonAllocators[0x28 * 889];
+    [FieldOffset(0x112E0)] public StdVector<Utf8String> AddonNames;
+    [FieldOffset(0x112F8)] public AddonConfig* AddonConfigPtr;
 
-    [FieldOffset(0x11120)] public UIModule* UIModulePtr;
-    [FieldOffset(0x11128)] public RaptureLogModule* RaptureLogModulePtr;
-    [FieldOffset(0x11130)] public AgentModule AgentModule;
-    [FieldOffset(0x11F58)] public RaptureHotbarModule* RaptureHotbarModulePtr;
-    [FieldOffset(0x11F60)] public RaptureAtkUnitManager RaptureAtkUnitManager;
-    [FieldOffset(0x1BC78)] public RaptureAtkColorDataManager RaptureAtkColorDataManager;
+    [FieldOffset(0x113B0 - 0x10)] public UIModule* UIModulePtr;
+    [FieldOffset(0x113B8 - 0x10)] public RaptureLogModule* RaptureLogModulePtr;
+    [FieldOffset(0x113C0 - 0x10)] public AgentModule AgentModule;
+    [FieldOffset(0x12210 - 0x10)] public RaptureHotbarModule* RaptureHotbarModulePtr;
+    [FieldOffset(0x12218 - 0x10)] public RaptureAtkUnitManager RaptureAtkUnitManager;
+    [FieldOffset(0x1BF30 - 0x10)] public RaptureAtkColorDataManager RaptureAtkColorDataManager;
 
-    [FieldOffset(0x1BEF8)] public int NameplateInfoCount;
-    [FieldOffset(0x1BF00), FixedSizeArray] internal FixedSizeArray50<NamePlateInfo> _namePlateInfoEntries;
+    [FieldOffset(0x1C1B0 - 0x10)] public int NameplateInfoCount;
+    [FieldOffset(0x1C1B8 - 0x10), FixedSizeArray] internal FixedSizeArray50<NamePlateInfo> _namePlateInfoEntries;
 
-    [FieldOffset(0x23388), FixedSizeArray] internal FixedSizeArray18<CrystalCache> _crystalItemCache;
-    [FieldOffset(0x23E38)] public ItemCache* KeyItemCache; // ptr to 120 entries
-    [FieldOffset(0x23E40)] public ItemCache* EquippedItemCache; // ptr to 14 entries
-    [FieldOffset(0x23E48), FixedSizeArray] internal FixedSizeArray160<InventoryCache> _inventoryItemCache; // see "E8 ?? ?? ?? ?? 48 8B 07 8D 55 05", only 140 slots are processed, unused?
-    [FieldOffset(0x29348)] public uint InventoryItemCacheSlotCount;
-    [FieldOffset(0x2934C)] public uint GilCap;
+    [FieldOffset(0x23630), FixedSizeArray] internal FixedSizeArray18<CrystalCache> _crystalItemCache;
+    [FieldOffset(0x240E0)] public ItemCache* KeyItemCache; // ptr to 120 entries
+    [FieldOffset(0x240E8)] public ItemCache* EquippedItemCache; // ptr to 14 entries
+    [FieldOffset(0x240F0), FixedSizeArray] internal FixedSizeArray160<InventoryCache> _inventoryItemCache; // see "E8 ?? ?? ?? ?? 48 8B 07 8D 55 05", only 140 slots are processed, unused?
+    [FieldOffset(0x295F0)] public uint InventoryItemCacheSlotCount;
+    [FieldOffset(0x295F4)] public uint GilCap;
 
-    [FieldOffset(0x29390)] public uint LocalPlayerClassJobId;
-    [FieldOffset(0x29394)] public uint LocalPlayerLevel;
+    [FieldOffset(0x29638)] public uint LocalPlayerClassJobId;
+    [FieldOffset(0x2963C)] public uint LocalPlayerLevel;
 
-    [FieldOffset(0x2939D)] public bool QuickGatheringEnabled;
+    [FieldOffset(0x29645)] public bool QuickGatheringEnabled;
 
-    [FieldOffset(0x29428)] internal ExcelSheet* AddonParamSheet;
-    [FieldOffset(0x29430)] public AtkTexture CharaViewDefaultBackgroundTexture; // "ui/common/CharacterBg.tex" (or _hr1 variant)
+    [FieldOffset(0x296D0)] internal ExcelSheet* AddonParamSheet;
+    [FieldOffset(0x296D8)] public AtkTexture CharaViewDefaultBackgroundTexture; // "ui/common/CharacterBg.tex" (or _hr1 variant)
 
-    [FieldOffset(0x29470)] internal nint ShellCommands; // only 1 function "48 83 EC 38 4C 8B C2 C7 44 24" to open links?
+    [FieldOffset(0x296F4)] public uint LoginSummonCompanionId;
+    [FieldOffset(0x296F8)] public float LoginSummonCompanionCountdown;
+    /// <remarks> Only for Region 5 </remarks>
+    [FieldOffset(0x296FC)] public float HourTimer;
+    /// <remarks> Only for Region 5 </remarks>
+    [FieldOffset(0x29700)] public int HoursPlayed;
 
-    [MemberFunction("E8 ?? ?? ?? ?? 48 89 9E ?? ?? ?? ?? 48 89 5E 58")]
+    [FieldOffset(0x29718)] internal nint ShellCommands; // only 1 function to open links?
+
+    [MemberFunction("E8 ?? ?? ?? ?? 48 89 9F ?? ?? ?? ?? 48 89 5F 58")]
     public partial bool ChangeUiMode(uint uiMode);
 
     [MemberFunction("E8 ?? ?? ?? ?? 0F BE 4E 30")]
     public partial bool IncRefNumberArrayData(int index);
 
-    [MemberFunction("E8 ?? ?? ?? ?? 48 8D 57 4C")]
+    [MemberFunction("E8 ?? ?? ?? ?? 44 89 76 30")]
     public partial bool DecRefNumberArrayData(int index);
 
     [MemberFunction("E8 ?? ?? ?? ?? 45 33 ED 41 8B 47 44")]
@@ -87,6 +98,9 @@ public unsafe partial struct RaptureAtkModule {
 
     [VirtualFunction(58)]
     public partial void Update(float delta);
+
+    [VirtualFunction(63), GenerateStringOverloads]
+    public partial bool OpenMapWithMapLink(byte* mapLink);
 
     public bool IsUiVisible {
         get => !RaptureAtkUnitManager.AtkUnitManager.Flags.HasFlag(AtkUnitManagerFlags.UiHidden);

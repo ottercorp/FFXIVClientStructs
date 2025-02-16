@@ -56,8 +56,8 @@ public unsafe partial struct InfoProxyItemSearch {
     [MemberFunction("40 57 41 56 48 83 EC 48 83 3A 00")]
     public partial void ProcessItemHistory(nint packet);
 
-    [MemberFunction("E8 ?? ?? ?? ?? 8B 3F 85 FF")]
-    public partial nint ProcessRequestResult(nint a2, nint a3, nint a4, int a5, byte a6, int a7);
+    [MemberFunction("E8 ?? ?? ?? ?? 8B 3F 85 FF 74 16")]
+    public partial nint ProcessRequestResult(byte a2, int a3);
 
     /// <summary>
     /// Load player retainer information from a packet into the
@@ -75,6 +75,9 @@ public unsafe partial struct InfoProxyItemSearch {
     /// <returns>Returns true if successful.</returns>
     [MemberFunction("40 56 48 8B C2")]
     public partial bool SetLastPurchasedItem(MarketBoardListing* listing);
+
+    [MemberFunction("40 53 48 81 EC ?? ?? ?? ?? 48 8B 05 ?? ?? ?? ?? 48 33 C4 48 89 84 24 ?? ?? ?? ?? 48 8B D9 48 8B 0D ?? ?? ?? ?? E8 ?? ?? ?? ?? 4C 8B D0 48 85 C0 0F 84 ?? ?? ?? ?? 8B 8B")]
+    public partial bool SendPurchaseRequestPacket();
 }
 
 [GenerateInterop]

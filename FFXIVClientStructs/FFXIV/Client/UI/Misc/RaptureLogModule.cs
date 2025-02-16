@@ -1,20 +1,21 @@
-using FFXIVClientStructs.FFXIV.Client.System.Framework;
 using FFXIVClientStructs.FFXIV.Client.System.String;
 using FFXIVClientStructs.FFXIV.Common.Component.Excel;
-using FFXIVClientStructs.FFXIV.Component.Excel;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using FFXIVClientStructs.FFXIV.Component.Log;
+using ExcelModuleInterface = FFXIVClientStructs.FFXIV.Component.Excel.ExcelModuleInterface;
 
 namespace FFXIVClientStructs.FFXIV.Client.UI.Misc;
 
 // Client::UI::Misc::RaptureLogModule
 //   Component::Log::LogModule
-// ctor "E8 ?? ?? ?? ?? 4C 8D A7 ?? ?? ?? ?? 49 8B CC E8 ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ??"
 [GenerateInterop]
 [Inherits<LogModule>]
-[StructLayout(LayoutKind.Explicit, Size = 0x3710)]
+[StructLayout(LayoutKind.Explicit, Size = 0x46D0)]
 public unsafe partial struct RaptureLogModule {
-    public static RaptureLogModule* Instance() => Framework.Instance()->GetUIModule()->GetRaptureLogModule();
+    public static RaptureLogModule* Instance() {
+        var uiModule = UI.UIModule.Instance();
+        return uiModule == null ? null : uiModule->GetRaptureLogModule();
+    }
 
     /// <remarks> Always <c>0x1F</c>, used as column terminator in <see cref="LogModule.LogMessageData"/>. </remarks>
     [FieldOffset(0x80)] internal Utf8String LogMessageDataTerminator;
@@ -48,7 +49,7 @@ public unsafe partial struct RaptureLogModule {
     [MemberFunction("E8 ?? ?? ?? ?? 8B D8 48 8D 4D 00")]
     public partial uint PrintMessage(ushort logKindId, Utf8String* senderName, Utf8String* message, int timestamp, bool silent = false);
 
-    [MemberFunction("E8 ?? ?? ?? ?? EB AA")]
+    [MemberFunction("E8 ?? ?? ?? ?? 44 03 EB")]
     public partial void ShowLogMessage(uint logMessageId);
 
     [MemberFunction("E8 ?? ?? ?? ?? 41 8B 5E 28")] // ShowLogMessage<uint>
@@ -120,7 +121,7 @@ public unsafe partial struct RaptureLogModule {
         return result;
     }
 
-    [Obsolete("The logKind parameter is incorrect. It contains the LogKind RowId in the first 7 bits, then 4 bits of casterKind and 4 bits of targetKind. Use the GetLogMessageDetail overload with casterKind and targetKind params instead.")]
+    [Obsolete("The logKind parameter is incorrect. It contains the LogKind RowId in the first 7 bits, then 4 bits of casterKind and 4 bits of targetKind. Use the GetLogMessageDetail overload with casterKind and targetKind params instead.", true)]
     public bool GetLogMessageDetail(int index, out byte[] sender, out byte[] message, out short logKind, out int time) {
         using var pMessage = new Utf8String();
         using var pSender = new Utf8String();

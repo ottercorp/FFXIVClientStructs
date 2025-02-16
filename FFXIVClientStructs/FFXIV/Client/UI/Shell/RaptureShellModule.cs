@@ -1,4 +1,3 @@
-using FFXIVClientStructs.FFXIV.Client.System.Framework;
 using FFXIVClientStructs.FFXIV.Client.System.String;
 using FFXIVClientStructs.FFXIV.Client.UI.Misc;
 using FFXIVClientStructs.FFXIV.Common;
@@ -7,12 +6,14 @@ using FFXIVClientStructs.FFXIV.Component.Shell;
 namespace FFXIVClientStructs.FFXIV.Client.UI.Shell;
 
 // Client::UI::Shell::RaptureShellModule
-// ctor "E8 ?? ?? ?? ?? 48 8D 8F ?? ?? ?? ?? 4C 8B CF"
 [GenerateInterop]
 [Inherits<ShellCommandModule>]
-[StructLayout(LayoutKind.Explicit, Size = 0x1218)]
+[StructLayout(LayoutKind.Explicit, Size = 0x1250)]
 public unsafe partial struct RaptureShellModule {
-    public static RaptureShellModule* Instance() => Framework.Instance()->GetUIModule()->GetRaptureShellModule();
+    public static RaptureShellModule* Instance() {
+        var uiModule = UI.UIModule.Instance();
+        return uiModule == null ? null : uiModule->GetRaptureShellModule();
+    }
 
     [FieldOffset(0x250)] public ShellCommandInterface ShellCommandInterface;
     [FieldOffset(0x258)] public UIModule* UIModule;
@@ -54,6 +55,9 @@ public unsafe partial struct RaptureShellModule {
 
     [MemberFunction("E8 ?? ?? ?? ?? E9 ?? ?? ?? ?? 48 8D 4D 28")]
     public partial void ExecuteMacro(RaptureMacroModule.Macro* macro);
+
+    [MemberFunction("E8 ?? ?? ?? ?? EB 42 4C 8B C6")]
+    public partial void CancelMacro();
 
     [MemberFunction("E8 ?? ?? ?? ?? 48 BA ?? ?? ?? ?? ?? ?? ?? ?? 84 C0")]
     public partial bool TryGetMacroIconCommand(RaptureMacroModule.Macro* macro, void* resultsOut);
