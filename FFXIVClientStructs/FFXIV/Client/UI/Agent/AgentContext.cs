@@ -49,7 +49,7 @@ public unsafe partial struct AgentContext {
     [FieldOffset(0x17D9)] public byte ContextMenuIndex;
     [FieldOffset(0x17DA)] public byte OpenAtPosition; // if true menu opens at Position else at cursor location
 
-    [MemberFunction("E8 ?? ?? ?? ?? 45 88 74 24")]
+    [MemberFunction("E8 ?? ?? ?? ?? 32 C0 EB 84")]
     public partial void OpenContextMenu(bool bindToOwner = true, bool closeExisting = true);
 
     [MemberFunction("41 0F B6 C0 89 91")]

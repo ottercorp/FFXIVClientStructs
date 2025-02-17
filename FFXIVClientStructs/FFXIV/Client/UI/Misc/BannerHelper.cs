@@ -18,7 +18,7 @@ public unsafe partial struct BannerHelper {
 
     #region CharaView Helpers
 
-    [MemberFunction("48 89 5C 24 ?? 57 48 83 EC 30 41 0F B7 40")]
+    [MemberFunction("E8 ?? ?? ?? ?? 0F 2E F0 7A 13")]
     public partial void ExportedPortraitData_ApplyBannerModuleEntry(ExportedPortraitData* to, BannerModuleEntry* from);
 
     [MemberFunction("41 80 38 00 75 08")]
