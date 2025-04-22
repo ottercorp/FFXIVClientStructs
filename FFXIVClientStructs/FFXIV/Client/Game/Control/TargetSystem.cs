@@ -57,7 +57,7 @@ public unsafe partial struct TargetSystem {
     [MemberFunction("E9 ?? ?? ?? ?? 48 8B 01 FF 50 08")]
     public partial ulong InteractWithObject(GameObject* obj, bool checkLineOfSight = true);
 
-    [MemberFunction("E9 ?? ?? ?? ?? 8B C0 48 8D 0D")]
+    [MemberFunction("48 89 6C 24 ?? 56 48 ?? ?? ?? F6 81 ?? ?? ?? ?? ?? 48 ?? ?? 48")]
     public partial void OpenObjectInteraction(GameObject* obj);
 
     [MemberFunction("E8 ?? ?? ?? ?? 48 8B D8 48 85 C0 74 50 48 8B CB")]
