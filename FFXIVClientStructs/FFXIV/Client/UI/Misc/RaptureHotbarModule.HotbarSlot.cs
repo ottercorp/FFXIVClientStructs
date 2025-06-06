@@ -46,9 +46,6 @@ public partial struct RaptureHotbarModule {
         /// </remarks>
         [FieldOffset(0xBC)] public uint OriginalApparentActionId;
 
-        [Obsolete($"Renamed to {nameof(OriginalApparentActionId)}.", true)]
-        [FieldOffset(0xBC)] public uint IconA;
-
         /// <summary>
         /// The action ID that is used to determine this hotbar slot's icon (and usually display text).
         ///
@@ -57,9 +54,6 @@ public partial struct RaptureHotbarModule {
         /// where this field would be used.
         /// </summary>
         [FieldOffset(0xC0)] public uint ApparentActionId;
-
-        [Obsolete($"Renamed to {nameof(ApparentActionId)}.", true)]
-        [FieldOffset(0xC0)] public uint IconB;
 
         /// Unknown field with offset 0xC4 (196), possibly overloaded
         ///
@@ -81,17 +75,11 @@ public partial struct RaptureHotbarModule {
         /// <seealso cref="OriginalApparentActionId"/>
         [FieldOffset(0xC8)] public HotbarSlotType OriginalApparentSlotType;
 
-        [Obsolete($"Renamed to {nameof(OriginalApparentSlotType)}.", true)]
-        [FieldOffset(0xC8)] public uint IconTypeA;
-
         /// <summary>
         /// The <see cref="HotbarSlotType"/> assigned to this hotbar slot for display purposes.
         /// </summary>
         /// <seealso cref="ApparentActionId"/>
         [FieldOffset(0xC9)] public HotbarSlotType ApparentSlotType;
-
-        [Obsolete($"Renamed to {nameof(ApparentSlotType)}.", true)]
-        [FieldOffset(0xC9)] public uint IconTypeB;
 
         /// Appears to be the "primary cost" of this action, mapping down to 0, 1, 2, 4, 5, 6, 7.
         ///
@@ -216,7 +204,7 @@ public partial struct RaptureHotbarModule {
         /// <summary>
         /// Loads cost data to <see cref="CostText"/> or <see cref="CostValue"/> for this hotbar slot.
         /// </summary>
-        [MemberFunction("E8 ?? ?? ?? ?? 40 0A E8 C6 46 3E 00")]
+        [MemberFunction("E8 ?? ?? ?? ?? 40 0A F0 C6 47")]
         public partial bool LoadCostDataForSlot(bool isLoaded = true);
 
         /// <summary>
@@ -243,7 +231,7 @@ public partial struct RaptureHotbarModule {
         /// <param name="actionId">The appearance action ID to use. Virtually almost always <see cref="ApparentActionId"/>.</param>
         /// <returns>Returns a string representation of the name to be displayed to the user for this hotbar slot.</returns>
         [MemberFunction("E8 ?? ?? ?? ?? 48 8B CB 48 85 C0 75 12")]
-        public partial byte* GetDisplayNameForSlot(HotbarSlotType slotType, uint actionId);
+        public partial CStringPointer GetDisplayNameForSlot(HotbarSlotType slotType, uint actionId);
 
         /// <summary>
         /// Gets the <see cref="CostValue"/> for a specific hotbar slot, taking account the specified appearance slot type
@@ -296,7 +284,7 @@ public partial struct RaptureHotbarModule {
         /// <param name="slotType">The slot type to check against - always <see cref="ApparentSlotType"/>.</param>
         /// <param name="actionId">The actionID to check against - always <see cref="ApparentActionId"/>.</param>
         /// <returns>Returns a bool indicating if the action within this slot is usable.</returns>
-        [MemberFunction("E8 ?? ?? ?? ?? 88 46 3E EB AC")]
+        [MemberFunction("E8 ?? ?? ?? ?? 88 47 ?? EB ?? 80 BB")]
         public partial bool IsSlotUsable(HotbarSlotType slotType, uint actionId);
 
         /// <summary>
@@ -304,7 +292,7 @@ public partial struct RaptureHotbarModule {
         /// on the hotbar slot.
         /// </summary>
         /// <returns>Returns a bool indicating whether the action's range constraints are met.</returns>
-        [MemberFunction("40 53 48 83 EC 20 44 0F B6 81 ?? ?? ?? ?? 48 8B D9")]
+        [MemberFunction("40 53 48 83 EC 20 44 0F B6 81 ?? ?? ?? ?? 48 8B D9 41 8B D0")]
         public partial bool IsSlotActionTargetInRange();
 
         /// <summary>
@@ -327,7 +315,7 @@ public partial struct RaptureHotbarModule {
         /// <param name="outCooldownSecondsLeft">An out parameter representing the seconds left in cooldown. Unused if cooldown is GCD.</param>
         /// <param name="a3">Unknown, appears to be a UI-related field for forcing values if the percentage is 0.</param>
         /// <returns>Returns a range from 0 to 100.</returns>
-        [MemberFunction("E8 ?? ?? ?? ?? 48 8B 5C 24 ?? 89 47 24")]
+        [MemberFunction("E8 ?? ?? ?? ?? 89 47 ?? E9 ?? ?? ?? ?? 80 BB")]
         public partial int GetSlotActionCooldownPercentage(int* outCooldownSecondsLeft, int a3 = 0);
 
         /// <summary>

@@ -66,7 +66,7 @@ public unsafe partial struct RaptureLogModule {
     public partial void ShowLogMessageString(uint logMessageId, Utf8String* value);
 
     [MemberFunction("E8 ?? ?? ?? ?? 40 80 C6 41"), GenerateStringOverloads]
-    public partial void PrintString(byte* str);
+    public partial void PrintString(CStringPointer str);
 
     [MemberFunction("E8 ?? ?? ?? ?? 84 C0 0F 84 ?? ?? ?? ?? 48 8D 4D B0 E8 ?? ?? ?? ?? 48 8B D0")]
     public partial bool GetLogMessage(int index, Utf8String* str);
@@ -122,28 +122,12 @@ public unsafe partial struct RaptureLogModule {
         return result;
     }
 
-    [Obsolete("The logKind parameter is incorrect. It contains the LogKind RowId in the first 7 bits, then 4 bits of casterKind and 4 bits of targetKind. Use the GetLogMessageDetail overload with casterKind and targetKind params instead.", true)]
-    public bool GetLogMessageDetail(int index, out byte[] sender, out byte[] message, out short logKind, out int time) {
-        using var pMessage = new Utf8String();
-        using var pSender = new Utf8String();
-        short pKind = 0;
-        int pTime = 0;
-
-        var result = GetLogMessageDetail(index, &pKind, &pSender, &pMessage, &pTime);
-
-        logKind = pKind;
-        time = pTime;
-        sender = pSender.AsSpan().ToArray();
-        message = pMessage.AsSpan().ToArray();
-        return result;
-    }
-
     [GenerateInterop]
     [StructLayout(LayoutKind.Explicit, Size = 0x2A)]
     public unsafe partial struct AddonMessageSub {
         [FieldOffset(0x00)] public ulong AccountId;
         [FieldOffset(0x08)] public ulong ContentId;
-        [FieldOffset(0x10)] public byte* Name;
+        [FieldOffset(0x10)] public CStringPointer Name;
         [FieldOffset(0x18)] public Utf8String* MessageText;
         [FieldOffset(0x20)] public uint EntityId;
         [FieldOffset(0x24)] public ushort ChatType;

@@ -7,7 +7,6 @@ public unsafe partial struct AtkArrayData {
     [FieldOffset(0xC), FixedSizeArray] internal FixedSizeArray16<byte> _subscribedAddons;
     [FieldOffset(0x1C)] public byte Unk1C;
     [FieldOffset(0x1D)] public byte Unk1D;
-    [FieldOffset(0x1E), Obsolete("Offset of SubscribedAddonsCount was fixed", true)] public byte Unk1E;
     [FieldOffset(0x1E)] public byte SubscribedAddonsCount;
     /// <remarks>
     /// 0 = No update pending<br/>
@@ -52,6 +51,7 @@ public enum NumberArrayType {
     FlyText = 30,
     ActionDetail = 31,
 
+    InventoryRetainer = 33,
     MiniTalk = 34,
     Talk = 35,
     ItemSearch = 36,
@@ -123,7 +123,7 @@ public enum NumberArrayType {
     GoldSaucerArcadeMachine = 103, // PunchingMachine, BasketBall, Hammer, MogCatcher, MinerBotanistAim
     PvPProfile = 104,
     Orchestrion = 105,
-
+    OrchestrionPlayListSelect = 106,
     RetainerTask = 107,
     YKWNote = 108,
     DeepDungeonNaviMap = 109,
@@ -170,6 +170,8 @@ public enum NumberArrayType {
     MJIHousingGoods = 151,
     FGSHud = 152,
     FGSResult = 153,
+    MKDInfo = 154,
+    MKDInfo2 = 155
 }
 
 public enum StringArrayType {
@@ -203,6 +205,7 @@ public enum StringArrayType {
     FlyText = 27,
     ActionDetail = 28,
 
+    InventoryRetainer = 30,
     MiniTalk = 31,
     CommonCurrencies = 32, // holds Gil, Grand Company Seals, Dark Matter; used by Repair, MateriaAttachDialog, GrandCompanyExchange, GrandCompanySupplyList
     ItemSearch = 33,
@@ -267,6 +270,7 @@ public enum StringArrayType {
 
     PvPProfile = 93,
     Orchestrion = 94,
+    OrchestrionPlayListSelect = 95,
 
     RetainerTask = 97,
     YKWNote = 98,

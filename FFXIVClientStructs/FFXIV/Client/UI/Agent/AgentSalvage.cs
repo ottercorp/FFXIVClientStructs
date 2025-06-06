@@ -38,10 +38,13 @@ public unsafe partial struct AgentSalvage {
     [FieldOffset(0x410), FixedSizeArray] internal FixedSizeArray3<SalvageResult> _desynthResults;
 
     [MemberFunction("E8 ?? ?? ?? ?? EB 2A 48 8B 06")]
-    public partial void ItemListRefresh(); // TODO: missing bool parameter
+    public partial void ItemListRefresh(bool isSalvageResultAddonOpen);
 
     [MemberFunction("E8 ?? ?? ?? ?? 41 81 BF ?? ?? ?? ?? ?? ?? ?? ?? 7D 1B")]
-    public partial void ItemListAdd(bool meetsLevelRequirement, InventoryType containerId, int containerSlot, uint itemId, void* exdRow, uint quantity);
+    public partial void ItemListAdd(bool meetsLevelRequirement, InventoryType containerId, int containerSlot, uint itemId, [CExporterExcel("Item")] void* exdRow, uint quantity);
+
+    [MemberFunction("E8 ?? ?? ?? ?? EB 5A 48 8B 07")]
+    public partial void SalvageItem(InventoryItem* item, int addonId = 0, byte a4 = 0); // addonId = addon to go back to once done
 
     public enum SalvageItemCategory {
         InventoryEquipment,

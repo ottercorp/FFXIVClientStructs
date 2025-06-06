@@ -10,7 +10,7 @@ namespace FFXIVClientStructs.FFXIV.Client.UI.Agent;
 [Agent(AgentId.Map)]
 [GenerateInterop]
 [Inherits<AgentInterface>]
-[StructLayout(LayoutKind.Explicit, Size = 0x144C8)]
+[StructLayout(LayoutKind.Explicit, Size = 0x144D8)]
 public unsafe partial struct AgentMap {
     /// <summary> Pointers to markers in <see cref="EventMarkers"/>. </summary>
     [FieldOffset(0xD0)] public StdVector<Pointer<MapMarkerData>> EventMarkersPtrs;
@@ -53,27 +53,29 @@ public unsafe partial struct AgentMap {
     [FieldOffset(0x5968)] public short CurrentOffsetX;
     [FieldOffset(0x596A)] public short CurrentOffsetY;
 
-    [FieldOffset(0x5A00)] public uint CurrentTerritoryId;
-    [FieldOffset(0x5A04)] public uint CurrentMapId;
-    [FieldOffset(0x5A0C)] public uint CurrentMapMarkerRange;
-    [FieldOffset(0x5A10)] public uint CurrentMapDiscoveryFlag;
-    [FieldOffset(0x5A14)] public uint SelectedTerritoryId;
-    [FieldOffset(0x5A18)] public uint SelectedMapId;
-    [FieldOffset(0x5A1C)] public uint SelectedMapMarkerRange;
-    [FieldOffset(0x5A20)] public uint SelectedMapDiscoveryFlag;
-    [FieldOffset(0x5A24)] public uint SelectedMapSub;
+    [FieldOffset(0x5970)] public OpenMapInfo CurrentOpenMapInfo;
 
-    [FieldOffset(0x5A3C)] public uint UpdateFlags;
+    [FieldOffset(0x5A10)] public uint CurrentTerritoryId;
+    [FieldOffset(0x5A14)] public uint CurrentMapId;
+    [FieldOffset(0x5A1C)] public uint CurrentMapMarkerRange;
+    [FieldOffset(0x5A20)] public uint CurrentMapDiscoveryFlag;
+    [FieldOffset(0x5A24)] public uint SelectedTerritoryId;
+    [FieldOffset(0x5A28)] public uint SelectedMapId;
+    [FieldOffset(0x5A2C)] public uint SelectedMapMarkerRange;
+    [FieldOffset(0x5A30)] public uint SelectedMapDiscoveryFlag;
+    [FieldOffset(0x5A34)] public uint SelectedMapSub;
 
-    [FieldOffset(0x5ADB)] public byte MapMarkerCount;
-    [FieldOffset(0x5ADC)] public byte TempMapMarkerCount;
-    [FieldOffset(0x5ADE)] public byte IsFlagMarkerSet;
-    [FieldOffset(0x5AE0)] public byte MiniMapMarkerCount;
-    [FieldOffset(0x5AE8)] public byte IsPlayerMoving;
-    [FieldOffset(0x5AF0)] public byte IsControlKeyPressed;
+    [FieldOffset(0x5A4C)] public uint UpdateFlags;
 
-    [FieldOffset(0x5F00)] public QuestLinkContainer MapQuestLinkContainer;
-    [FieldOffset(0x6A58)] public QuestLinkContainer MiniMapQuestLinkContainer;
+    [FieldOffset(0x5AEB)] public byte MapMarkerCount;
+    [FieldOffset(0x5AEC)] public byte TempMapMarkerCount;
+    [FieldOffset(0x5AEE)] public bool IsFlagMarkerSet;
+    [FieldOffset(0x5AF0)] public byte MiniMapMarkerCount;
+    [FieldOffset(0x5AF8)] public bool IsPlayerMoving;
+    [FieldOffset(0x5B00)] public bool IsControlKeyPressed;
+
+    [FieldOffset(0x5F10)] public QuestLinkContainer MapQuestLinkContainer;
+    [FieldOffset(0x6A68)] public QuestLinkContainer MiniMapQuestLinkContainer;
 
     [MemberFunction("40 56 48 83 EC 40 80 B9 ?? ?? ?? ?? ?? 48 8B F1 0F 29 7C 24")]
     public partial void SetFlagMapMarker(uint territoryId, uint mapId, float x, float y, uint iconId = 0xEC91);
@@ -81,10 +83,10 @@ public unsafe partial struct AgentMap {
     [MemberFunction("E8 ?? ?? ?? ?? 4C 8B B4 24 ?? ?? ?? ?? EB 64")]
     public partial void OpenMapByMapId(uint mapId, uint territoryId = 0, bool a4 = false);
 
-    [MemberFunction("E8 ?? ?? ?? ?? 49 8B 45 28 48 8D 8C 24")]
+    [MemberFunction("E8 ?? ?? ?? ?? 49 8B CE E8 ?? ?? ?? ?? EB ?? 8B 55")]
     public partial void OpenMap(OpenMapInfo* data);
 
-    [MemberFunction("E8 ?? ?? ?? ?? 48 8D 4D 70 E8 ?? ?? ?? ?? 48 8D 54 24 ??")]
+    [MemberFunction("E8 ?? ?? ?? ?? 48 8B B4 24 ?? ?? ?? ?? EB ?? 66 C7 45")]
     public partial void AddGatheringTempMarker(uint styleFlags, int mapX, int mapY, uint iconId, int radius, Utf8String* tooltip);
 
     [MemberFunction("40 53 48 83 EC ?? B2 ?? C6 81 ?? ?? ?? ?? ?? 48 8B D9 E8 ?? ?? ?? ?? 33 D2")]
@@ -97,7 +99,7 @@ public unsafe partial struct AgentMap {
     public partial void ShowMap(bool a1, bool a2); // native code calls a1 as true always, a2 is used both true and false
 
     public bool AddMiniMapMarker(Vector3 position, uint icon, int scale = 0) {
-        if (MiniMapMarkerCount >= 100) return false;
+        if (MiniMapMarkerCount >= MiniMapMarkers.Length) return false;
         var marker = new MiniMapMarker();
         marker.MapMarker.Index = MiniMapMarkerCount;
         marker.MapMarker.X = (short)(position.X * 16.0f);
@@ -109,7 +111,7 @@ public unsafe partial struct AgentMap {
     }
 
     public bool AddMapMarker(Vector3 position, uint icon, int scale = 0, byte* text = null, byte textPosition = 3, byte textStyle = 0) {
-        if (MapMarkerCount >= 132) return false;
+        if (MapMarkerCount >= MapMarkers.Length) return false;
         if (textPosition is > 0 and < 12)
             position *= SelectedMapSizeFactorFloat;
         var marker = new MapMarkerInfo();
@@ -126,7 +128,7 @@ public unsafe partial struct AgentMap {
     }
 
     public void SetFlagMapMarker(uint territoryId, uint mapId, Vector3 worldPosition, uint iconId = 0xEC91) {
-        IsFlagMarkerSet = 0;
+        IsFlagMarkerSet = false;
         var mapX = (int)(MathF.Round(worldPosition.X, 3, MidpointRounding.AwayFromZero) * 1000) * 0.001f;
         var mapY = (int)(MathF.Round(worldPosition.Z, 3, MidpointRounding.AwayFromZero) * 1000) * 0.001f;
         SetFlagMapMarker(territoryId, mapId, mapX, mapY, iconId);
@@ -141,7 +143,7 @@ public unsafe partial struct AgentMap {
     public void OpenMap(uint mapId, uint territoryId = 0, string? windowTitle = null, MapType type = MapType.FlagMarker) {
         var title = Utf8String.FromString(windowTitle ?? string.Empty);
         var info = stackalloc OpenMapInfo[1];
-        info->Type = type == MapType.FlagMarker && IsFlagMarkerSet != 1 ? MapType.Centered : type;
+        info->Type = type == MapType.FlagMarker && !IsFlagMarkerSet ? MapType.Centered : type;
         info->MapId = mapId;
         info->TerritoryId = territoryId;
         info->TitleString = *title;
@@ -158,7 +160,7 @@ public unsafe struct MapMarkerBase {
     [FieldOffset(0x04)] public uint IconId;
     [FieldOffset(0x08)] public uint SecondaryIconId;
     [FieldOffset(0x0C)] public int Scale;
-    [FieldOffset(0x10)] public byte* Subtext;
+    [FieldOffset(0x10)] public CStringPointer Subtext;
     [FieldOffset(0x18)] public byte Index;
 
     [FieldOffset(0x2C)] public short X;
@@ -209,7 +211,7 @@ public struct TempMapMarker {
     [FieldOffset(0xAC)] public uint Type;
 }
 
-[StructLayout(LayoutKind.Explicit, Size = 0x8E)]
+[StructLayout(LayoutKind.Explicit, Size = 0x9C)]
 public struct OpenMapInfo {
     [FieldOffset(0x00)] public MapType Type;
     [FieldOffset(0x04)] public uint AddonId;
@@ -218,11 +220,14 @@ public struct OpenMapInfo {
     [FieldOffset(0x10)] public uint PlaceNameId;
     [FieldOffset(0x14)] public uint AetheryteId;
     [FieldOffset(0x18)] public uint FateId;
-    [FieldOffset(0x1C)] public uint Unk1C;
+    [FieldOffset(0x1C)] public uint QuestId;
     [FieldOffset(0x20)] public Utf8String TitleString;
     [FieldOffset(0x88)] public uint Unk88;
-    [FieldOffset(0x8C)] public byte Unk8C;
-    [FieldOffset(0x8D)] public bool Unk8D; // something for QuestRedoMapMarker
+    [FieldOffset(0x90)] public ulong Unk90;
+    [FieldOffset(0x98)] public bool Unk98; // something for QuestRedoMapMarker
+    [FieldOffset(0x99)] public byte Unk99;
+    [FieldOffset(0x9A)] public byte Unk9A;
+    [FieldOffset(0x9B)] public byte Unk9B;
 }
 
 [GenerateInterop]

@@ -12,6 +12,8 @@ public unsafe partial struct GameMain {
     [FieldOffset(0x0), FixedSizeArray] internal FixedSizeArray4<Festival> _activeFestivals;
     [FieldOffset(0x40), FixedSizeArray] internal FixedSizeArray4<Festival> _queuedFestivals;
 
+    [FieldOffset(0x210)] public ZoneSharedGroupManager ZoneSharedGroupManager;
+
     [FieldOffset(0xAD8)] public JobGaugeManager JobGaugeManager;
 
     [FieldOffset(0x3FD0)] public EmoteManager EmoteManager;
@@ -24,7 +26,7 @@ public unsafe partial struct GameMain {
     [FieldOffset(0x4098)] public uint TerritoryLoadState; // 1 = loading, 2 = loaded, 3 = unloading/shutting down
     [FieldOffset(0x409C)] public uint NextTerritoryTypeId;
     [FieldOffset(0x40A0)] public uint CurrentTerritoryTypeId; // can be 0 during loading screens
-    [FieldOffset(0x40A4)] public uint CurrentTerritoryIntendedUseId;
+    [FieldOffset(0x40A4)] public byte CurrentTerritoryIntendedUseId;
     [FieldOffset(0x40A8)] public uint CurrentTerritoryFilterKey;
     [FieldOffset(0x40AC)] public ushort CurrentContentFinderConditionId;
     [FieldOffset(0x40B0)] public uint TransitionTerritoryTypeId;
@@ -48,10 +50,6 @@ public unsafe partial struct GameMain {
 
     [MemberFunction("40 53 48 83 EC 20 48 8B 1D ?? ?? ?? ?? 48 85 DB 74 1E 48 8D 0D")]
     public static partial bool IsInPvPInstance();
-
-    [MemberFunction("E8 ?? ?? ?? ?? 84 C0 75 21 48 8B 4F 10")]
-    [Obsolete("Moved to UIGlobals.CanApplyGlamourPlates(), but you might want to just use TerritoryInfo.Instance()->InSanctuary instead. See https://github.com/aers/FFXIVClientStructs/pull/1123 for more information.", true)]
-    public static partial bool IsInSanctuary();
 
     [MemberFunction("E8 ?? ?? ?? ?? 41 83 7F ?? ?? 4C 8D 2D")]
     public static partial bool IsInGPose();

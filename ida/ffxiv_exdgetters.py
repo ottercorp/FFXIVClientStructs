@@ -1,20 +1,11 @@
-# ffxiv-exdgetters.py
-#
 # Automagically labels most exd getter functions along with a hint indicating which sheet/sheet id its fetching from
-#
+# @category __UserScripts
+# @menupath Tools.Scripts.ffxiv_exdgetters
+# @runtime PyGhidra
 
-from urllib.request import urlopen, Request
-from urllib.error import HTTPError, URLError
-from io import BufferedReader
-from enum import IntEnum
-from zlib import decompress
-from json import load, loads
-from zipfile import ZipFile
-from tempfile import TemporaryFile
-from yaml import load as yload, Loader
-from re import sub
-from os import listdir, walk, getenv
-from os.path import isdir, join
+from json import load
+from os import getenv
+from os.path import join
 from luminapie.game_data import GameData, ParsedFileName
 from luminapie.excel import ExcelListFile, ExcelHeaderFile
 from abc import abstractmethod
@@ -22,23 +13,13 @@ from abc import abstractmethod
 
 class BaseApi:
     @abstractmethod
-    def create_enum(self, name, values):
-        # type: (str, dict[str, int]) -> None
+    def create_enum_struct(self, name, values, width=0):
+        # type: (str, dict[int, str], int) -> None
         pass
 
     @abstractmethod
     def create_struct(self, name, fields):
         # type: (str, dict[str, str]) -> None
-        pass
-
-    @abstractmethod
-    def parse_name(self, name):
-        # type: (str) -> str
-        pass
-
-    @abstractmethod
-    def get_next_func(self, ea, pattern, flag):
-        # type: (int, str, int) -> int
         pass
 
     @abstractmethod
@@ -48,12 +29,7 @@ class BaseApi:
 
     @abstractmethod
     def process_pattern(self, pattern):
-        # type: (int, str) -> None
-        pass
-
-    @abstractmethod
-    def set_func_types(self):
-        # type: () -> None
+        # type: (str) -> None
         pass
 
 
@@ -63,12 +39,7 @@ if api is None:
     try:
         import idaapi
         import ida_bytes
-        import ida_nalt
-        import ida_struct
-        import ida_enum
-        import ida_kernwin
         import ida_search
-        import ida_ida
         import ida_typeinf
         import ida_hexrays
         import ida_name
@@ -201,6 +172,8 @@ if api is None:
                                 )
                                 continue
 
+                            funcdata.empty()
+                            
                             funcdata.push_back(row_id_arg)
 
                             if suffix == "RowAndSubRowId":
@@ -214,39 +187,67 @@ if api is None:
 
                             ida_typeinf.apply_tinfo(ea, tif, ida_typeinf.TINFO_DEFINITE)
 
-            def create_enum(self, name, values):
-                enum_id = ida_enum.add_enum(idaapi.BADADDR, name, 0)
+            def create_enum_struct(self, name, values, width = 0):
+                # type: (str, dict[int, str], int) -> None
+                enum_id = self.create_enum(name)
+                enum_id = self.get_enum_id(name)
+                sheet_name = name.split("::")[-2]
+                self.set_enum_width(enum_id, width)
+                if width == 1:
+                    self.set_enum_as_bf(enum_id)
                 for key in values:
-                    ida_enum.add_enum_member(enum_id, values[key], key)
+                    self.remove_enum_member(enum_id, key, f"{sheet_name}_{values[key]}")
+                    self.add_enum_member(enum_id, f"{sheet_name}_{values[key]}", key)
 
             def create_struct(self, name, fields):
                 idaapi.begin_type_updating(idaapi.UTP_STRUCT)
-                struct_id = ida_struct.add_struc(-1, name)
+                struct_id = self.create_struct_type(name)
                 if struct_id == idaapi.BADADDR:
-                    struct_id = ida_struct.get_struc_id(name)
-                    ida_struct.del_struc_members(
-                        ida_struct.get_struc(struct_id),
-                        0,
-                        ida_struct.get_struc_size(struct_id) + 1,
-                    )
-                struct_type = ida_struct.get_struc(struct_id)
+                    struct_id = self.get_struct_id(name)
+                    self.remove_struct_members(struct_id)
+                struct_type = self.get_struct(struct_id)
                 for [index, [type, name]] in fields.items():
-                    ida_struct.add_struc_member(
-                        struct_type,
-                        name,
-                        index,
-                        self.get_idc_type_from_ida_type(type),
-                        None,
-                        self.get_size_from_ida_type(type),
-                    )
-                    meminfo = ida_struct.get_member_by_name(struct_type, name)
-                    ida_struct.set_member_tinfo(
+                    if (
+                        self.get_idc_type_from_ida_type(
+                            self.clean_struct_name(type)
+                        )
+                        == self.get_struct_flag()
+                    ):
+                        type = self.clean_struct_name(type)
+                        self.create_struct_member(
+                            struct_type,
+                            name,
+                            index,
+                            self.get_idc_type_from_ida_type(type),
+                            self.get_struct_opinfo_from_type(type),
+                            self.get_size_from_ida_type(type),
+                        )
+                    elif (
+                        self.get_idc_type_from_ida_type(type)
+                        == self.get_enum_flag()
+                    ):
+                        self.create_struct_member(
+                            struct_type,
+                            name,
+                            index,
+                            self.get_idc_type_from_ida_type(type),
+                            self.get_enum_opinfo_from_type(type),
+                            self.get_size_from_ida_type(type),
+                        )
+                    else:
+                        self.create_struct_member(
+                            struct_type,
+                            name,
+                            index,
+                            self.get_idc_type_from_ida_type(type),
+                            None,
+                            self.get_size_from_ida_type(type),
+                        )
+                    meminfo = self.get_struct_member_by_name(struct_type, name)
+                    self.set_struct_member_info(
                         struct_type, meminfo, 0, self.get_tinfo_from_type(type), 0
                     )
                 idaapi.end_type_updating(idaapi.UTP_STRUCT)
-
-            def parse_name(self, name):
-                return name
 
             def set_func_name(self, ea, name, cmt):
                 ida_name.set_name(ea, name)
@@ -266,48 +267,161 @@ if api is None:
     try:
         import ghidra
         import re
+        try:
+            from ghidra.ghidra_builtins import * # ghidra-stubs
+        except ImportError:
+            pass
 
         from ghidra.program.model.data import *
         from ghidra.program.model.listing import *
         from ghidra.program.model.symbol import SourceType
         from ghidra.app.util import SymbolPathParser
+        from java.util import ArrayList
 
     except ImportError:
         print("Warning: Unable to load Ghidra")
     else:
         # noinspection PyUnresolvedReferences
         class GhidraApi(BaseApi):
-            def create_enum(self, name, values):
-                # type: (str, dict[str, int]) -> None
-                pass
+            def create_enum_struct(self, name, values, width = 0):
+                # type: (str, dict[int, str], int) -> None
+                path = self.get_datatype_path(name)
+                enum_dt = EnumDataType(path.getCategoryPath(), path.getDataTypeName(), width or 8)
+                is_sheets_enum = name == "Component::Exd::SheetsEnum"
+                for enum_value, enum_name in values.items():
+                    if monitor.isCancelled():
+                        break
+                    if not is_sheets_enum and "_" in enum_name:
+                        enum_name = "".join(enum_name.split("_")[1:])
+                    enum_dt.add(enum_name, enum_value)
+                if width == 0:
+                    enum_dt.setLength(enum_dt.getMinimumPossibleLength())
+                if enum_dt.getName(0) is None:
+                    enum_dt.add("None", 0)
+                dt = currentProgram.getDataTypeManager().getDataType(path)
+                if dt is None:
+                    currentProgram.getDataTypeManager().addDataType(enum_dt, None)
+                else:
+                    dt.replaceWith(enum_dt)
 
             def create_struct(self, name, fields):
                 # type: (str, dict[str, str]) -> None
-                pass
-
-            def parse_name(self, name):
-                # type: (str) -> str
-                pass
-
-            def get_next_func(self, ea, pattern, flag):
-                # type: (int, str, int) -> int
-                pass
-
-            def get_dword(self, ea):
-                # type: (int) -> int
-                pass
+                dt_path = self.get_datatype_path(name)
+                struct = StructureDataType(dt_path.getCategoryPath(), dt_path.getDataTypeName(), 0)
+                struct.setExplicitMinimumAlignment(8)
+                for [offset, [type_name, field_name]] in fields.items():
+                    if monitor.isCancelled():
+                        break
+                    field_dt = currentProgram.getDataTypeManager().getDataType(self.get_datatype_path(type_name))
+                    if field_dt is None:
+                        print(f"Warning: Data type {name} field {field_name} has missing type {type_name} ({dt_path})")
+                        continue
+                    struct.insertAtOffset(offset, field_dt, -1, field_name, None)
+                dt = currentProgram.getDataTypeManager().getDataType(dt_path)
+                if dt is None:
+                    currentProgram.getDataTypeManager().addDataType(struct, None)
+                else:
+                    dt.replaceWith(struct)
 
             def set_func_name(self, ea, name, cmt):
                 # type: (int, str, str) -> None
-                pass
+                func = getFunctionAt(ea)
+                if func is not None:
+                    func.setName(None, SourceType.DEFAULT)
+                    func.setName(name, SourceType.USER_DEFINED)
+                    func.setComment(cmt)
 
             def process_pattern(self, pattern):
-                # type: (int, str) -> None
-                pass
+                # type: (str) -> None
+                suffix = exd_func_patterns[pattern]
+                pattern = "".join(["\\x" + x if x != "?" else "." for x in pattern.split(" ")])
+                if suffix is not None:
+                    print(f"Finding exd funcs of {suffix}... please wait.")
+                self.do_pattern(pattern, suffix)
 
-            def set_func_types(self):
-                # type: () -> None
-                pass
+            def do_pattern(self, pattern, suffix):
+                # type: (string, string) -> None
+                block = currentProgram.getMemory().getBlock(".text")
+                address_set = currentProgram.getAddressFactory().getAddressSet(block.getStart(), block.getEnd())
+                result_list = findBytes(address_set, pattern, 8192, 1)
+                for ea in result_list:
+                    if monitor.isCancelled():
+                        break
+                    sheet_index = self.get_sheet_index(ea)
+                    sheet_name = exd_map.get(sheet_index)
+                    if sheet_name is None:
+                        print(f"Warning: sheet index {sheet_index} is undefined at {ea}")
+                        continue
+                    func_name = f"Component::Exd::ExdModule.Get{sheet_name}{suffix}"
+                    self.set_func_name(ea, func_name, f"Sheet: {sheet_name} ({sheet_index})")
+                    if suffix == "SheetIndex":
+                        return
+
+                    return_type = PointerDataType(VoidDataType.dataType)
+                    if suffix == "RowCount":
+                        return_type = IntegerDataType()
+                    else:
+                        path = self.get_datatype_path(f"{exd_struct_map[sheet_index]}")
+                        dt = currentProgram.getDataTypeManager().getDataType(path)
+                        if dt is not None:
+                            return_type = PointerDataType(dt)
+
+                    return_var = ReturnParameterImpl(return_type, currentProgram)
+                    arg_vars = ArrayList()
+                    arg_vars.add(ParameterImpl("rowId", UnsignedIntegerDataType(), currentProgram))
+                    if suffix == "RowAndSubRowId":
+                        arg_vars.add(ParameterImpl("subRowId", UnsignedIntegerDataType(), currentProgram))
+                    elif suffix == "RowCount":
+                        arg_vars.clear()
+
+                    update_type = Function.FunctionUpdateType.DYNAMIC_STORAGE_ALL_PARAMS
+                    getFunctionAt(ea).updateFunction("__fastcall", return_var, arg_vars, update_type, False, SourceType.USER_DEFINED)
+
+            def get_sheet_index(self, ea):
+                # type: (Address) -> int
+                func = getFunctionAt(ea)
+                if func is None and disassemble(ea):
+                    func = createFunction(ea, None)
+                if func is None:
+                    return -1
+                min_address = func.getBody().getMinAddress().getOffset()
+                instructions = currentProgram.getListing().getInstructions(func.getBody(), True)
+                for insn in instructions:
+                    if monitor.isCancelled():
+                        break
+                    if insn.getFlowType().isCall():
+                        return self.get_rdx_arg(insn, min_address)
+                return -1
+
+            def get_rdx_arg(self, insn, min_address):
+                # type: (Instruction, int) -> int
+                target = insn.getRegister("RDX")
+                while insn is not None and insn.getMinAddress().getOffset() >= min_address:
+                    if monitor.isCancelled():
+                        break
+                    insn = insn.getPrevious()
+                    if insn is None:
+                        break
+                    outp = insn.getResultObjects()
+                    if outp.length == 0 or outp[0] != target:
+                        continue
+                    value = insn.getScalar(1)
+                    if value is not None:
+                        return value.getValue()
+                return -1
+
+            def get_datatype_path(self, name):
+                # type: (str) -> DataTypePath
+                if name == "__int8": name = "char"
+                if name == "__int16": name = "short"
+                if name == "__int32": name = "int"
+                if name == "__int64": name = "longlong"
+                if name == "unsigned __int8" or name == "unsigned char": name = "byte"
+                if name == "unsigned __int16" or name == "unsigned short": name = "ushort"
+                if name == "unsigned __int32" or name == "unsigned int": name = "uint"
+                if name == "unsigned __int64" or name == "unsigned long long": name = "ulonglong"
+                path_parts = SymbolPathParser.parse(name)
+                return DataTypePath("/" + "/".join(path_parts[:-1]), path_parts[-1])
 
         api = GhidraApi()
 
@@ -338,23 +452,26 @@ exd_func_patterns = {
 }
 
 exd_map = ExcelListFile(game_data.get_file(ParsedFileName("exd/root.exl"))).dict
-exd_struct_map = {}
-exd_headers = {}
+exd_struct_map: dict[str, str] = {}
+exd_headers: tuple[dict[int, tuple[str, str]], dict[str, dict[int, str]], int] = {}
 
-api.create_enum(api.parse_name("Component::Exd::SheetsEnum"), exd_map)
+api.create_enum_struct("Component::Exd::SheetsEnum", exd_map, 4)
 
 for key in exd_map:
     print(f"Parsing schema for {exd_map[key]}.")
     exd_headers[key] = ExcelHeaderFile(
-        game_data.get_file(ParsedFileName("exd/" + exd_map[key] + ".exh"))
+        game_data.get_file(ParsedFileName("exd/" + exd_map[key] + ".exh")),
+        exd_map[key]
     ).map_names(game_data.get_exd_schema(exd_map[key]))
 
 for key in exd_headers:
-    [exd_header, exd_header_count] = exd_headers[key]
+    [exd_header, exd_header_enums, exd_header_count] = exd_headers[key]
     struct_name = f"Component::Exd::Sheets::{exd_map[key]}"
     exd_struct_map[key] = struct_name
-    api.create_struct(api.parse_name(struct_name), exd_header)
+    for enum_key in exd_header_enums:
+        api.create_enum_struct(f"{struct_name}::{enum_key}", exd_header_enums[enum_key], 1)
+    api.create_struct(struct_name, exd_header)
 
 # if a new pattern is found, add it to the exd_func_patterns dict
-for pattern in exd_func_patterns:
-    api.process_pattern(pattern)
+for func_pattern in exd_func_patterns:
+    api.process_pattern(func_pattern)

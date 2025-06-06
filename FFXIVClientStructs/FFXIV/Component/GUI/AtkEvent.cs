@@ -12,27 +12,39 @@ public enum AtkEventType : byte {
     MouseWheel = 8,
     MouseClick = 9,
     MouseDoubleClick = 10,
+
     InputReceived = 12,
+    InputNavigation = 13, // for LEFT, RIGHT, UP, DOWN, TAB_NEXT, TAB_PREV, TAB_BOTH_NEXT, TAB_BOTH_PREV, PAGEUP, PAGEDOWN
+
+    // AtkComponentTextInput and AtkComponentNumericInput
+    InputBaseInputReceived = 15, // fired for moving the text cursor, deletion of a character and inserting a new line, etc.
+
     FocusStart = 18,
     FocusStop = 19,
+
+    Resize = 21, // ChatLogPanel
 
     // AtkComponentButton & children
     ButtonPress = 23, // sent on MouseDown on button
     ButtonRelease = 24, // sent on MouseUp and MouseOut
     ButtonClick = 25, // sent on MouseUp and MouseClick on button
 
-    // NumericInputUpdate = 27, // also fired when ScrollBar is scrolled (with 2 values)??
+    ValueUpdate = 27, // NumericInput, ScrollBar, etc.
 
     // AtkComponentSlider
     SliderValueUpdate = 29,
+    SliderReleased = 30,
 
     // AtkComponentList & children
     ListItemRollOver = 33,
     ListItemRollOut = 34,
-    ListItemToggle = 35,
+    ListItemClick = 35,
+    ListItemDoubleClick = 36,
+    ListItemSelect = 38,
 
     // AtkComponentDragDrop
     DragDropBegin = 50, // sent on MouseDown over a draggable icon (will NOT send for a locked icon)
+    DragDropEnd = 51,
     DragDropInsert = 53, // sent when dropping an icon into a hotbar/inventory slot or similar
     DragDropRollOver = 55,
     DragDropRollOut = 56,
@@ -45,8 +57,8 @@ public enum AtkEventType : byte {
     IconTextClick = 61,
 
     // AtkDialogue
-    UnkAtkDialogue59 = 62, // found in "40 53 48 83 EC 40 80 79 34 00"
-    UnkAtkDialogue60 = 63,
+    DialogueClose = 62,
+    DialogueSubmit = 63,
 
     // AtkTimer
     TimerTick = 64,

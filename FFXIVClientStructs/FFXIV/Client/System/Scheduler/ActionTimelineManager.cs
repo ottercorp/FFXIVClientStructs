@@ -4,7 +4,7 @@ namespace FFXIVClientStructs.FFXIV.Client.System.Scheduler;
 [GenerateInterop]
 [StructLayout(LayoutKind.Explicit, Size = 0xB8)]
 public unsafe partial struct ActionTimelineManager {
-    [StaticAddress("4C 8B 43 48 48 8B 0D ?? ?? ?? ??", 7)]
+    [StaticAddress("4C 8B 43 48 48 8B 0D ?? ?? ?? ??", 7, isPointer: true)]
     public static partial ActionTimelineManager* Instance();
 
     [MemberFunction("48 83 EC 38 48 8B 02 C7 44 24")]
@@ -12,7 +12,7 @@ public unsafe partial struct ActionTimelineManager {
 
     [StructLayout(LayoutKind.Explicit, Size = 0x10)]
     public struct PreloadActionTmbInfo {
-        [FieldOffset(0x00)] public byte* Key;
+        [FieldOffset(0x00)] public CStringPointer Key;
 
         // ActionTimeline Row Index
         // or

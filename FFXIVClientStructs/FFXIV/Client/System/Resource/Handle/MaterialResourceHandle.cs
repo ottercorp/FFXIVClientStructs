@@ -180,38 +180,20 @@ public unsafe partial struct MaterialResourceHandle {
     public Span<StainTableRow> StainTableSpan
         => StainTable switch { null => default, var ptr => new(ptr, TableRows) };
 
-    public byte* ShpkName
+    public CStringPointer ShpkName
         => Strings + ShpkNameOffset;
 
-    public ReadOnlySpan<byte> ShpkNameSpan
-        => MemoryMarshal.CreateReadOnlySpanFromNullTerminated(ShpkName);
-
-    public string ShpkNameString
-        => Encoding.UTF8.GetString(ShpkNameSpan);
-
-    public byte* TexturePath(int index) {
+    public CStringPointer TexturePath(int index) {
         if (index < 0 || index >= TextureCount)
             throw new ArgumentOutOfRangeException(nameof(index));
         return Strings + Textures[index].PathOffset;
     }
 
-    public ReadOnlySpan<byte> TexturePathSpan(int index)
-        => MemoryMarshal.CreateReadOnlySpanFromNullTerminated(TexturePath(index));
-
-    public string TexturePathString(int index)
-        => Encoding.UTF8.GetString(TexturePathSpan(index));
-
-    public byte* AttributeSetName(int index) {
+    public CStringPointer AttributeSetName(int index) {
         if (index < 0 || index >= UvSetCount + ColorSetCount)
             throw new ArgumentOutOfRangeException(nameof(index));
         return Strings + AttributeSets[index].NameOffset;
     }
-
-    public ReadOnlySpan<byte> AttributeSetNameSpan(int index)
-        => MemoryMarshal.CreateReadOnlySpanFromNullTerminated(AttributeSetName(index));
-
-    public string AttributeSetNameString(int index)
-        => Encoding.UTF8.GetString(AttributeSetNameSpan(index));
 
     [MemberFunction("E8 ?? ?? ?? ?? 84 C0 74 4A 0F B7 46 02")]
     public partial byte LoadTexFiles();
@@ -222,6 +204,7 @@ public unsafe partial struct MaterialResourceHandle {
     [MemberFunction("E8 ?? ?? ?? ?? 49 89 04 3E")]
     public partial Texture* PrepareColorTable(byte stain0Id, byte stain1Id); // aka PrepareColorSet
 
+    /// <remarks><paramref name="stainChannel" /> 0 or 1. With the current MTRL file format, values from 0 to 3 make sense.</remarks>
     [MemberFunction("E8 ?? ?? ?? ?? 48 8B FB EB 07")]
-    public partial void ReadStainingTemplate(byte stainId, Half* colorTable); // TODO: update arguments
+    public partial void ReadStainingTemplate(ushort* stainTable, byte stainId, Half* colorTable, uint stainChannel);
 }

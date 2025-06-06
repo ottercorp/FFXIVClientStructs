@@ -26,8 +26,8 @@ public unsafe partial struct AgentCharaCard {
     private partial void OpenCharaCardForObject(GameObject* gameObject);
     public void OpenCharaCard(GameObject* gameObject) => OpenCharaCardForObject(gameObject);
 
-    [MemberFunction("40 55 53 57 48 8D AC 24 ?? ?? ?? ?? 48 81 EC ?? ?? ?? ?? 48 8B 05 ?? ?? ?? ?? 48 33 C4 48 89 85 ?? ?? ?? ?? 48 83 79")]
-    private partial void OpenCharaCardForPacket(CharaCardPacket* packet);
+    [MemberFunction("40 55 53 57 41 57 48 8D AC 24 ?? ?? ?? ?? 48 81 EC B8 04 00 00")]
+    private partial void OpenCharaCardForPacket(CharaCardPacket* packet, bool a3);
 
     // Client::UI::Agent::AgentCharaCard::Storage
     [GenerateInterop]
@@ -45,14 +45,6 @@ public unsafe partial struct AgentCharaCard {
         [FieldOffset(0x1A)] public bool CanEdit;
         [FieldOffset(0x1B)] public bool InvertPortraitPlacement;
         [FieldOffset(0x1C)] public PlateDesign PlateDesign;
-        [FieldOffset(0x1C), Obsolete("Use PlateDesign.BasePlate")] public byte BasePlate; // CharaCardBase RowId
-        [FieldOffset(0x1E), Obsolete("Use PlateDesign.TopBorder")] public byte TopBorder; // CharaCardHeader RowId
-        [FieldOffset(0x1F), Obsolete("Use PlateDesign.BottomBorder")] public byte BottomBorder; // CharaCardHeader RowId
-        [FieldOffset(0x22), Obsolete("Not a fixed field. Iterate over PlateDesign.Decorations")] public byte Backing; // CharaCardDecoration RowId
-        [FieldOffset(0x24), Obsolete("Not a fixed field. Iterate over PlateDesign.Decorations")] public byte PatternOverlay; // CharaCardDecoration RowId
-        [FieldOffset(0x26), Obsolete("Not a fixed field. Iterate over PlateDesign.Decorations")] public byte PortraitFrame; // CharaCardDecoration RowId
-        [FieldOffset(0x28), Obsolete("Not a fixed field. Iterate over PlateDesign.Decorations")] public byte PlateFrame; // CharaCardDecoration RowId
-        [FieldOffset(0x2A), Obsolete("Not a fixed field. Iterate over PlateDesign.Decorations")] public byte Accent; // CharaCardDecoration RowId
         [FieldOffset(0x2C)] public byte NumPlayStyles;
         /// <remarks> CharaCardPlayStyle RowIds </remarks>
         [FieldOffset(0x2D), FixedSizeArray] internal FixedSizeArray6<byte> _playStyles;
@@ -94,18 +86,6 @@ public unsafe partial struct AgentCharaCard {
         [FieldOffset(0x22C), FixedSizeArray] internal FixedSizeArray5<Decoration> _decorations;
 
         [FieldOffset(0x258), FixedSizeArray] internal FixedSizeArray6<Activity> _activities;
-        [FieldOffset(0x258), Obsolete("Use Activities[1].IconId")] public uint Activity1IconId;
-        [FieldOffset(0x260), Obsolete("Use Activities[1].Name")] public Utf8String Activity1Name;
-        [FieldOffset(0x2C8), Obsolete("Use Activities[2].IconId")] public uint Activity2IconId;
-        [FieldOffset(0x2D0), Obsolete("Use Activities[2].Name")] public Utf8String Activity2Name;
-        [FieldOffset(0x338), Obsolete("Use Activities[3].IconId")] public uint Activity3IconId;
-        [FieldOffset(0x340), Obsolete("Use Activities[3].Name")] public Utf8String Activity3Name;
-        [FieldOffset(0x3A8), Obsolete("Use Activities[4].IconId")] public uint Activity4IconId;
-        [FieldOffset(0x3B0), Obsolete("Use Activities[4].Name")] public Utf8String Activity4Name;
-        [FieldOffset(0x418), Obsolete("Use Activities[5].IconId")] public uint Activity5IconId;
-        [FieldOffset(0x420), Obsolete("Use Activities[5].Name")] public Utf8String Activity5Name;
-        [FieldOffset(0x488), Obsolete("Use Activities[6].IconId")] public uint Activity6IconId;
-        [FieldOffset(0x490), Obsolete("Use Activities[6].Name")] public Utf8String Activity6Name;
         [FieldOffset(0x4F8)] public uint BannerFrameIconId;
         [FieldOffset(0x4FC)] public uint BannerDecorationIconId;
         // When EditAddonId is closed without saving, these fields are used:
@@ -131,9 +111,19 @@ public unsafe partial struct AgentCharaCard {
         [FieldOffset(0x08)] public Utf8String Name;
     }
 
+    public enum DecorationType : byte {
+        /// This does not correspond to a real decoration and should be ignored.
+        Invalid = 0x0,
+        Backing = 0x1,
+        PatternOverlay = 0x2,
+        PortraitFrame = 0x3,
+        PlateFrame = 0x4,
+        Accent = 0x5,
+    }
+
     [StructLayout(LayoutKind.Explicit, Size = 0x8)]
     public struct Decoration {
-        [FieldOffset(0x00)] public byte Index;
+        [FieldOffset(0x00)] public DecorationType Type;
         [FieldOffset(0x01)] public byte Unk1;
         [FieldOffset(0x04)] public uint IconId;
     }

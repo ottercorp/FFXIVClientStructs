@@ -14,10 +14,6 @@ public unsafe partial struct RaptureUiDataModule {
         return uiModule == null ? null : uiModule->GetRaptureUiDataModule();
     }
 
-    [FieldOffset(0x4E0), FixedSizeArray, Obsolete("Moved to PartyRoleListModule", true)] internal FixedSizeArray16<ushort> _partyListTankOrder;
-    [FieldOffset(0x500), FixedSizeArray, Obsolete("Moved to PartyRoleListModule", true)] internal FixedSizeArray16<ushort> _partyListHealerOrder;
-    [FieldOffset(0x520), FixedSizeArray, Obsolete("Moved to PartyRoleListModule", true)] internal FixedSizeArray16<ushort> _partyListDpsOrder;
-
     [FieldOffset(0x38C0)] public MuteList Mutelist;
 
     [MemberFunction("4C 8B D1 41 83 F9 06")]
@@ -45,7 +41,7 @@ public unsafe partial struct RaptureUiDataModule {
 
         /// <remarks>To save changes, call <see cref="RaptureUiDataModule.SaveFile(bool)"/>.</remarks>
         [MemberFunction("E8 ?? ?? ?? ?? 48 8B 4F 10 48 8B 11 48 85 C0"), GenerateStringOverloads]
-        public partial MuteListEntry* Add(ulong accountId, byte* name, short worldId);
+        public partial MuteListEntry* Add(ulong accountId, CStringPointer name, short worldId);
 
         /// <remarks>To save changes, call <see cref="RaptureUiDataModule.SaveFile(bool)"/>.</remarks>
         [MemberFunction("E8 ?? ?? ?? ?? 84 C0 74 1B 49 8B 4E 10")]
@@ -53,7 +49,7 @@ public unsafe partial struct RaptureUiDataModule {
 
         /// <remarks>To save changes, call <see cref="RaptureUiDataModule.SaveFile(bool)"/>.</remarks>
         [MemberFunction("40 53 48 83 EC 20 48 8B 19 48 8B 41 08"), GenerateStringOverloads]
-        public partial MuteListEntry* UpdateComment(ulong accountId, byte* comment);
+        public partial MuteListEntry* UpdateComment(ulong accountId, CStringPointer comment);
 
         [StructLayout(LayoutKind.Explicit, Size = 0xE0)]
         public struct MuteListEntry {

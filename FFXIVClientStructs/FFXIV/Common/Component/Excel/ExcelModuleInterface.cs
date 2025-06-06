@@ -9,22 +9,23 @@ public unsafe partial struct ExcelModuleInterface {
     public partial ExcelSheet* GetSheetByIndex(uint sheetIndex);
 
     [VirtualFunction(2), GenerateStringOverloads]
-    public partial ExcelSheet* GetSheetByName(byte* sheetName);
+    public partial ExcelSheet* GetSheetByName(CStringPointer sheetName);
 
     [VirtualFunction(3), GenerateStringOverloads]
-    public partial void LoadSheet(byte* sheetName, byte a3 = 0, byte a4 = 0);
+    public partial void LoadSheet(CStringPointer sheetName, byte a3 = 0, byte a4 = 0);
 
     [VirtualFunction(6)]
     public partial ExcelLanguage GetLanguage();
 
     public enum ExcelLanguage {
         None,
-        Japanese,
-        English,
-        German,
-        French,
-        ChineseSimplified,
-        ChineseTraditional,
-        Korean
+        Japanese, // ja
+        English, // en
+        German, // de
+        French, // fr
+        ChineseSimplified, // chs
+        ChineseTraditional, // cht
+        Korean, // ko
+        ChineseTraditional2 // tc
     }
 }

@@ -14,6 +14,8 @@ public unsafe partial struct AgentRecipeNote {
     [FieldOffset(0x398)] public uint ContextMenuResultItemId;
 
     [FieldOffset(0x3B0)] public int SelectedCraftType;
+    [FieldOffset(0x3B4)] public int SelectedRecipeCategoryPage;
+    [FieldOffset(0x3B8)] public int SelectedRecipeCategory;
     [FieldOffset(0x3BC)] public int SelectedRecipeIndex;
     [FieldOffset(0x3D4)] public uint ActiveCraftRecipeId; // 0 when not actively crafting, does not include 0x10_000
     [FieldOffset(0x3EC)] public bool RecipeSearchOpen;
@@ -39,6 +41,9 @@ public unsafe partial struct AgentRecipeNote {
     public void OpenRecipeByRecipeId(uint recipeId) => OpenRecipeByRecipeIdInternal(recipeId + 0x10_000);
 
     [MemberFunction("E8 ?? ?? ?? ?? E9 ?? ?? ?? ?? 48 83 F8 06")]
+    public partial void SearchRecipeByItemId(uint itemId, uint openerAddonId = 0);
+
+    [MemberFunction("E8 ?? ?? ?? ?? E9 ?? ?? ?? ?? 48 83 F8 06"), Obsolete("Use SearchRecipeByItemId instead.")]
     public partial void OpenRecipeByItemId(uint itemId);
 
     [MemberFunction("48 89 5C 24 ?? 57 48 83 EC 30 83 B9 ?? ?? ?? ?? ?? 8B FA 48 8B D9 0F 85 ?? ?? ?? ?? 83 B9 ?? ?? ?? ?? ?? 0F 85 ?? ?? ?? ?? 83 B9 ?? ?? ?? ?? ??")]
@@ -62,7 +67,7 @@ public unsafe partial struct RecipeSearchContext {
     [FieldOffset(0x258)] public StdVector<uint>* VectorPtr;
 
     [VirtualFunction(0)]
-    public partial void Dtor(byte freeFlags);
+    public partial RecipeSearchContext* Dtor(byte freeFlags);
 
     [VirtualFunction(1)]
     public partial bool GetIsComplete();

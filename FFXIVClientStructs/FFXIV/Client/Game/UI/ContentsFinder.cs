@@ -19,6 +19,9 @@ public unsafe partial struct ContentsFinder {
     [FieldOffset(0x1E)] public bool IsLimitedLevelingRoulette;
     [FieldOffset(0x20)] public ContentsFinderQueueInfo QueueInfo;
 
+    [MemberFunction("E8 ?? ?? ?? ?? 33 FF 0F B6 48")]
+    public partial ContentsFinderQueueInfo* GetQueueInfo();
+
     public enum LootRule : byte {
         Normal = 0,
         GreedOnly = 1,
@@ -30,12 +33,6 @@ public unsafe partial struct ContentsFinder {
 [StructLayout(LayoutKind.Explicit, Size = 0x90)]
 public unsafe partial struct ContentsFinderQueueInfo {
     [FieldOffset(0x0), FixedSizeArray] internal FixedSizeArray5<QueueEntry> _queuedEntries;
-
-    [FieldOffset(0x04), Obsolete("Use QueuedEntries[0].ConditionId")] public uint QueuedContentFinderConditionId1;
-    [FieldOffset(0x0C), Obsolete("Use QueuedEntries[1].ConditionId")] public uint QueuedContentFinderConditionId2;
-    [FieldOffset(0x14), Obsolete("Use QueuedEntries[2].ConditionId")] public uint QueuedContentFinderConditionId3;
-    [FieldOffset(0x1C), Obsolete("Use QueuedEntries[3].ConditionId")] public uint QueuedContentFinderConditionId4;
-    [FieldOffset(0x24), Obsolete("Use QueuedEntries[4].ConditionId")] public uint QueuedContentFinderConditionId5;
 
     [FieldOffset(0x28)] public uint QueuedClassJobId;
 
@@ -51,16 +48,8 @@ public unsafe partial struct ContentsFinderQueueInfo {
     [FieldOffset(0x5C)] public sbyte PositionInQueue;
 
     [FieldOffset(0x62)] public QueueInfoState InfoState;
-    [FieldOffset(0x67), Obsolete("Use StateInfo.AverageWaitTime")] public byte AverageWaitTime; // In minutes
 
     [FieldOffset(0x7C)] public QueueEntry PoppedQueueEntry;
-    [FieldOffset(0x7C), Obsolete("Use PoppedQueueEntry.ContentType")] public PoppedContentTypes PoppedContentType;
-
-    /// <remarks>
-    /// Based on <see cref="PoppedContentType"/>, either a row id of the ContentRoulette
-    /// sheet for Roulettes or a row id of the ContentFinderCondition sheet for Duties.
-    /// </remarks>
-    [FieldOffset(0x80), Obsolete("Use PoppedQueueEntry.ConditionId")] public uint PoppedContentId;
 
     [FieldOffset(0x88)] public bool PoppedContentIsUnrestrictedParty;
     [FieldOffset(0x89)] public bool PoppedContentIsMinimalIL;
@@ -86,6 +75,15 @@ public unsafe partial struct ContentsFinderQueueInfo {
     [MemberFunction("48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 8B FA 48 8B D9 45 84 C0")]
     public partial void UpdateQueueState(QueueStates newState, bool beganQueue);
 
+    [MemberFunction("4C 8B DC 53 56 48 81 EC ?? ?? ?? ?? 48 8B 05 ?? ?? ?? ?? 48 33 C4 48 89 44 24 ?? 80 79")]
+    public partial void QueueRoulette(byte contentRouletteId, byte a3 = 0);
+
+    [MemberFunction("E8 ?? ?? ?? ?? B0 ?? 44 88 B6 ?? ?? ?? ?? E9 ?? ?? ?? ?? 44 0F B6 86")]
+    public partial void QueueDuties(uint* entries, int entryCount, byte a4 = 0);
+
+    [MemberFunction("40 53 48 83 EC ?? 48 8B D9 0F B6 49 ?? 8D 41")]
+    public partial void CancelQueue();
+
     [StructLayout(LayoutKind.Explicit, Size = 0x8)]
     public struct QueueEntry {
         [FieldOffset(0x0)] public ContentsId.ContentsType ContentType;
@@ -100,13 +98,6 @@ public unsafe partial struct ContentsFinderQueueInfo {
         Ready = 3,
         Accepted = 4,
         InContent = 5
-    }
-
-    [Obsolete("Use FFXIVClientStructs.FFXIV.Client.UI.Agent.ContentsId.ContentsType")]
-    public enum PoppedContentTypes : byte {
-        None = 0,
-        Roulette = 1,
-        Duty = 2
     }
 }
 
@@ -143,4 +134,3 @@ public struct QueueInfoState {
         None5 = 5
     }
 }
-

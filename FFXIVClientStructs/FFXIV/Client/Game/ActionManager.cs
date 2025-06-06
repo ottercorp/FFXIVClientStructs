@@ -1,11 +1,12 @@
 using System.Numerics;
 using FFXIVClientStructs.FFXIV.Client.Game.Object;
+using FFXIVClientStructs.FFXIV.Client.Graphics.Vfx;
 
 namespace FFXIVClientStructs.FFXIV.Client.Game;
 
 // Client::Game::ActionManager
 [GenerateInterop]
-[StructLayout(LayoutKind.Explicit, Size = 0x7F0)]
+[StructLayout(LayoutKind.Explicit, Size = 0x800)]
 public unsafe partial struct ActionManager {
     [StaticAddress("48 8D 0D ?? ?? ?? ?? F3 0F 10 13", 3)]
     public static partial ActionManager* Instance();
@@ -31,35 +32,34 @@ public unsafe partial struct ActionManager {
     [FieldOffset(0x6C)] public ActionType QueuedActionType;
     [FieldOffset(0x70)] public uint QueuedActionId;
     [FieldOffset(0x78)] public GameObjectId QueuedTargetId;
-    [FieldOffset(0x80)] public UseActionMode QueueType;
-    [FieldOffset(0x84)] public uint QueuedComboRouteId;
+    [FieldOffset(0x80)] public uint QueuedExtraParam;
+    [FieldOffset(0x84)] public UseActionMode QueueType;
+    [FieldOffset(0x88)] public uint QueuedComboRouteId;
 
     // the fields below are related to area-targeting mode
-    [FieldOffset(0x88)] public uint AreaTargetingActionId;
-    [FieldOffset(0x8C)] public ActionType AreaTargetingActionType;
-    [FieldOffset(0x90)] public uint AreaTargetingSpellId;
-    // 0x94: int argument to area-targeting start function, always 0?
-    [FieldOffset(0x98)] public GameObjectId AreaTargetingExecuteAtObject; // if != 0xE0000000, on the next update area-targeted action will be executed at this object
-    // 0xA0: bool related to area targeting
-    // 0xA8: vfx* related to area targeting
-    // 0xB0: vfx* related to area targeting
-    [FieldOffset(0xB8)] public bool AreaTargetingExecuteAtCursor; // if true, on the next update area-targeted action will be executed at cursor
-    // 0xBC: uint related to area targeting, can be 0/1/2
+    [FieldOffset(0x90)] public uint AreaTargetingActionId;
+    [FieldOffset(0x94)] public ActionType AreaTargetingActionType;
+    [FieldOffset(0x98)] public uint AreaTargetingSpellId;
+    [FieldOffset(0xA0)] public GameObjectId AreaTargetingExecuteAtObject; // if != 0xE0000000, on the next update area-targeted action will be executed at this object
+    [FieldOffset(0xB0)] public VfxData* AreaTargetingVfx1;
+    [FieldOffset(0xB8)] public VfxData* AreaTargetingVfx2;
+    [FieldOffset(0xC0)] public bool AreaTargetingExecuteAtCursor; // if true, on the next update area-targeted action will be executed at cursor
 
     // the fields below are related to 'ballista' mode (eg. cannons on second boss of Stone Vigil Hard)
-    [FieldOffset(0xE0)] public bool BallistaActive; // note that it is not cleared when exiting area-target mode until new area-targeting starts
-    [FieldOffset(0xE1)] public byte BallistaRowId; // row of Ballista sheet
-    [FieldOffset(0xF0)] public Vector3 BallistaOrigin; // position of the cannon that is being aimed
-    [FieldOffset(0x100)] public float BallistaRefAngle; // initial angle; Ballista.Angle is centered around this orientation
-    [FieldOffset(0x104)] public float BallistaRadius;
-    [FieldOffset(0x108)] public uint BallistaEntityId;
+    [FieldOffset(0xF0)] public bool BallistaActive; // note that it is not cleared when exiting area-target mode until new area-targeting starts
+    [FieldOffset(0xF1)] public byte BallistaRowId; // row of Ballista sheet
+    [FieldOffset(0x100)] public Vector3 BallistaOrigin; // position of the cannon that is being aimed
+    [FieldOffset(0x110)] public float BallistaRefAngle; // initial angle; Ballista.Angle is centered around this orientation
+    [FieldOffset(0x114)] public float BallistaRadius;
+    [FieldOffset(0x118)] public uint BallistaEntityId;
+    // 0x11C: 4-byte array, something to do with "Bullet" column of Ballista sheet
 
-    [FieldOffset(0x110)] public ushort LastUsedActionSequence;
-    [FieldOffset(0x112)] public ushort LastHandledActionSequence;
-    [FieldOffset(0x114), FixedSizeArray] internal FixedSizeArray24<uint> _blueMageActions;
-    [FieldOffset(0x174), FixedSizeArray] internal FixedSizeArray80<RecastDetail> _cooldowns;
+    [FieldOffset(0x120)] public ushort LastUsedActionSequence;
+    [FieldOffset(0x122)] public ushort LastHandledActionSequence;
+    [FieldOffset(0x124), FixedSizeArray] internal FixedSizeArray24<uint> _blueMageActions;
+    [FieldOffset(0x184), FixedSizeArray] internal FixedSizeArray80<RecastDetail> _cooldowns;
 
-    [FieldOffset(0x7D8)] public float DistanceToTargetHitbox; // distance to target minus both self & target hitbox radius, clamped to 0
+    [FieldOffset(0x7E8)] public float DistanceToTargetHitbox; // distance to target minus both self & target hitbox radius, clamped to 0
 
     /// <summary>
     /// Initiate action execution.
@@ -96,7 +96,7 @@ public unsafe partial struct ActionManager {
     [MemberFunction("E8 ?? ?? ?? ?? 41 3A C5 0F 85 ?? ?? ?? ??")]
     public partial bool UseActionLocation(ActionType actionType, uint actionId, ulong targetId = 0xE000_0000, Vector3* location = null, uint extraParam = 0);
 
-    [MemberFunction("E8 ?? ?? ?? ?? 8B 93 ?? ?? ?? ?? 85 C0")]
+    [MemberFunction("E8 ?? ?? ?? ?? 4C 8B 6C 24 ?? 85 C0 74")]
     public partial uint GetActionStatus(ActionType actionType, uint actionId, ulong targetId = 0xE000_0000, bool checkRecastActive = true, bool checkCastingActive = true, uint* outOptExtraInfo = null);
 
     [MemberFunction("E8 ?? ?? ?? ?? 89 03 8B 03")]
@@ -105,7 +105,7 @@ public unsafe partial struct ActionManager {
     [MemberFunction("40 53 48 83 EC ?? FF C9")]
     public static partial uint GetSpellIdForAction(ActionType actionType, uint actionId);
 
-    [MemberFunction("E8 ?? ?? ?? ?? 83 7F 4C 01 44 0F 28 C8")]
+    [MemberFunction("E8 ?? ?? ?? ?? 83 7F 54 01")]
     public partial float GetRecastTime(ActionType actionType, uint actionId);
 
     /// <summary>
@@ -167,7 +167,7 @@ public unsafe partial struct ActionManager {
     /// <param name="actionType">The type of action to check.</param>
     /// <param name="actionId">The ID of the action to check.</param>
     /// <returns>Returns true if the action is off-cooldown or slidecastable.</returns>
-    [MemberFunction("E8 ?? ?? ?? ?? 84 C0 74 ?? 8B 84 24 ?? ?? ?? ?? 89 46")]
+    [MemberFunction("E8 ?? ?? ?? ?? 3C 01 0F 85 ?? ?? ?? ?? 88 46")]
     public partial bool IsActionOffCooldown(ActionType actionType, uint actionId);
 
     /// <summary>
@@ -176,7 +176,7 @@ public unsafe partial struct ActionManager {
     /// <param name="actionType">The action type to check against.</param>
     /// <param name="actionId">The action ID to check against.</param>
     /// <returns>Returns true if target constraints are satisfied, false otherwise.</returns>
-    [MemberFunction("E8 ?? ?? ?? ?? 88 46 40 EB 2F")]
+    [MemberFunction("E8 ?? ?? ?? ?? 88 47 ?? 48 8B D7 0F B6 8B")]
     public partial bool IsActionTargetInRange(ActionType actionType, uint actionId);
 
     [MemberFunction("E8 ?? ?? ?? ?? F3 41 0F 11 07 80 3B 00")]
@@ -185,7 +185,7 @@ public unsafe partial struct ActionManager {
     [MemberFunction("E8 ?? ?? ?? ?? 85 C0 75 02 33 C0")]
     public static partial uint GetActionInRangeOrLoS(uint actionId, GameObject* sourceObject, GameObject* targetObject);
 
-    [MemberFunction("E8 ?? ?? ?? ?? 8B C8 0F BE 43 0C")]
+    [MemberFunction("E8 ?? ?? ?? ?? 40 0F B6 CE E9")]
     public static partial int GetActionCost(ActionType actionType, uint actionId, byte a3, byte a4, byte a5, byte a6);
 
     /// <summary>
@@ -206,10 +206,10 @@ public unsafe partial struct ActionManager {
     /// <param name="applyProcs">If true, applies various class mechanics (procs, swiftcast, etc).</param>
     /// <param name="outOptProc">If non-null and applyProcs is true, will be set to applied proc.</param>
     /// <returns></returns>
-    [MemberFunction("E8 ?? ?? ?? ?? 45 33 C0 33 D2 48 8B CF 66 0F 6E F8")]
+    [MemberFunction("E8 ?? ?? ?? ?? 8B D0 48 8B CF E8 ?? ?? ?? ?? 0F B7 55")]
     public static partial int GetAdjustedCastTime(ActionType actionType, uint actionId, bool applyProcs = true, CastTimeProc* outOptProc = null);
 
-    [MemberFunction("E8 ?? ?? ?? ?? 83 F8 01 7E 58")]
+    [MemberFunction("E8 ?? ?? ?? ?? 8B C8 83 F8 01 7E")]
     public static partial ushort GetMaxCharges(uint actionId, uint level); // 0 for current level
 
     /// <summary>
@@ -239,20 +239,11 @@ public unsafe partial struct ActionManager {
     /// <param name="actionType">The action type to check.</param>
     /// <param name="actionId">The action ID to check.</param>
     /// <returns>Returns true if ants should be drawn, false otherwise.</returns>
-    [MemberFunction("E8 ?? ?? ?? ?? 88 46 41 80 BF")]
+    [MemberFunction("E8 ?? ?? ?? ?? 88 47 ?? 80 BB")]
     public partial bool IsActionHighlighted(ActionType actionType, uint actionId);
 
     [MemberFunction("48 89 5C 24 ?? 57 48 83 EC 20 48 8B DA 8B F9 E8 ?? ?? ?? ?? 4C 8B C3")]
     public static partial bool CanUseActionOnTarget(uint actionId, GameObject* target);
-
-    /// <summary>
-    /// Returns the ID of the action present at the specified Duty Action slot.
-    /// TODO: this is actually a static member function of the DutyActionManager class, move it there.
-    /// </summary>
-    /// <param name="dutyActionSlot">The Duty Action slot number (0 or 1) to look up.</param>
-    /// <returns>Returns an Action ID.</returns>
-    [MemberFunction("E9 ?? ?? ?? ?? B1 02")]
-    public static partial uint GetDutyActionId(ushort dutyActionSlot);
 
     /// <summary>
     /// Calculate target position for area-targeted spell corresponding to current cursor position.

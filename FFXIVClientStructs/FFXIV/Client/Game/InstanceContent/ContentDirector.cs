@@ -8,13 +8,15 @@ namespace FFXIVClientStructs.FFXIV.Client.Game.InstanceContent;
 //       Client::Game::Event::EventHandler
 [GenerateInterop(isInherited: true)]
 [Inherits<Director>]
-[StructLayout(LayoutKind.Explicit, Size = 0xD80)]
-public partial struct ContentDirector {
-    [FieldOffset(0x53A)] public byte ContentTypeRowId;
+[StructLayout(LayoutKind.Explicit, Size = 0xD88)]
+public unsafe partial struct ContentDirector {
+    [FieldOffset(0x542)] public byte ContentTypeRowId;
 
-    [FieldOffset(0x578)] public DutyActionManager DutyActionManager;
+    [FieldOffset(0x580)] public DutyActionManager DutyActionManager;
 
-    [FieldOffset(0xD40)] public float ContentTimeLeft;
+    [FieldOffset(0xCF0)] private DynamicEventContainer* DynamicEvents;
+
+    [FieldOffset(0xD48)] public float ContentTimeLeft;
 
     /// <summary>
     /// Gets the max time for the content in seconds

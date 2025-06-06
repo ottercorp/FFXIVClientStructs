@@ -1,4 +1,5 @@
 using FFXIVClientStructs.FFXIV.Client.UI;
+using FFXIVClientStructs.FFXIV.Common.Math;
 
 namespace FFXIVClientStructs.FFXIV.Component.GUI;
 
@@ -7,7 +8,7 @@ namespace FFXIVClientStructs.FFXIV.Component.GUI;
 [GenerateInterop(isInherited: true)]
 [StructLayout(LayoutKind.Explicit, Size = 0x9C90)]
 public unsafe partial struct AtkUnitManager {
-    [FieldOffset(0x0)] public AtkEventListener AtkEventListener;
+    [FieldOffset(0x0)] public AtkEventListener AtkEventListener; // TODO: let AtkUnitManager inherit from AtkEventListener
     [FieldOffset(0x30), FixedSizeArray, CExportIgnore] internal FixedSizeArray13<AtkUnitList> _depthLayers;
     [FieldOffset(0x30)] public AtkUnitList DepthLayerOneList;
     [FieldOffset(0x840)] public AtkUnitList DepthLayerTwoList;
@@ -36,6 +37,9 @@ public unsafe partial struct AtkUnitManager {
     [FieldOffset(0x9180)] public AddonDragDrop* AddonDragDrop;
     [FieldOffset(0x9188)] public AtkManagedInterface* ManagedScreenFrame;
 
+    [FieldOffset(0x9350)] public Size LastScreenSize;
+
+    // [FieldOffset(0x9388), FixedSizeArray] internal FixedSizeArray48<Unk9388Struct> Unk9388;
     [FieldOffset(0x9C88)] public AtkUnitManagerFlags Flags;
 
     [VirtualFunction(8)]
@@ -51,10 +55,20 @@ public unsafe partial struct AtkUnitManager {
     public partial void AddonRequestUpdateById(ushort addonId, NumberArrayData** numberArrayData, StringArrayData** stringArrayData, bool forced);
 
     [MemberFunction("E8 ?? ?? ?? ?? 48 8B F8 41 B0 01"), GenerateStringOverloads]
-    public partial AtkUnitBase* GetAddonByName(byte* name, int index = 1);
+    public partial AtkUnitBase* GetAddonByName(CStringPointer name, int index = 1);
 
     [MemberFunction("E8 ?? ?? ?? ?? 8B 6B 20")]
     public partial AtkUnitBase* GetAddonById(ushort id);
+
+    /// <summary>
+    /// Gets an AtkUnitBase pointer to the addon that contains the input node.
+    /// This function will check all parents to the input node searching
+    /// for a node that matches any loaded AtkUnitBase's rootnode address
+    /// </summary>
+    /// <param name="node">Pointer to a AtkResNode</param>
+    /// <returns>Pointer to AtkUnitBase or null</returns>
+    [MemberFunction("E8 ?? ?? ?? ?? 48 3B E8 75 0E")]
+    public partial AtkUnitBase* GetAddonByNode(AtkResNode* node);
 
     public enum AddonStatus {
         NotLoaded = 0,
@@ -62,6 +76,12 @@ public unsafe partial struct AtkUnitManager {
         Shown = 1 << 2,
         Hidden = 1 << 3,
     }
+
+    // [StructLayout(LayoutKind.Explicit, Size = 0x30)]
+    // public struct Unk9388Struct {
+    //     [FieldOffset(0x00)] public AtkUnitBase* AtkUnitBase;
+    //     [FieldOffset(0x08)] public uint NameHash;
+    // }
 }
 
 [Flags]

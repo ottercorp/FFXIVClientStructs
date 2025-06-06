@@ -18,7 +18,7 @@ public unsafe partial struct AtkTooltipManager {
     [GenerateInterop]
     [StructLayout(LayoutKind.Explicit, Size = 0x18)]
     public partial struct AtkTooltipArgs : ICreatable {
-        [FieldOffset(0x0)] public byte* Text;
+        [FieldOffset(0x0)] public CStringPointer Text;
         [FieldOffset(0x8)] public ulong TypeSpecificId;
         [FieldOffset(0x10)] public uint Flags;
         [FieldOffset(0x14)] public short Unk_14;
@@ -54,13 +54,13 @@ public unsafe partial struct AtkTooltipManager {
         ushort parentId,
         AtkResNode* targetNode,
         AtkTooltipArgs* tooltipArgs,
-        delegate* unmanaged[Stdcall]<float*, float*, void*> unkDelegate = null,
+        delegate* unmanaged[Stdcall]<float*, float*, AtkResNode*, void> unkDelegate = null,
         bool unk7 = false,
         bool unk8 = true);
 
     [GenerateStringOverloads] // cursed forced partial to make generator happy
-    public partial void ShowTooltip(ushort parentId, AtkResNode* targetNode, byte* tooltipString);
-    public partial void ShowTooltip(ushort parentId, AtkResNode* targetNode, byte* tooltipString) {
+    public partial void ShowTooltip(ushort parentId, AtkResNode* targetNode, CStringPointer tooltipString);
+    public partial void ShowTooltip(ushort parentId, AtkResNode* targetNode, CStringPointer tooltipString) {
         var args = stackalloc AtkTooltipArgs[1];
         args->Ctor();
         args->Text = tooltipString;

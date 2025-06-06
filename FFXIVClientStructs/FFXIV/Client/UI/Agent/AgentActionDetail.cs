@@ -3,15 +3,15 @@ namespace FFXIVClientStructs.FFXIV.Client.UI.Agent;
 [Agent(AgentId.ActionDetail)]
 [GenerateInterop]
 [Inherits<AgentInterface>]
-[VirtualTable("48 8D 05 ?? ?? ?? ?? 81 8B ?? ?? ?? ?? ?? ?? ?? ?? 33 FF", 3)]
-[StructLayout(LayoutKind.Explicit, Size = 0x60)]
+[VirtualTable("83 79 5C 00 48 8D 05 ?? ?? ?? ?? 48 89 01 8B FA", 7)]
+[StructLayout(LayoutKind.Explicit, Size = 0x68)]
 public unsafe partial struct AgentActionDetail {
     [FieldOffset(0x38)] public ActionKind ActionKind;
     [FieldOffset(0x3C)] public uint ActionId;
     [FieldOffset(0x40)] public uint OriginalId; // Example: Summon Topaz
     [FieldOffset(0x44)] public uint AdjustedId; // Example: Summon Titan II
 
-    [MemberFunction("E8 ?? ?? ?? ?? E9 ?? ?? ?? ?? 83 F8 0F")]
+    [MemberFunction("E8 ?? ?? ?? ?? 4C 8B 7C 24 ?? E9 ?? ?? ?? ?? 83 F8 0F")]
     public partial void HandleActionHover(ActionKind actionKind, uint actionId, int flag, byte unk);
 }
 

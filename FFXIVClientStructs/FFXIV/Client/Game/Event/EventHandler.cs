@@ -7,12 +7,14 @@ namespace FFXIVClientStructs.FFXIV.Client.Game.Event;
 // Client::Game::Event::EventHandler
 // ctor "E8 ?? ?? ?? ?? 45 33 D2 48 8D 05 ?? ?? ?? ?? 48 89 03 4C 8D 8B"
 [GenerateInterop(isInherited: true)]
-[StructLayout(LayoutKind.Explicit, Size = 0x210)]
+[StructLayout(LayoutKind.Explicit, Size = 0x218)]
 public unsafe partial struct EventHandler {
     [FieldOffset(0x08)] public StdSet<Pointer<GameObject>> EventObjects;
     [FieldOffset(0x18)] public EventSceneModuleUsualImpl* EventSceneModule;
     [FieldOffset(0x20)] public EventHandlerInfo Info;
     [FieldOffset(0x5C)] public uint IconId;
+
+    [FieldOffset(0x78)] public short Scene;
 
     [FieldOffset(0x94)] public LuaStatus LuaStatus;
 
@@ -22,28 +24,31 @@ public unsafe partial struct EventHandler {
     [VirtualFunction(154)]
     public partial void CancelInteraction();
 
-    [VirtualFunction(199)]
+    [VirtualFunction(200)]
     public partial void GetTitle(Utf8String* outTitle);
 
-    [VirtualFunction(252)]
-    public partial void GetDescription(Utf8String* outDescription);
+    [VirtualFunction(202)]
+    public partial EventId GetEventId();
 
     [VirtualFunction(253)]
-    public partial void GetReliefText(Utf8String* outReliefText);
+    public partial void GetDescription(Utf8String* outDescription);
 
     [VirtualFunction(254)]
-    public partial int GetTimeRemaining(int currentTimestamp);
+    public partial void GetReliefText(Utf8String* outReliefText);
 
     [VirtualFunction(255)]
+    public partial int GetTimeRemaining(int currentTimestamp);
+
+    [VirtualFunction(256)]
     public partial bool HasTimer();
 
-    [VirtualFunction(257)]
+    [VirtualFunction(258)]
     public partial uint GetEventItemId();
 
-    [VirtualFunction(260)]
+    [VirtualFunction(261)]
     public partial StdVector<EventHandlerObjective>* GetObjectives();
 
-    [VirtualFunction(264)]
+    [VirtualFunction(265)]
     public partial int GetRecommendedLevel();
 }
 
@@ -66,16 +71,22 @@ public struct EventHandlerObjective {
 }
 
 [StructLayout(LayoutKind.Explicit, Size = 0x04)]
-public struct EventId {
+public struct EventId : IEquatable<EventId>, IComparable<EventId> {
     [FieldOffset(0x00), CExportIgnore] public uint Id;
     [FieldOffset(0x00)] public ushort EntryId;
-    [FieldOffset(0x02)] public EventHandlerType ContentId;
+    [FieldOffset(0x02)] public EventHandlerContent ContentId;
     public static implicit operator uint(EventId id) => id.Id;
     public static implicit operator EventId(uint id) => new() { Id = id };
+
+    public bool Equals(EventId other) => Id == other.Id;
+    public override bool Equals(object? obj) => obj is EventId other && Equals(other);
+    public override int GetHashCode() => Id.GetHashCode();
+    public static bool operator ==(EventId left, EventId right) => left.Id == right.Id;
+    public static bool operator !=(EventId left, EventId right) => left.Id != right.Id;
+    public int CompareTo(EventId other) => Id.CompareTo(other);
 }
 
-// TODO adjust for name change EventId.Type -> EventId.ContentId?
-public enum EventHandlerType : ushort {
+public enum EventHandlerContent : ushort {
     Quest = 0x0001,
     Warp = 0x0002,
     GatheringPoint = 0x0003,
@@ -129,7 +140,7 @@ public enum EventHandlerType : ushort {
     PreHandler = 0x0036, // checks quest completion before handling something, for example opening the Scrip Exchange
     TripleTriadCompetition = 0x0037,
     HwdDev = 0x0038, // Ishgardian Restoration (Firmament / Heavensward Development?!)
-    Salvage = 0x0039, // Desynthesis (0x390000), Materia Extraction (0x390001), Aetherial Reduction (0x390002)
+    Materialize = 0x0039, // Desynthesis (0x390000), Materia Extraction (0x390001), Aetherial Reduction (0x390002)
     InclusionShop = 0x003A,
     CollectablesShop = 0x003B,
     EventPathMove = 0x003D, // Argos in Mare Lamentorum uses this
@@ -145,5 +156,12 @@ public enum EventHandlerType : ushort {
     CompanyCraftDirector = 0x800B,
     SkyIslandDirector = 0x800C, // used in early phases of the Diadem
     DpsChallengeDirector = 0x800D,
+    MassivePcContentDirector = 0x800E,
     FateDirector = 0x801A
+}
+
+public enum MaterializeEntryId : ushort {
+    Desynth = 0x0000,
+    Retrieve = 0x0001, // Materia Retrieval
+    Purify = 0x0002, // Aetherial Reduction
 }

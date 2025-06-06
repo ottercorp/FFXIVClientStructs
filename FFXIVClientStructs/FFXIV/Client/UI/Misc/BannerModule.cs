@@ -36,14 +36,14 @@ public unsafe partial struct BannerModule {
     /// </summary>
     /// <returns>Data->NextId</returns>
     [MemberFunction("E8 ?? ?? ?? ?? 83 F8 6E 7D 58")]
-    public partial byte GetNextId(); // TODO: returns int
+    public partial int GetNextId();
 
     /// <summary>
     /// Get the Banner entry by Id.
     /// </summary>
     /// <param name="bannerId">The BannerId.</param>
     /// <returns>BannerModuleEntry*, or null if not found.</returns>
-    [MemberFunction("E8 ?? ?? ?? ?? 0F B7 40 7E")]
+    [MemberFunction("E8 ?? ?? ?? ?? 48 8B F8 0F B6 80")]
     public partial BannerModuleEntry* GetBannerById(int bannerId);
 
     /// <summary>

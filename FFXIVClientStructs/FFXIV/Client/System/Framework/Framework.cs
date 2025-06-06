@@ -19,16 +19,14 @@ namespace FFXIVClientStructs.FFXIV.Client.System.Framework;
 // Client::System::Framework::Framework
 [GenerateInterop]
 [VirtualTable("48 8D 05 ?? ?? ?? ?? 66 C7 41 ?? ?? ?? 48 89 01 48 8B F1", 3)]
-[StructLayout(LayoutKind.Explicit, Size = 0x35D0)]
+[StructLayout(LayoutKind.Explicit, Size = 0x35F0)]
 public unsafe partial struct Framework {
-    //[StaticAddress("49 8B DC 48 89 1D ?? ?? ?? ??", 6, true)]
-    [StaticAddress("48 8B 1D ?? ?? ?? ?? 8B 7C 24 64", 3, true)]
+    [StaticAddress("48 8B 1D ?? ?? ?? ?? 8B 7C 24 64", 3, isPointer: true)]
+    //[StaticAddress("49 8B DC 48 89 1D ?? ?? ?? ??", 6, isPointer: true)] //Global 7.2
     public static partial Framework* Instance();
 
     [FieldOffset(0x0010)] public SystemConfig SystemConfig;
     [FieldOffset(0x0460)] public DevConfig DevConfig;
-    [Obsolete("Use CharamakeAvatarSaveData")]
-    [FieldOffset(0x0570)] public SavedAppearanceManager* SavedAppearanceData;
     [FieldOffset(0x0570)] public CharamakeAvatarSaveDataContainer* CharamakeAvatarSaveData;
     [FieldOffset(0x0580)] public byte ClientLanguage;
     [FieldOffset(0x0581)] public byte Region;
@@ -76,10 +74,6 @@ public unsafe partial struct Framework {
     [FieldOffset(0x17B8)] public float GameSpeedMultiplier; // usually 1, but during recording replay could be different
     [FieldOffset(0x17CC)] public float FrameRate;
     [FieldOffset(0x17D0)] public int PauseFrameTicksCounter; // if non-zero, FrameDeltaTime is forced to 0 during ticks; used while displaying message boxes
-    /// <summary>
-    /// If true <see cref="FrameDeltaTime"/> is set to 0.
-    /// </summary>
-    [FieldOffset(0x17D0), Obsolete("Use PauseFrameTicksCounter != 0")] public bool DiscardFrame;
     /// <summary>
     /// If set to anything non-zero, overrides <see cref="FrameDeltaTime"/>. If negative <see cref="FrameDeltaTimeOverride"/> is used and 60fps as a fallback.
     /// Unlike <see cref="FrameDeltaTimeOverride"/>, this applies only to the next frame, and is reset to zero on next tick.

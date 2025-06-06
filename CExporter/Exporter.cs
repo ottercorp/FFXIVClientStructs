@@ -20,7 +20,7 @@ namespace CExporter;
 public class Exporter {
     private static List<ProcessedEnum> _enums = [];
     private static List<ProcessedStruct> _structs = [];
-    private static HashSet<Type> _processType = [];
+    private static HashSet<ProcessingType> _processType = [];
 
     public static string PassString(int i) => i switch {
         1 => "First pass",
@@ -45,67 +45,79 @@ public class Exporter {
         _ => $"Pass {i}"
     };
 
-    public static void ProcessTypes() {
+    public static void ProcessTypes(bool quiet) {
         var havokTypes = ExporterStatics.GetHavokTypes();
         var xivTypes = ExporterStatics.GetXIVTypes();
 
-        Console.WriteLine("::group::Discovered Info");
-        Console.WriteLine($"Found {havokTypes.Length} havok types");
-        Console.WriteLine($"Found {xivTypes.Length} xiv types");
+        if (!quiet) {
+            Console.WriteLine("::group::Discovered Info");
+            Console.WriteLine($"Found {havokTypes.Length} havok types");
+            Console.WriteLine($"Found {xivTypes.Length} xiv types");
+        }
+
 
         var havokStructs = havokTypes.Where(t => t.IsStruct() && !t.IsGenericType && !t.IsFixedBuffer()).ToArray();
         var xivStructs = xivTypes.Where(t => t.IsStruct() && !t.IsGenericType && !t.IsFixedBuffer()).ToArray();
 
-        Console.WriteLine($"Filtered havok to {havokStructs.Length} structs");
-        Console.WriteLine($"Filtered xiv to {xivStructs.Length} structs");
-        Console.WriteLine("::endgroup::");
+        if (!quiet) {
+            Console.WriteLine($"Filtered havok to {havokStructs.Length} structs");
+            Console.WriteLine($"Filtered xiv to {xivStructs.Length} structs");
+            Console.WriteLine("::endgroup::");
+        }
+
 
         var structs = xivStructs.Concat(havokStructs).ToArray();
         var now = DateTime.UtcNow;
         var count = 1;
-
-        Console.WriteLine("::group::Processed Struct");
-        Console.WriteLine($"{PassString(count)} with {structs.Length} structs and enum types");
-
-        foreach (var sStruct in structs) {
-            ProcessType(sStruct);
+        if (!quiet) {
+            Console.WriteLine("::group::Processed Struct");
+            Console.WriteLine($"{PassString(count)} with {structs.Length} structs and enum types");
         }
 
-        Console.WriteLine($"{PassString(count++)} took {DateTime.UtcNow - now:g}");
+
+        foreach (var sStruct in structs) {
+            ProcessType(sStruct, quiet);
+        }
+
+        if (!quiet) Console.WriteLine($"{PassString(count++)} took {DateTime.UtcNow - now:g}");
 
         now = DateTime.UtcNow;
 
         while (_processType.Count > 0) {
-            Console.WriteLine($"{PassString(count)} with {_processType.Count} structs and enum types");
+            if (!quiet) Console.WriteLine($"{PassString(count)} with {_processType.Count} structs and enum types");
             var tmp = _processType
-                .Where(t => t is { IsUnmanagedFunctionPointer: false, IsFunctionPointer: false })
+                .Where(t => t.Type is { IsUnmanagedFunctionPointer: false, IsFunctionPointer: false })
                 .ToArray();
             _processType.Clear();
             foreach (var @struct in tmp) {
-                ProcessType(@struct);
+                ProcessType(@struct, quiet);
             }
 
-            Console.WriteLine($"{PassString(count++)} took {DateTime.UtcNow - now:g}");
+            if (!quiet) Console.WriteLine($"{PassString(count++)} took {DateTime.UtcNow - now:g}");
 
             now = DateTime.UtcNow;
         }
 
-        Console.WriteLine("::endgroup::");
-        Console.WriteLine();
-        Console.WriteLine($"Processed {_enums.Count} enums and {_structs.Count} structs");
-        Console.WriteLine();
+        if (!quiet) {
+            Console.WriteLine("::endgroup::");
+            Console.WriteLine();
+            Console.WriteLine($"Processed {_enums.Count} enums and {_structs.Count} structs");
+            Console.WriteLine();
+        }
+
     }
 
-    public static void ProcessStaticFunctions() {
+    public static void ProcessStaticFunctions(bool quiet) {
         Type[] types = [.. ExporterStatics.GetHavokTypes(), .. ExporterStatics.GetXIVTypes()];
         types = types.Where(t => t.IsStruct()).Where(type => type.GetMethods(ExporterStatics.StaticBindingFlags).Length != 0).ToArray();
-        Console.WriteLine("::group::Processed Struct Static Members");
+        if (!quiet) Console.WriteLine("::group::Processed Struct Static Members");
         var typeAndMembers = types.Select(t => (t, t.GetMethods(ExporterStatics.StaticBindingFlags))).ToArray();
         foreach (var (type, methods) in typeAndMembers) {
-            Console.WriteLine($"Processing {type} with {methods.Length} methods");
-            var currentStructIndex = _structs.FindIndex(s => s.StructTypeName == type.FullSanitizeName());
+            if (!quiet) Console.WriteLine($"Processing {type} with {methods.Length} methods");
+            var sanitizedName = type.FullSanitizeName();
+            var currentStructIndex = _structs.FindIndex(s => s.StructTypeName == sanitizedName);
             if (currentStructIndex == -1) {
-                Console.WriteLine($"Error in struct {type} please fix");
+                if (!quiet) Console.WriteLine($"Error in struct {type} please fix");
                 continue;
             }
             var currentStruct = _structs[currentStructIndex];
@@ -125,52 +137,55 @@ public class Exporter {
                 if (memberFunction != null || staticAddress != null)
                     _processType.Add(methodInfo.ReturnType);
                 if (memberFunction == null) continue;
+                var memberFunctionReturnType = new ProcessedMemberFunctionReturn(methodInfo.ReturnType, null);
+                if (methodInfo.GetCustomAttribute<CExporterExcelAttribute>() is not { } excelAttribute)
+                    _processType.Add(memberFunctionReturnType.Type);
+                else
+                    memberFunctionReturnType.OverrideType = $"Component::Exd::Sheets::{excelAttribute.SheetName}*";
                 currentStruct.StaticMemberFunctions ??= [];
                 currentStruct.StaticMemberFunctions = [.. currentStruct.StaticMemberFunctions,
                     new ProcessedMemberFunction {
                         MemberFunctionSignature = memberFunction.Signature,
                         MemberFunctionName = methodInfo.Name,
-                        MemberFunctionReturnType = methodInfo.ReturnType,
-                        MemberFunctionParameters = methodInfo.GetParameters().Select(p => {
-                            _processType.Add(p.ParameterType);
-                            return new ProcessedField {
-                                FieldType = p.ParameterType,
-                                FieldOffset = -1,
-                                FieldName = p.Name!
-                            };
-                        }).ToArray()
+                        MemberFunctionReturnType = memberFunctionReturnType,
+                        MemberFunctionParameters = methodInfo.GetParameters().Select(ProcessParameter).ToArray()
                     }];
             }
             _structs[currentStructIndex] = currentStruct;
         }
 
-        Console.WriteLine("::endgroup::");
-        Console.WriteLine("::group::Processed Struct 2nd pass");
+        if (!quiet) {
+            Console.WriteLine("::endgroup::");
+            Console.WriteLine("::group::Processed Struct 2nd pass");
+        }
         var now = DateTime.UtcNow;
         var count = 1;
         var structsCount = _structs.Count;
         var enumsCount = _enums.Count;
 
         while (_processType.Count > 0) {
-            Console.WriteLine($"{PassString(count)} with {_processType.Count} structs and enum types");
+            if (!quiet) Console.WriteLine($"{PassString(count)} with {_processType.Count} structs and enum types");
             var tmp = _processType
-                .Where(t => t is { IsUnmanagedFunctionPointer: false, IsFunctionPointer: false })
+                .Where(t => t.Type is { IsUnmanagedFunctionPointer: false, IsFunctionPointer: false })
                 .ToArray();
             _processType.Clear();
             foreach (var @struct in tmp) {
-                ProcessType(@struct);
+                ProcessType(@struct, quiet);
             }
 
-            Console.WriteLine($"{PassString(count++)} took {DateTime.UtcNow - now:g}");
+            if (!quiet) Console.WriteLine($"{PassString(count++)} took {DateTime.UtcNow - now:g}");
 
             now = DateTime.UtcNow;
         }
-        Console.WriteLine("::endgroup::");
-        Console.WriteLine();
-        Console.WriteLine($"Processed {_enums.Count - enumsCount} enums and {_structs.Count - structsCount} structs");
-        Console.WriteLine($"Processed {typeAndMembers.Length} structs with {typeAndMembers.Sum(t => t.Item2.Length)} members");
-        Console.WriteLine();
-        Console.WriteLine($"Processed total {_enums.Count} enums and {_structs.Count} structs");
+        if (!quiet) {
+            Console.WriteLine("::endgroup::");
+            Console.WriteLine();
+            Console.WriteLine($"Processed {_enums.Count - enumsCount} enums and {_structs.Count - structsCount} structs");
+            Console.WriteLine($"Processed {typeAndMembers.Length} structs with {typeAndMembers.Sum(t => t.Item2.Length)} members");
+            Console.WriteLine();
+            Console.WriteLine($"Processed total {_enums.Count} enums and {_structs.Count} structs");
+        }
+
     }
 
     public static void VerifyNoOverlap() {
@@ -220,32 +235,29 @@ public class Exporter {
 
     public static void Write(DirectoryInfo dir) {
         // make sure we have all the dependencies for each struct before we write them
-        {
-            var structs = _structs.ToFrozenDictionary(x => x.StructTypeName, x => x);
-            var structToFullDeps = new Dictionary<string, HashSet<string>>();
-            _structs.Sort((a, b) => {
-                var cmp = ResolveFullDependencies(a).Count.CompareTo(ResolveFullDependencies(b).Count);
-                return cmp != 0 ? cmp : string.Compare(a.StructTypeName, b.StructTypeName, StringComparison.Ordinal);
-            });
+        var structs = _structs.ToFrozenDictionary(x => x.StructTypeName, x => x);
+        var structToFullDeps = new Dictionary<string, HashSet<string>>();
+        _structs.Sort((a, b) => {
+            var cmp = ResolveFullDependencies(a).Count.CompareTo(ResolveFullDependencies(b).Count);
+            return cmp != 0 ? cmp : string.Compare(a.StructTypeName, b.StructTypeName, StringComparison.Ordinal);
+        });
 
 #if DEBUG
-            for (var i = 0; i < _structs.Count; i++) {
-                foreach (var dep in _structs[i].DependencyNames) {
-                    if (_structs.FindIndex(0, i, x => x.StructTypeName == dep) == -1)
-                        throw new InvalidOperationException();
-                }
+        for (var i = 0; i < _structs.Count; i++) {
+            foreach (var dep in _structs[i].DependencyNames) {
+                if (_structs.FindIndex(0, i, x => x.StructTypeName == dep) == -1)
+                    throw new InvalidOperationException();
             }
+        }
 #endif
 
-            HashSet<string> ResolveFullDependencies(ProcessedStruct s) {
-                if (structToFullDeps.TryGetValue(s.StructTypeName, out var deps))
-                    return deps;
-
-                var fullDeps = s.DependencyNames.ToHashSet();
-                foreach (var dn in s.DependencyNames)
-                    fullDeps.UnionWith(ResolveFullDependencies(structs[dn]));
-                return structToFullDeps[s.StructTypeName] = fullDeps;
-            }
+        HashSet<string> ResolveFullDependencies(ProcessedStruct s) {
+            if (structToFullDeps.TryGetValue(s.StructTypeName, out var deps))
+                return deps;
+            var fullDeps = s.DependencyNames.ToHashSet();
+            foreach (var dn in s.DependencyNames)
+                fullDeps.UnionWith(ResolveFullDependencies(structs[dn]));
+            return structToFullDeps[s.StructTypeName] = fullDeps;
         }
 
         var serializer = new SerializerBuilder()
@@ -264,8 +276,8 @@ public class Exporter {
         new FileInfo(Path.Join(dir.FullName, "ffxiv_structs.yml")).WriteFile(yaml);
     }
 
-    private static void ProcessType(Type type) {
-        var ret = PreProcessType(type);
+    private static void ProcessType(ProcessingType type, bool quiet) {
+        var ret = PreProcessType(type, quiet);
         switch (ret) {
             case null:
                 return;
@@ -279,6 +291,17 @@ public class Exporter {
     }
 
     private static ProcessedField ProcessField(FieldInfo field, int offset) {
+        if (field.FieldType is { Namespace: "FFXIVClientStructs.STD.Helper", Name: "Node*" }) {
+            var fieldTypeOverride = $"RedBlackTree::Node<{field.FieldType.GetGenericArguments()[0].FullSanitizeName()}>*";
+            _processType.Add(new ProcessingType(field.FieldType, fieldTypeOverride[..^1]));
+            return new ProcessedField {
+                FieldType = field.FieldType,
+                FieldOffset = field.GetFieldOffset() - offset,
+                FieldName = field.Name,
+                IsBase = field.IsDirectBase(),
+                FieldTypeOverride = fieldTypeOverride
+            };
+        }
         if (field.FieldType.IsFunctionPointer || field.FieldType.IsUnmanagedFunctionPointer) {
             _processType.Add(field.FieldType.GetFunctionPointerReturnType());
             return new ProcessedFunctionField {
@@ -362,7 +385,64 @@ public class Exporter {
         };
     }
 
-    private static object? PreProcessType(Type type) {
+    private static ProcessedField ProcessParameter(ParameterInfo parameter) {
+        if (parameter.ParameterType is { Namespace: "FFXIVClientStructs.STD.Helper", Name: "Node*" }) {
+            var fieldTypeOverride = $"RedBlackTree::Node<{parameter.ParameterType.GetGenericArguments()[0].FullSanitizeName()}>*";
+            _processType.Add(new ProcessingType(parameter.ParameterType, fieldTypeOverride[..^1]));
+            return new ProcessedField {
+                FieldType = parameter.ParameterType,
+                FieldOffset = -1,
+                FieldName = parameter.Name!,
+                FieldTypeOverride = fieldTypeOverride
+            };
+        }
+        if (parameter.GetCustomAttribute<CExporterExcelAttribute>() != null) {
+            var sheetName = parameter.GetCustomAttribute<CExporterExcelAttribute>()!.SheetName;
+            return new ProcessedField {
+                FieldType = parameter.ParameterType,
+                FieldOffset = -1,
+                FieldName = parameter.Name!,
+                FieldTypeOverride = $"Component::Exd::Sheets::{sheetName}*"
+            };
+        }
+        _processType.Add(parameter.ParameterType);
+        return new ProcessedField {
+            FieldType = parameter.ParameterType,
+            FieldOffset = -1,
+            FieldName = parameter.Name!
+        };
+    }
+
+    private static ProcessedField ProcessVirtualParameter(Type parameter, int i, ParameterInfo[]? parameters) {
+        if (parameter is { Namespace: "FFXIVClientStructs.STD.Helper", Name: "Node*" }) {
+            var fieldTypeOverride = $"RedBlackTree::Node<{parameter.GetGenericArguments()[0].FullSanitizeName()}>*";
+            _processType.Add(new ProcessingType(parameter, fieldTypeOverride[..^1]));
+            return new ProcessedField {
+                FieldType = parameter,
+                FieldOffset = -1,
+                FieldName = i == 0 ? "this" : parameters?[i - 1].Name ?? $"a{i + 1}",
+                FieldTypeOverride = fieldTypeOverride
+            };
+        }
+        if (parameter.GetCustomAttribute<CExporterExcelAttribute>() != null) {
+            var sheetName = parameter.GetCustomAttribute<CExporterExcelAttribute>()!.SheetName;
+            return new ProcessedField {
+                FieldType = parameter,
+                FieldOffset = -1,
+                FieldName = i == 0 ? "this" : parameters?[i - 1].Name ?? $"a{i + 1}",
+                FieldTypeOverride = $"Component::Exd::Sheets::{sheetName}*"
+            };
+        }
+        _processType.Add(parameter);
+        return new ProcessedField {
+            FieldType = parameter,
+            FieldOffset = -1,
+            FieldName = i == 0 ? "this" : parameters?[i - 1].Name ?? $"a{i + 1}"
+        };
+    }
+
+    private static object? PreProcessType(ProcessingType processingType, bool quiet) {
+        var (type, overrideType) = processingType;
         if (type.IsFixedBuffer() || type.IsBaseType()) return null;
         while (type.IsPointer) type = type.GetElementType()!;
         while (type.IsGenericPointer()) type = type.GenericTypeArguments[0];
@@ -373,44 +453,38 @@ public class Exporter {
                 EnumType = type,
                 EnumName = type.Name,
                 EnumNamespace = type.GetNamespace(),
+                IsFlags = type.GetCustomAttribute<FlagsAttribute>() != null,
                 EnumValues = type.GetFields().Where(t => t.GetCustomAttribute<ObsoleteAttribute>() == null && t.FieldType == type).ToDictionary(f => f.Name, f => f.GetRawConstantValue()!.ToString()!)
             };
 
-            Console.WriteLine($"Processed {processedEnum.EnumNamespace}::{processedEnum.EnumName} with {processedEnum.EnumValues.Count} fields");
+            if (!quiet) Console.WriteLine($"Processed {processedEnum.EnumNamespace}::{processedEnum.EnumName} with {processedEnum.EnumValues.Count} fields");
             _enums.Add(processedEnum);
         } else if (type.IsStruct()) {
             while (type.IsPointer) type = type.GetElementType()!;
             while (type.IsGenericPointer()) type = type.GenericTypeArguments[0];
             if (type.IsFunctionPointer || type.IsUnmanagedFunctionPointer) {
                 foreach (var functionPointerParameterType in type.GetFunctionPointerParameterTypes()) {
-                    ProcessType(functionPointerParameterType);
+                    ProcessType(functionPointerParameterType, quiet);
                     type = type.GetFunctionPointerReturnType();
                 }
             }
             if (!type.IsStruct() || type.IsEnum) return null;
-            if (type.IsInStructList(_structs)) return null;
+            if (type.IsInStructList(_structs) || (overrideType?.IsInStructList(_structs) ?? false)) return null;
             var vtable = type.GetField("VirtualTable", ExporterStatics.BindingFlags)?.FieldType;
             ProcessedVirtualFunction[]? virtualFunctions = null;
             if (vtable != null) {
                 vtable = vtable.GetElementType()!;
-                var memberFunctions = type.GetMethods(ExporterStatics.BindingFlags).Where(t => t.GetCustomAttribute<VirtualFunctionAttribute>() != null).Select(t => new { Name = t.Name, Parameters = t.GetParameters(), ReturnType = t.ReturnType }).ToArray();
+                var memberFunctions = type.GetMethods(ExporterStatics.BindingFlags).Where(t => t.GetCustomAttribute<VirtualFunctionAttribute>() != null).Select(t => Tuple.Create(t.Name, t.GetParameters(), t.ReturnType)).ToArray();
                 virtualFunctions = vtable.GetFields(ExporterStatics.BindingFlags).Where(t => t.GetCustomAttribute<ObsoleteAttribute>() == null && t.GetCustomAttribute<CExportIgnoreAttribute>() == null).Select(f => {
-                    var memberFunction = memberFunctions.FirstOrDefault(t => t.Name == f.Name);
+                    var memberFunction = memberFunctions.FirstOrDefault(t => t.Item1 == f.Name);
                     var returnType = f.FieldType.GetFunctionPointerReturnType();
-                    if (memberFunction?.ReturnType != returnType) memberFunction = null;
+                    if (memberFunction?.Item3 != returnType) memberFunction = null;
                     _processType.Add(f.FieldType.GetFunctionPointerReturnType());
                     return new ProcessedVirtualFunction {
                         VirtualFunctionName = f.Name,
                         Offset = f.GetFieldOffset(),
                         VirtualFunctionReturnType = f.FieldType.GetFunctionPointerReturnType(),
-                        VirtualFunctionParameters = f.FieldType.GetFunctionPointerParameterTypes().Select((p, i) => {
-                            _processType.Add(p);
-                            return new ProcessedField {
-                                FieldType = p,
-                                FieldOffset = -1,
-                                FieldName = i == 0 ? "this" : memberFunction?.Parameters[i - 1].Name ?? $"a{i + 1}"
-                            };
-                        }).ToArray()
+                        VirtualFunctionParameters = f.FieldType.GetFunctionPointerParameterTypes().Select((p, i) => ProcessVirtualParameter(p, i, memberFunction?.Item2)).ToArray()
                     };
                 }).ToArray();
             }
@@ -423,8 +497,11 @@ public class Exporter {
                     var memberFunctionAddress = memberFunction.GetCustomAttribute<MemberFunctionAttribute>();
                     if (memberFunctionAddress == null) continue;
                     var memberFunctionParameters = memberFunction.GetParameters();
-                    var memberFunctionReturnType = memberFunction.ReturnType;
-                    _processType.Add(memberFunctionReturnType);
+                    var memberFunctionReturnType = new ProcessedMemberFunctionReturn(memberFunction.ReturnType, null);
+                    if (memberFunction.GetCustomAttribute<CExporterExcelAttribute>() is not { } excelAttribute)
+                        _processType.Add(memberFunctionReturnType.Type);
+                    else
+                        memberFunctionReturnType.OverrideType = $"Component::Exd::Sheets::{excelAttribute.SheetName}*";
                     memberFunctionsArray =
                     [
                         .. memberFunctionsArray,
@@ -439,14 +516,7 @@ public class Exporter {
                                     FieldOffset = -1,
                                     FieldName = "this"
                                 },
-                                .. memberFunctionParameters.Select(p => {
-                                    _processType.Add(p.ParameterType);
-                                    return new ProcessedField {
-                                        FieldType = p.ParameterType,
-                                        FieldOffset = -1,
-                                        FieldName = p.Name!
-                                    };
-                                }).ToArray()]
+                                .. memberFunctionParameters.Select(ProcessParameter).ToArray()]
                         },
                     ];
                 }
@@ -505,7 +575,7 @@ public class Exporter {
                             FieldName = subStruct.StructName
                         }
                     ];
-                    Console.WriteLine($"Processed {unionStruct.StructTypeOverride} with {unionStruct.Fields.Length} fields and methods");
+                    if (!quiet) Console.WriteLine($"Processed {unionStruct.StructTypeOverride} with {unionStruct.Fields.Length} fields and methods");
                     unions[unionStructIndex] = unionStruct;
                 }
                 _structs.AddRange(unions);
@@ -516,11 +586,12 @@ public class Exporter {
                 IsUnion = type.GetCustomAttribute<CExporterStructUnionAttribute>() != null,
                 StructName = type.Name,
                 StructNamespace = type.GetNamespace(),
-                StructTypeName = type.FullSanitizeName(),
+                StructTypeName = overrideType ?? type.FullSanitizeName(),
                 StructSize = type.SizeOf(),
                 Fields = ProcessFields(fields),
                 VirtualFunctions = virtualFunctions,
-                MemberFunctions = memberFunctionsArray
+                MemberFunctions = memberFunctionsArray,
+                StructTypeOverride = overrideType
             };
 
             foreach (var (unionAttr, fieldInfo) in unionOffsets.Where(t => !t.Key.IsStruct)) {
@@ -536,7 +607,7 @@ public class Exporter {
                 processedStruct.Fields = [.. processedStruct.Fields.OrderBy(t => t.FieldOffset)];
             }
 
-            Console.WriteLine($"Processed {processedStruct.StructTypeName} with {processedStruct.Fields.Length + (processedStruct.VirtualFunctions?.Length ?? 0) + processedStruct.MemberFunctions.Length} fields and methods");
+            if (!quiet) Console.WriteLine($"Processed {processedStruct.StructTypeName} with {processedStruct.Fields.Length + (processedStruct.VirtualFunctions?.Length ?? 0) + processedStruct.MemberFunctions.Length} fields and methods");
             _structs.Add(processedStruct);
         }
         return null;
@@ -547,6 +618,9 @@ public class Exporter {
         int[][] fieldsToUse = [];
         bool isExcel = false;
         int currentField = 0;
+        while (fieldsToProcess is [{ Name: "WithOps" }] or [{ Name: "Tree" }]) {
+            fieldsToProcess = fieldsToProcess[0].FieldType.GetFields(ExporterStatics.BindingFlags).Where(t => !ExporterStatics.IgnoredTypeNames.Contains(t.Name) && t.GetCustomAttribute<ObsoleteAttribute>() == null && t.GetCustomAttribute<CExportIgnoreAttribute>() == null && t.GetCustomAttribute<CExporterUnionAttribute>() == null).ToArray();
+        }
         for (var i = 0; i < fieldsToProcess.Length; i++) {
             var field = fieldsToProcess[i];
             if (field.GetCustomAttribute<CExporterForceAttribute>() != null)
@@ -624,7 +698,26 @@ public class ProcessedStruct {
     public string[] DependencyNames {
         get {
             if (_dependencyNames.Length == 0) {
-                _dependencyNames = Fields.Where(t => (t.GetType() == typeof(ProcessedField) || t.GetType() == typeof(ProcessedFixedField)) && (!(t.FieldType.IsPointer() || t.FieldType.IsPrimitive || t.FieldType.IsFixedBuffer() || t.FieldType.IsEnum || t.FieldType.IsBaseType()) || (t.FieldTypeOverride != null && !t.FieldTypeOverride.StartsWith("Component::Exd::Sheets::")))).Select(t => t.FieldTypeOverride ?? t.FieldType.FullSanitizeName()).Distinct().ToArray();
+                _dependencyNames = Fields
+                    .Where(t => (
+                            t.GetType() == typeof(ProcessedField) ||
+                            t.GetType() == typeof(ProcessedFixedField)
+                        ) &&
+                        (
+                            !(
+                                t.FieldType.IsPointer() ||
+                                t.FieldType.IsPrimitive ||
+                                t.FieldType.IsFixedBuffer() ||
+                                t.FieldType.IsEnum ||
+                                t.FieldType.IsBaseType()
+                            ) ||
+                            (
+                                t.FieldTypeOverride != null &&
+                                !t.FieldTypeOverride.StartsWith("Component::Exd::Sheets::") &&
+                                !t.FieldTypeOverride.EndsWith('*')
+                            )
+                        ))
+                    .Select(t => t.FieldTypeOverride ?? t.FieldType.FullSanitizeName()).Distinct().ToArray();
             }
             return _dependencyNames;
         }
@@ -639,6 +732,7 @@ public class ProcessedEnum {
     public required Type EnumType;
     public required string EnumName;
     public required string EnumNamespace;
+    public required bool IsFlags;
     public required Dictionary<string, string> EnumValues;
 }
 
@@ -652,8 +746,18 @@ public class ProcessedVirtualFunction {
 public class ProcessedMemberFunction {
     public required string MemberFunctionSignature;
     public required string MemberFunctionName;
-    public required Type MemberFunctionReturnType;
+    public required ProcessedMemberFunctionReturn MemberFunctionReturnType;
     public required ProcessedField[] MemberFunctionParameters;
+}
+
+public class ProcessedMemberFunctionReturn(Type type, string? overrideType) {
+    public Type Type = type;
+    public string? OverrideType = overrideType;
+    public static implicit operator ProcessedMemberFunctionReturn((Type Type, string OverrideType) value) => new(value.Type, value.OverrideType);
+    public static implicit operator (Type Type, string? OverrideType)(ProcessedMemberFunctionReturn value) => (value.Type, value.OverrideType);
+    public static implicit operator ProcessedMemberFunctionReturn(Type type) => new(type, null);
+    public static implicit operator Type(ProcessedMemberFunctionReturn value) => value.Type;
+    public static implicit operator string(ProcessedMemberFunctionReturn value) => value.OverrideType ?? value.Type.FullSanitizeName();
 }
 
 public class ProcessedEnumConverter : IYamlTypeConverter {
@@ -670,6 +774,8 @@ public class ProcessedEnumConverter : IYamlTypeConverter {
         emitter.Emit(new Scalar(e.EnumType.GetEnumUnderlyingType().FullSanitizeName()));
         emitter.Emit(new Scalar("namespace"));
         emitter.Emit(new Scalar(e.EnumNamespace));
+        emitter.Emit(new Scalar("flags"));
+        emitter.Emit(e.IsFlags ? new Scalar("True") : new Scalar("False"));
         emitter.Emit(new Scalar("values"));
         emitter.Emit(new MappingStart());
         foreach (var (key, val) in e.EnumValues) {
@@ -801,7 +907,7 @@ public class ProcessedMemberFunctionConverter : IYamlTypeConverter {
         emitter.Emit(new Scalar("signature"));
         emitter.Emit(new Scalar(m.MemberFunctionSignature));
         emitter.Emit(new Scalar("return_type"));
-        emitter.Emit(new Scalar(m.MemberFunctionReturnType.FullSanitizeName()));
+        emitter.Emit(new Scalar(m.MemberFunctionReturnType));
         emitter.Emit(new Scalar("name"));
         emitter.Emit(new Scalar(m.MemberFunctionName));
         emitter.Emit(new Scalar("parameters"));
@@ -867,4 +973,9 @@ public class ProcessedStaticMembersConverter : IYamlTypeConverter {
     }
 
     public static readonly IYamlTypeConverter Instance = new ProcessedStaticMembersConverter();
+}
+
+public record ProcessingType(Type Type, string? OverrideTypeName) {
+    public static implicit operator Type(ProcessingType t) => t.Type;
+    public static implicit operator ProcessingType(Type t) => new(t, null);
 }

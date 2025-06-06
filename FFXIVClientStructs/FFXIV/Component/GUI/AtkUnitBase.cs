@@ -1,5 +1,6 @@
 using FFXIVClientStructs.FFXIV.Client.System.Memory;
 using FFXIVClientStructs.FFXIV.Common.Math;
+using static FFXIVClientStructs.FFXIV.Component.GUI.AtkEventData;
 
 namespace FFXIVClientStructs.FFXIV.Component.GUI;
 
@@ -14,16 +15,20 @@ namespace FFXIVClientStructs.FFXIV.Component.GUI;
 public unsafe partial struct AtkUnitBase : ICreatable {
     [FieldOffset(0x8), FixedSizeArray(isString: true)] internal FixedSizeArray32<byte> _name;
     [FieldOffset(0x28)] public AtkUldManager UldManager;
+    [FieldOffset(0xB8)] public AtkWidgetAlignment WidgetAlignment; // copied from (AtkUldWidgetInfo*)UldManager.Objects
     [FieldOffset(0xC8)] public AtkResNode* RootNode;
     [FieldOffset(0xD0)] public AtkCollisionNode* WindowCollisionNode;
     [FieldOffset(0xD8)] public AtkCollisionNode* WindowHeaderCollisionNode;
+    [FieldOffset(0xE0), FixedSizeArray] internal FixedSizeArray2<Pointer<AtkResNode>> _additionalMoveableNodes; // allow UnitBase to be moved. for example, left and right end of ChatLog tabs
     [FieldOffset(0xF0)] public AtkResNode* CursorTarget; // Likely always AtkCollisionNode
+    [FieldOffset(0xF8)] public AtkResNode* FocusNode;
+    [FieldOffset(0x100)] public AtkResNode* ComponentFocusNode;
+    [FieldOffset(0x108), FixedSizeArray] internal FixedSizeArray2<Pointer<AtkResNode>> _additionalFocusableNodes; // allow UnitBase to be focused. for example, yellow bar above ContentsFinder
     [FieldOffset(0x118)] public AtkComponentNode* CurrentDropDownOwnerNode;
     [FieldOffset(0x120)] public AtkComponentNode* WindowNode;
     [FieldOffset(0x128)] public AtkSimpleTween RootNodeTween; // used for open/close transitions
     [FieldOffset(0x178)] public AtkValue* AtkValues;
-    [FieldOffset(0x180)] public StdVector<Pointer<byte>> CachedAtkValueStrings;
-
+    [FieldOffset(0x180)] public StdVector<CStringPointer> CachedAtkValueStrings;
     /// <summary>
     /// <code>
     /// DepthLayer:<br/>
@@ -52,38 +57,67 @@ public unsafe partial struct AtkUnitBase : ICreatable {
     /// </code>
     /// </summary>
     [FieldOffset(0x198)] public uint Flags198;
-
+    // 4 bytes padding
     /// <summary>
     /// <code>
-    /// 0b1000_0000 = Disable auto-focus (not adding it to Focused Units list)
+    /// 0b1000_0000 [0x80] = Disable auto-focus (not adding it to Focused Units list)
     /// </code>
     /// </summary>
     [FieldOffset(0x1A0)] public byte Flags1A0;
-
     /// <summary>
     /// <code>
-    /// 0b0000_0001 = OnSetup was called (= IsReady)
+    /// 0b0000_0001 [0x1] = OnSetup was called (= IsReady)<br/>
+    /// 0b0000_0100 [0x4] = Disable "Close" option in title bar context menu
     /// </code>
     /// </summary>
     [FieldOffset(0x1A1)] public byte Flags1A1;
-    [FieldOffset(0x1A2)] public byte Flags1A2;
-
     /// <summary>
     /// <code>
-    /// 0b0100_0000 = Don't show on open
+    /// 0b0000_0100 [0x4] = LoadUldByName was called<br/>
+    /// 0b0000_1000 [0x8] = Disable close transition<br/>
+    /// 0b0010_0000 [0x20] = Suppress open/close sounds<br/>
+    /// 0b0100_0000 [0x40] = Don't load/save AddonConfig
+    /// </code>
+    /// </summary>
+    [FieldOffset(0x1A2)] public byte Flags1A2;
+    /// <summary>
+    /// <code>
+    /// 0b0000_0001 [0x1] = Enable title bar context menu<br/>
+    /// 0b0010_0000 [0x20] = Disable clamping of position to the game window (Note: this will make the unitbase open at (0,0) if no position is set)
+    /// </code>
+    /// </summary>
+    [FieldOffset(0x1A3)] public byte Flags1A3;
+    /// <summary>
+    /// <code>
+    /// 0b0100_0000 [0x40] = Unknown, enables whatever <see cref="Unk1D2"/> does
+    /// </code>
+    /// </summary>
+    [FieldOffset(0x1A4)] public byte Flags1A4;
+    /// <summary>
+    /// <code>
+    /// 0b0010_0000 [0x20] = Populate TextNode texts (before OnSetup)<br/>
+    /// 0b0100_0000 [0x40] = Don't show on open
     /// </code>
     /// </summary>
     [FieldOffset(0x1A5)] public byte Flags1A5;
-
+    // 2 bytes padding
+    [FieldOffset(0x1A8)] public int Param; // appears to be a generic field that some addons use for storage
     [FieldOffset(0x1AC)] public uint OpenTransitionDuration;
     [FieldOffset(0x1B0)] public uint CloseTransitionDuration;
-
+    [FieldOffset(0x1B4)] public uint Flags1B4; // used by SetFlag
+    [FieldOffset(0x1B8)] public byte AddonParamUnknown1; // used in RaptureAtkUnitManager.vf18
     [FieldOffset(0x1B9)] public byte NumOpenPopups; // used for dialogs and context menus to block inputs via ShouldIgnoreInputs
-
+    [FieldOffset(0x1BA)] public byte Unk1BA;
+    [FieldOffset(0x1BB)] public byte Unk1BB;
     [FieldOffset(0x1BC)] public float OpenTransitionScale;
     [FieldOffset(0x1C0)] public float CloseTransitionScale;
     [FieldOffset(0x1C4)] public float Scale;
-
+    /// <summary>
+    /// <code>
+    /// 0x800 = Disable "Scale Window" option in the title bar context menu
+    /// </code>
+    /// </summary>
+    [FieldOffset(0x1C8)] public uint Flags1C8;
     /// <summary>
     /// An optional scd resource that is loaded along with the uld resource in <see cref="LoadUldResourceHandle"/>.<br/>
     /// Mainly used by Gold Saucer addons. Handled in AtkModule handler 50.<br/>
@@ -96,11 +130,12 @@ public unsafe partial struct AtkUnitBase : ICreatable {
     /// </code>
     /// </summary>
     [FieldOffset(0x1CC)] public byte ScdResourceIndex;
-
+    [FieldOffset(0x1CD)] public byte HUDScaleTableIndex;
     [FieldOffset(0x1CE)] public byte VisibilityFlags;
-
+    // 1 byte padding
     [FieldOffset(0x1D0)] public ushort DrawOrderIndex;
-
+    [FieldOffset(0x1D2)] public byte Unk1D2; // index in array of AtkUnitManager+0x9388 (48 * 0x30)
+    // 1 byte padding
     [FieldOffset(0x1D4)] public short X;
     [FieldOffset(0x1D6)] public short Y;
     [FieldOffset(0x1D8)] public short OpenTransitionOffsetX;
@@ -113,10 +148,10 @@ public unsafe partial struct AtkUnitBase : ICreatable {
     [FieldOffset(0x1E6)] public ushort ParentId;
     [FieldOffset(0x1E8)] public ushort HostId; // for example, in CharacterProfile this holds the ID of the Character addon
     [FieldOffset(0x1EA)] public ushort ContextMenuParentId;
-
+    [FieldOffset(0x1EC)] public byte CursorNavigationOwnIndex;
     [FieldOffset(0x1ED)] public byte Alpha;
     [FieldOffset(0x1EE)] public byte ShowHideFlags;
-
+    [FieldOffset(0x1EF)] public bool Unk1EF; // used in Draw
     [FieldOffset(0x1F0)] public AtkResNode** CollisionNodeList; // seems to be all collision nodes in tree, may be something else though
     [FieldOffset(0x1F8)] public uint CollisionNodeListCount;
     [FieldOffset(0x1FC), FixedSizeArray] internal FixedSizeArray5<OperationGuide> _operationGuides; // the little button hints in controller mode
@@ -154,7 +189,7 @@ public unsafe partial struct AtkUnitBase : ICreatable {
     public partial float GetScaledHeight(bool getScaledHeight); // False returns unscaled height
 
     [MemberFunction("E8 ?? ?? ?? ?? 66 45 2B E6")]
-    public partial float GetGlobalUIScale();
+    public partial float GetGlobalUIScale(); // TODO: should be static
 
     [MemberFunction("E8 ?? ?? ?? ?? 8D 4B FC")]
     public partial AtkResNode* GetNodeById(uint nodeId);
@@ -162,16 +197,19 @@ public unsafe partial struct AtkUnitBase : ICreatable {
     [MemberFunction("E8 ?? ?? ?? ?? 8D 56 1E")]
     public partial AtkTextNode* GetTextNodeById(uint nodeId);
 
-    [MemberFunction("E8 ?? ?? ?? ?? 8D 53 16")]
+    [MemberFunction("E8 ?? ?? ?? ?? 8D 55 77")]
     public partial AtkImageNode* GetImageNodeById(uint nodeId);
 
     [MemberFunction("E8 ?? ?? ?? ?? 8D 3C 36")]
+    public partial AtkComponentButton* GetComponentButtonById(uint nodeId);
+
+    [MemberFunction("E8 ?? ?? ?? ?? 8D 3C 36"), Obsolete("Renamed to GetComponentButtonById")]
     public partial AtkComponentButton* GetButtonNodeById(uint nodeId);
 
     [MemberFunction("E8 ?? ?? ?? ?? 49 89 46 48")]
     public partial AtkComponentList* GetComponentListById(uint nodeId);
 
-    [MemberFunction("E8 ?? ?? ?? ?? 8D 55 9F")]
+    [MemberFunction("E8 ?? ?? ?? ?? 8D 56 31")]
     public partial AtkComponentBase* GetComponentByNodeId(uint nodeId);
 
     public AtkComponentNode* GetComponentNodeById(uint nodeId) {
@@ -191,7 +229,10 @@ public unsafe partial struct AtkUnitBase : ICreatable {
     public partial void UpdateCollisionNodeList(bool clearFocus);
 
     [MemberFunction("E8 ?? ?? ?? ?? 0F BA E7 14")]
-    public partial bool SetFocusNode(AtkResNode* node, bool a3 = false, uint a4 = 0);
+    public partial bool SetFocusNode(AtkResNode* node, bool setCursorFocusNode = false, uint a4 = 0); // a4 = InputId?
+
+    [MemberFunction("E8 ?? ?? ?? ?? 44 39 BC 24")]
+    public partial void SetComponentFocusNode(AtkComponentBase* component);
 
     /// <param name="arrayType">0 for StringArrayData or 1 for NumberArrayData</param>
     /// <param name="arrayIndex">The index in AtkArrayDataHolder</param>
@@ -205,9 +246,9 @@ public unsafe partial struct AtkUnitBase : ICreatable {
     public partial void UnsubscribeAtkArrayData(byte arrayType, byte arrayIndex, bool clean = false);
 
     [MemberFunction("E9 ?? ?? ?? ?? 48 8D 15 ?? ?? ?? ?? 41 B9 ?? ?? ?? ??"), GenerateStringOverloads]
-    public partial bool LoadUldByName(byte* name, byte a3 = 0, uint a4 = 6);
+    public partial bool LoadUldByName(CStringPointer name, byte a3 = 0, uint a4 = 6);
 
-    [MemberFunction("E8 ?? ?? ?? ?? 8D 53 24")]
+    [MemberFunction("E8 ?? ?? ?? ?? F3 0F 10 0D ?? ?? ?? ?? 45 33 C9 F3 0F 59 0D")]
     public partial void SetOpenTransition(float duration, short offsetX, short offsetY, float scale);
 
     [MemberFunction("E8 ?? ?? ?? ?? 41 8D 57 47 48 8B CE")]
@@ -270,59 +311,71 @@ public unsafe partial struct AtkUnitBase : ICreatable {
     [VirtualFunction(18)]
     public partial bool ShouldCollideWithWindow(AtkCollisionNode* collisionNode);
 
-    [VirtualFunction(22)]
-    public partial bool ShouldIgnoreInputs();
+    [VirtualFunction(20)]
+    public partial void OnMove();
 
     [VirtualFunction(23)]
+    public partial bool ShouldIgnoreInputs();
+
+    [VirtualFunction(24)]
     public partial AtkResNode* GetRootNode();
 
-    [VirtualFunction(26)]
+    [VirtualFunction(27)]
     public partial void GetWindowBounds(Bounds* outBounds); // tries to get it from WindowCollisionNode first, then from RootNode
 
-    [VirtualFunction(29)]
+    [VirtualFunction(30)]
     public partial void GetRootBounds(Bounds* outBounds);
 
-    [VirtualFunction(36)]
+    [VirtualFunction(32)]
+    public partial bool ShouldAllowCursorFocus();
+
+    [VirtualFunction(37)]
     public partial void Focus();
 
-    [VirtualFunction(40)]
+    [VirtualFunction(41)]
     public partial void Initialize();
 
     /// <remarks>
     /// The name "Finalizer" is used instead of "Finalize" to avoid conflicts
     /// with the <see cref="object.Finalize"/> method.
     /// </remarks>
-    [VirtualFunction(41)]
+    [VirtualFunction(42)]
     public partial void Finalizer();
 
-    [VirtualFunction(42)]
+    [VirtualFunction(43)]
     public partial void Update(float delta);
 
-    [VirtualFunction(43)]
+    [VirtualFunction(44)]
     public partial void Draw();
 
-    [VirtualFunction(45)]
+    [VirtualFunction(46)]
     public partial bool LoadUldResourceHandle();
 
-    [VirtualFunction(46)]
+    [VirtualFunction(47)]
     public partial bool CheckWindowCollisionAtCoords(short x, short y);
 
-    [VirtualFunction(48)]
+    [VirtualFunction(49)]
     public partial void OnSetup(uint valueCount, AtkValue* values);
 
-    [VirtualFunction(50)]
+    [VirtualFunction(51)]
     public partial bool OnRefresh(uint valueCount, AtkValue* values);
 
-    [VirtualFunction(51)]
+    [VirtualFunction(52)]
     public partial void OnRequestedUpdate(NumberArrayData** numberArrayData, StringArrayData** stringArrayData);
 
-    [VirtualFunction(53)]
+    [VirtualFunction(54)]
     public partial void FireCloseCallback();
 
-    [VirtualFunction(61)]
-    public partial void OnMouseOver();
+    [VirtualFunction(57)]
+    public partial bool HandleCustomInput(AtkInputData* inputData);
+
+    [VirtualFunction(60)]
+    public partial void OnScreenSizeChange(int width, int height);
 
     [VirtualFunction(62)]
+    public partial void OnMouseOver();
+
+    [VirtualFunction(63)]
     public partial void OnMouseOut();
 
     /// <summary>
@@ -331,8 +384,17 @@ public unsafe partial struct AtkUnitBase : ICreatable {
     /// <remarks>
     /// Use <see cref="IsReady" /> to check if OnSetup has been called (preferred).
     /// </remarks>
-    [VirtualFunction(65)]
+    [VirtualFunction(66)]
     public partial bool IsFullyLoaded();
+
+    [VirtualFunction(67)]
+    public partial void PlaySoundEffect(int soundEffectId);
+
+    [VirtualFunction(69)]
+    public partial bool HandleDPadInput(int inputId, bool a3);
+
+    [VirtualFunction(71)]
+    public partial bool HandleBackButtonInput(int inputId, bool a3);
 }
 
 [StructLayout(LayoutKind.Explicit, Size = 0xC)]

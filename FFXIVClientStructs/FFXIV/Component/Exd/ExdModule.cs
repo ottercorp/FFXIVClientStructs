@@ -27,22 +27,26 @@ public unsafe partial struct ExdModule {
     public partial int GetRowCountBySheetIndex(uint sheetIndex);
 
     [MemberFunction("48 89 5C 24 ?? 57 48 83 EC 20 48 8B D9 48 8B FA 48 8B 49 20 48 8B 01"), GenerateStringOverloads]
-    public partial int GetRowCountBySheetName(byte* sheetName);
+    public partial int GetRowCountBySheetName(CStringPointer sheetName);
 
     [MemberFunction("E8 ?? ?? ?? ?? FE 47 30")]
     public partial ExcelSheet* GetSheetByIndex(uint sheetIndex);
 
     [MemberFunction("48 8B 49 20 48 8B 01 48 FF 60 10"), GenerateStringOverloads]
-    public partial ExcelSheet* GetSheetByName(byte* sheetName);
+    public partial ExcelSheet* GetSheetByName(CStringPointer sheetName);
 
     [MemberFunction("48 83 EC 38 48 8B 05 ?? ?? ?? ?? 48 8B 88")]
     public partial bool IsColumnRsv(uint sheetIndex, uint rowId, uint subRowId, uint columnIndex);
 
     [MemberFunction("E8 ?? ?? ?? ?? 8B 75 00")]
+    [CExporterExcel("Item")]
     public static partial void* GetItemRowById(uint itemId);
 
-    [MemberFunction("40 53 48 83 EC 20 0F B6 41 29")]
-    public static partial byte GetBannerConditionUnlockState(void* row); // TODO: returns int
+    [MemberFunction("40 53 48 83 EC 20 0F B6 41 ?? 48 8B D9 84 C0 74")]
+    public static partial int GetBannerConditionUnlockState([CExporterExcel("BannerCondition")] void* row);
+
+    [MemberFunction("E8 ?? ?? ?? ?? 0F B6 53 6C")]
+    public static partial uint GetEnabledZoneSharedGroupRequirementIndex([CExporterExcel("ZoneSharedGroup")] void* row);
 
     [MemberFunction("E8 ?? ?? ?? ?? 49 8B 5E ?? BA 05 00 00 00")]
     public static partial uint GetRoleForClassJobId(uint classJobId);

@@ -21,7 +21,7 @@ public unsafe partial struct BannerHelper {
     [MemberFunction("E8 ?? ?? ?? ?? 0F 2E F0 7A 13")]
     public partial void ExportedPortraitData_ApplyBannerModuleEntry(ExportedPortraitData* to, BannerModuleEntry* from);
 
-    [MemberFunction("41 80 38 00 75 08")]
+    [MemberFunction("E8 ?? ?? ?? ?? F6 45 72 01")]
     public partial void CharaViewCharacterData_ApplyCharaCardData(CharaViewCharacterData* to, CharaCardData* from);
 
     #endregion

@@ -13,7 +13,7 @@ namespace FFXIVClientStructs.FFXIV.Client.UI.Misc;
 //   Component::Excel::ExcelLanguageEvent
 [GenerateInterop]
 [Inherits<TextModule>, Inherits<TextChecker.ExecNonMacroFunc>, Inherits<ExcelLanguageEvent>]
-[StructLayout(LayoutKind.Explicit, Size = 0xE60)]
+[StructLayout(LayoutKind.Explicit, Size = 0xE68)]
 public unsafe partial struct RaptureTextModule {
     public static RaptureTextModule* Instance() {
         var uiModule = UI.UIModule.Instance();
@@ -24,14 +24,19 @@ public unsafe partial struct RaptureTextModule {
     [FieldOffset(0x528)] public TextChecker TextChecker;
     [FieldOffset(0x620)] public ExcelSheet* AddonSheet;
 
+    // [0] = TempLinkString
+    // [1] = <edgecolortype(0)><colortype(0)>
+    // [2] = LinkTerminator (<link(0xCE,0,0,0,)>)
     [FieldOffset(0x630), FixedSizeArray] internal FixedSizeArray7<Utf8String> _unkStrings0;
 
     [FieldOffset(0x908)] public StdDeque<TextParameter> LocalTextParameters;
-    //[FieldOffset(0x930)] public StdDeque<TextParameter> ItemColorParameters;
+    // [FieldOffset(0x930)] public StdDeque<TextParameter> ItemRarityParameters; // to format Addon#6
 
+    // [3] = TempItemRarity
+    // [4] = TempItemNameOutput
     [FieldOffset(0x958), FixedSizeArray] internal FixedSizeArray9<Utf8String> _unkStrings1;
 
-    // [FieldOffset(0xD18)] public RowWrapper<Addon>* AddonRowCache; // only for the first 4000 Addon rows
+    [FieldOffset(0xD18)] public IExcelRowWrapper** AddonRowCache; // only for the first 4000 Addon rows
 
     [FieldOffset(0xE18)] internal ExcelSheet* AchievementSheet;
     [FieldOffset(0xE20)] internal ExcelSheet* StatusSheet;
@@ -47,13 +52,13 @@ public unsafe partial struct RaptureTextModule {
     [FieldOffset(0xE58)] public ushort* AkatsukiNoteTitleIds;
 
     [MemberFunction("E9 ?? ?? ?? ?? 80 EA 20")]
-    public partial byte* GetAddonText(uint addonId);
+    public partial CStringPointer GetAddonText(uint addonId);
 
-    [MemberFunction("E8 ?? ?? ?? ?? 8B 7D FF")] // FormatAddonText1<int,int,uint>
-    public partial byte* FormatAddonText1IntIntUInt(uint addonId, int intParam1, int intParam2, uint uintParam);
+    [MemberFunction("E8 ?? ?? ?? ?? 8B 7D FF 45 33 FF")] // FormatAddonText1<int,int,uint>
+    public partial CStringPointer FormatAddonText1IntIntUInt(uint addonId, int intParam1, int intParam2, uint uintParam);
 
     [MemberFunction("E8 ?? ?? ?? ?? EB 51 0F B6 DB")] // FormatAddonText2<int,int>
-    public partial byte* FormatAddonText2IntInt(uint addonId, int intParam1, int intParam2);
+    public partial CStringPointer FormatAddonText2IntInt(uint addonId, int intParam1, int intParam2);
 
     /// <summary>
     /// Display a timespan as hours, minutes or seconds with only the largest non zero unit.
@@ -62,56 +67,25 @@ public unsafe partial struct RaptureTextModule {
     /// <param name="alternativeMinutesGlyph">Use U+E028 for minutes</param>
     /// <returns>string containing one of 23h, 59m, 59s</returns>
     [MemberFunction("48 83 EC 28 45 0F B6 C8 85 D2")]
-    public partial byte* FormatTimeSpan(uint seconds, bool alternativeMinutesGlyph = false);
+    public partial CStringPointer FormatTimeSpan(uint seconds, bool alternativeMinutesGlyph = false);
 
-    /// <remarks> Singular only. The usage of intParam2 is unknown. </remarks>
-    /// <returns>
-    /// A pointer to a null terminated string containing the formatted name.<br/>
-    /// It was observed, that it can return a nullptr when the excel page was not loaded. Try calling it again in subsequent frames.
-    /// </returns>
-    [MemberFunction("E8 ?? ?? ?? ?? 48 8B CE 48 8B D0")]
-    public static partial byte* FormatName(NameFormatterPlaceholder placeholder, int id, NameFormatterIdConverter idConverter, int intParam2 = 1);
-}
+    [MemberFunction("E8 ?? ?? ?? ?? 44 8B E8 A8 10")]
+    public partial SheetRedirectFlags ResolveSheetRedirect(Utf8String* sheetName, int* outRowId, int* outColIndex);
 
-public enum NameFormatterPlaceholder : int {
-    ObjStr = 0,
-    Item = 1,   // bypasses IdConverter
-    ActStr = 2,
-}
+    [MemberFunction("E8 ?? ?? ?? ?? F6 87 ?? ?? ?? ?? ?? 74 67")]
+    public partial void AddSheetRedirectItemDecoration(Utf8String* sheetName, SheetRedirectFlags flags, int rowId);
 
-public enum NameFormatterIdConverter : uint {
-    None = 0,
+    [MemberFunction("E8 ?? ?? ?? ?? 48 8B 4D 80 48 8D 55 60")]
+    public partial void CreateSheetLink(ExcelSheet* sheet, Utf8String* text, int rowId, int colParam);
 
-    // ObjStr
-    // TODO: this is equivalent to ObjectKind, see Character.GetName()
-    BNpcName = 2,
-    ENpcResident = 3,
-    Treasure = 4,
-    Aetheryte = 5,
-    GatheringPointName = 6,
-    EObjName = 7,
-    // Mount = 8, // does not work?
-    Companion = 9,
-    // 10-11 unused
-    // Item = 12, // does not work?
-
-    // ActStr
-    Trait = 0,
-    Action = 1,
-    // Item = 2, // does not work?
-    // EventItem = 3, // does not work?
-    EventAction = 4,
-    // EObjName = 5, // does not work?
-    GeneralAction = 5,
-    BuddyAction = 6,
-    MainCommand = 7,
-    // Companion = 8, // unresolved, use Companion
-    CraftAction = 9,
-    Action2 = 10,
-    PetAction = 11,
-    CompanyAction = 12,
-    Mount = 13,
-    // 14-18 unused
-    BgcArmyAction = 19,
-    Ornament = 20,
+    [Flags]
+    public enum SheetRedirectFlags {
+        None = 0,
+        Item = 1 << 0,
+        EventItem = 1 << 1,
+        HighQuality = 1 << 2,
+        Collectible = 1 << 3,
+        Action = 1 << 4,
+        ActionSheet = 1 << 5,
+    }
 }

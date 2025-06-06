@@ -14,7 +14,7 @@ namespace FFXIVClientStructs.FFXIV.Client.UI.Agent;
 [GenerateInterop]
 [Inherits<AgentInterface>, Inherits<LogoutCallbackInterface>(0x30)]
 [StructLayout(LayoutKind.Explicit, Size = 0x2308)]
-[VirtualTable("48 8D 05 ?? ?? ?? ?? 48 89 69 ?? 48 89 01 4C 8B E1", 3)]
+[VirtualTable("48 8D 05 ?? ?? ?? ?? C6 41 ?? ?? 48 89 01 33 ED", 3)]
 public unsafe partial struct AgentLobby {
     [FieldOffset(0x40)] public LobbyData LobbyData; // for lack of a better name
 
@@ -78,16 +78,6 @@ public unsafe partial struct AgentLobby {
     [FieldOffset(0x1348)] public LogoutCallbackInterface.LogoutParams LogoutParams;
 
     [FieldOffset(0x22B4)] public bool HasShownCharacterNotFound; // "The character you last logged out with in this play environment could not be found on the current data center."
-
-    // TODO: everything below here is wrong
-
-    // title movie stuff is seemingly no longer part of AgentLobby
-    [FieldOffset(0xA98), Obsolete("Title movie data no longer part of AgentLobby.", true)] public uint AccountExpansion;
-    [FieldOffset(0xA9C), Obsolete("Title movie data no longer part of AgentLobby.", true)] public bool ShowFreeTrialLogo;
-    [FieldOffset(0xAA0), Obsolete("Title movie data no longer part of AgentLobby.", true)] public uint TitleScreenExpansion;
-    [FieldOffset(0xAA4), Obsolete("Title movie data no longer part of AgentLobby.", true)] public bool ShowOriginalLogo; // pre-relaunch
-
-    [FieldOffset(0x12B0), Obsolete("Not updated since before Dawntrail.")] public byte RequestCharaterIndex;
 
     [MemberFunction("E8 ?? ?? ?? ?? 48 8D 8E ?? ?? ?? ?? 41 8B D7")]
     public partial void UpdateLobbyUIStage();

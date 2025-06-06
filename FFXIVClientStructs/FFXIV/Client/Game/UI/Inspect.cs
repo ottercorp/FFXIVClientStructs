@@ -40,7 +40,7 @@ public unsafe partial struct Inspect {
     [FieldOffset(0x100), FixedSizeArray] internal FixedSizeArray2<ushort> _glassesIds;
     [FieldOffset(0x104), FixedSizeArray] internal FixedSizeArray74<uint> _baseParams;
     [FieldOffset(0x22C)] private short UnkWord22C;
-    [FieldOffset(0x22E)] public byte GearVisibilityFlag; // TODO: use InspectGearVisibilityFlag
+    [FieldOffset(0x22E)] public InspectGearVisibilityFlag GearVisibilityFlag;
     [FieldOffset(0x230)] public CrestData FreeCompanyCrestData;
     [FieldOffset(0x238)] public byte FreeCompanyCrestBitfield;
     [FieldOffset(0x239), FixedSizeArray(isString: true)] internal FixedSizeArray64<byte> _buddyOwnerName;
@@ -58,15 +58,18 @@ public unsafe partial struct Inspect {
     /// Only loaded inside the relevant content.<br/>
     /// <br/>
     /// <code>
-    /// |-----|-------------|---------------------------|
-    /// | Key | Content     | Usage                     |
-    /// |-----|-------------|---------------------------|
-    /// |   1 | Eureka      | Elemental Level           |
-    /// |   2 | Eureka      | Is Elemental Level Synced |
-    /// |   3 | Eureka      | Time Remaining            |
-    /// |   4 | Bozja       | Resistance Rank           |
-    /// |   5 | Bozja       | Time Remaining            |
-    /// |-----|-------------|---------------------------|
+    /// |-----|-------------------|---------------------------|
+    /// | Key | Content           | Usage                     |
+    /// |-----|-------------------|---------------------------|
+    /// |   1 | Eureka            | Elemental Level           |
+    /// |   2 | Eureka            | Is Elemental Level Synced |
+    /// |   3 | Eureka            | Time Remaining            |
+    /// |   4 | Bozja             | Resistance Rank           |
+    /// |   5 | Bozja             | Time Remaining            |
+    /// |   6 | Occult Crescent   | Effective Knowledge Level |
+    /// |   7 | Occult Crescent   | Knowledge Level           |
+    /// |   8 | Occult Crescent   | Time Remaining            |
+    /// |-----|-------------------|---------------------------|
     /// </code>
     /// </summary>
     public uint GetContentValue(uint key) {
