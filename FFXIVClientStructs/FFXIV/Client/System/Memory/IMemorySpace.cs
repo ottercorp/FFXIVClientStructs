@@ -9,8 +9,9 @@ public interface ICreatable {
 [StructLayout(LayoutKind.Explicit, Size = 8)]
 public unsafe partial struct IMemorySpace {
     public T* Create<T>() where T : unmanaged, ICreatable {
-        var memory = Calloc<T>(1);
+        var memory = (T*)Malloc<T>();
         if (memory is null) return null;
+        Memset(memory, 0, (ulong)sizeof(T));
         memory->Ctor();
         return memory;
     }
