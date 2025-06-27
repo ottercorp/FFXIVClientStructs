@@ -38,7 +38,7 @@ public unsafe partial struct AtkModule {
     [FieldOffset(0x72A0)] public StdMap<uint, AddonCallbackEntry> AddonCallbackMapping; // Key is UnitBase->Id
     [FieldOffset(0x72B0)] public AtkMessageBoxManager* AtkMessageBoxManager;
     [FieldOffset(0x72B8)] public TextService TextService;
-    [FieldOffset(0x72E8)] public AtkTextInput TextInput;
+    [FieldOffset(0x72D8)] public AtkTextInput TextInput;
     [FieldOffset(0x7FA8)] internal Utf8String Unk7FA8;
     [FieldOffset(0x8010)] internal Utf8String Unk8010;
     [FieldOffset(0x8078)] internal Utf8String Unk8078;
