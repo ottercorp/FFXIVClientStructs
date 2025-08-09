@@ -20,5 +20,15 @@ public unsafe partial struct GameWindow {
     [FieldOffset(0x58)] public int MinWidth;
     [FieldOffset(0x5C)] public int MinHeight;
 
+    //CN only?
+    [FieldOffset(0xA0)] private byte* SessionId;
+    [FieldOffset(0xA8)] private byte* SndaID;
+    [FieldOffset(0xB8)] private byte* cmdLine;
+
     public string GetArgument(ulong idx) => Marshal.PtrToStringUTF8(idx >= ArgumentCount ? nint.Zero : (nint)Arguments[idx]) ?? string.Empty;
+
+    public ulong GetAid() {
+        var idString = Marshal.PtrToStringUTF8((nint)SndaID) ?? string.Empty;
+        return ulong.TryParse(idString, out var result) ? result : 0;
+    }
 }
