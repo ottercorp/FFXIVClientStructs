@@ -36,7 +36,7 @@ public sealed class GenerateInteropAttributeIsValidAnalyzer : DiagnosticAnalyzer
 
                 // check for StructLayoutAttribute if type has fields or is inherited
                 if (typeSymbol.GetMembers().OfType<IFieldSymbol>().Any() ||
-                    (generateAttributeData.TryGetConstructorArgument(0, out bool? isInherited) && isInherited.Value == true)) {
+                    (generateAttributeData.TryGetConstructorArgument(0, out bool? isInherited) && isInherited.Value)) {
                     if (!typeSymbol.TryGetAttributeWithType(structLayoutAttribute, out AttributeData? structLayoutAttributeData)) {
                         context.ReportDiagnostic(Diagnostic.Create(
                             GenerationTargetMustUseStructLayoutAttribute,

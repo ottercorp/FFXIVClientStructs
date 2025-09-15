@@ -23,7 +23,7 @@ public unsafe partial struct MJIManager {
     /// </summary>
     // Not actually sure about the accuracy of this name. It's a guess based on the fact that the map system and target
     // system appear to change their behavior when this is set to 1, plus verification with how it looks in game.
-    [FieldOffset(0x06)] public byte IsPlayerInSanctuary;
+    [FieldOffset(0x06)] public bool IsPlayerInSanctuary;
 
     /// <summary>
     /// Represents the currently allowed visitors to the Island Sanctuary.
@@ -221,7 +221,7 @@ public unsafe partial struct MJIManager {
     /// <param name="startingHour">(slot + 17) % 24, where slot 0 is first hour of the cycle.</param>
     /// <param name="cycle">0-13 range, this/next week in order.</param>
     /// <param name="workshop">0-3 range.</param>
-    [MemberFunction("E8 ?? ?? ?? ?? 48 8B 46 28 41 8D 4E FF")]
+    [MemberFunction("E8 ?? ?? ?? ?? 48 8B 47 ?? 8D 4B ?? 48 69 D1")]
     public partial void ScheduleCraft(ushort craftObjectId, byte startingHour, byte cycle, byte workshop);
 
     /// <summary>
@@ -240,9 +240,7 @@ public unsafe partial struct MJIManager {
     /// </remarks>
     /// <param name="keyItemId">The RowID of the MJIKeyItem to check.</param>
     /// <returns>Returns true if the key item is unlocked.</returns>
-    public bool IsKeyItemUnlocked(ushort keyItemId) {
-        return ((1 << (keyItemId & 7)) & this.IslandState.UnlockedKeyItems[keyItemId >> 3]) > 0;
-    }
+    public bool IsKeyItemUnlocked(ushort keyItemId) => IslandState.UnlockedKeyItems.CheckBitInSpan(keyItemId);
 
     /// <summary>
     /// Return the Supply value for a specified craftwork.

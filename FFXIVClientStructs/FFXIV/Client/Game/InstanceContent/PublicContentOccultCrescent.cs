@@ -37,7 +37,7 @@ public unsafe partial struct PublicContentOccultCrescent {
     [MemberFunction("E8 ?? ?? ?? ?? 48 8B E8 48 85 C0 75 12")]
     public static partial OccultCrescentState* GetState();
 
-    [MemberFunction("E8 ?? ?? ?? ?? 84 C0 74 ?? BB ?? ?? ?? ?? EB ?? 41 0F B6 47")]
+    [MemberFunction("E8 ?? ?? ?? ?? 84 C0 74 ?? BF ?? ?? ?? ?? EB ?? 41 0F B6 45")]
     public static partial bool IsChainTarget(Character.Character* chara);
 
     [MemberFunction("E8 ?? ?? ?? ?? 48 8B 06 48 8B CE FF 50 ?? EB ?? 48 8B 06 48 8B CE C7 46")]
@@ -50,9 +50,7 @@ public partial struct OccultCrescentMKDData {
     [FieldOffset(0x00), CExporterExcelBegin("MKDData")] public uint QuestId;
     [FieldOffset(0x04)] public uint ZoneNameId; // Addon RowId
     [FieldOffset(0x08), FixedSizeArray] internal FixedSizeArray3<uint> _currencyItemIds;
-    [FieldOffset(0x10), Obsolete("Use CurrencyItemIds[2] instead")] public uint CipherItemId;
     [FieldOffset(0x14), FixedSizeArray] internal FixedSizeArray3<uint> _currencyNameIds; // Addon RowIds
-    [FieldOffset(0x1C), Obsolete("Use CurrencyNameIds[2] instead")] public int CipherNameId;
     [FieldOffset(0x20)] public byte Unknown8; // Minimum Knowledge Level?
     [FieldOffset(0x21), CExporterExcelEnd] public byte Unknown9;
 }

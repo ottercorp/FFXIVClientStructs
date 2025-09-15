@@ -12,20 +12,27 @@ except ImportError:
 import os
 from abc import abstractmethod
 from time import time
-from data_schema import *
+from structs_schema import *
 
 
 class BaseApi:
     @abstractmethod
+    def can_run(self):
+        # type: () -> None
+        """
+        Checks if exdgetters has run before this is allowed to continue
+        """
+
+    @abstractmethod
     def create_enum_struct(self, enum):
-        # type: (DefinedEnum) -> None
+        # type: (DefinedStructEnum) -> None
         """
         Create an enum in the database.
         """
 
     @abstractmethod
     def delete_enum(self, enum):
-        # type: (DefinedEnum) -> None
+        # type: (DefinedStructEnum) -> None
         """
         Delete an enum in the database.
         """
@@ -67,21 +74,21 @@ class BaseApi:
 
     @abstractmethod
     def update_member_func(self, member_func, struct):
-        # type: (DefinedMemFunc, DefinedStruct) -> None
+        # type: (DefinedStructMemFunc, DefinedStruct) -> None
         """
         Updates a member function in the database.
         """
 
     @abstractmethod
     def update_virt_func(self, virt_func, struct):
-        # type: (DefinedVFunc, DefinedStruct) -> None
+        # type: (DefinedStructVFunc, DefinedStruct) -> None
         """
         Updates a virtual function in the database.
         """
 
     @abstractmethod
     def update_static_member(self, static_member, struct):
-        # type: (DefinedStaticMember, DefinedStruct) -> None
+        # type: (DefinedStructStaticMember, DefinedStruct) -> None
         """
         Updates a static member in the database.
         """
@@ -108,7 +115,7 @@ class BaseApi:
         """
 
     def get_yaml(self):
-        # type: () -> DefinedExport
+        # type: () -> DefinedStructExport
         dic = load(
             open(self.get_file_path), Loader=Loader
         )  # type: dict[str, dict[str, list[dict[str, str | int | list[dict[str, str | int]]]]]]
@@ -116,7 +123,7 @@ class BaseApi:
         structs = []
         for enum in dic["enums"]:
             enums.append(
-                DefinedEnum(
+                DefinedStructEnum(
                     enum["name"],
                     enum["type"],
                     enum["underlying"],
@@ -135,7 +142,7 @@ class BaseApi:
                 base = field["base"] if "base" in field else False
                 if "size" in field:
                     fields.append(
-                        DefinedFixedField(
+                        DefinedStructFixedField(
                             field["name"],
                             field["type"],
                             field["offset"],
@@ -147,10 +154,10 @@ class BaseApi:
                     parameters = []
                     for param in field["parameters"]:
                         parameters.append(
-                            DefinedFuncParam(param["name"], param["type"])
+                            DefinedStructFuncParam(param["name"], param["type"])
                         )
                     fields.append(
-                        DefinedFuncField(
+                        DefinedStructFuncField(
                             field["name"],
                             field["type"],
                             field["offset"],
@@ -161,7 +168,7 @@ class BaseApi:
                     )
                 else:
                     fields.append(
-                        DefinedField(
+                        DefinedStructField(
                             field["name"], field["type"], field["offset"], base
                         )
                     )
@@ -170,14 +177,14 @@ class BaseApi:
                 for vfunc in struct["virtual_functions"]:
                     parameters = (
                         [
-                            DefinedFuncParam(param["name"], param["type"])
+                            DefinedStructFuncParam(param["name"], param["type"])
                             for param in vfunc["parameters"]
                         ]
                         if "parameters" in vfunc
                         else None
                     )
                     virtual_functions.append(
-                        DefinedVFunc(
+                        DefinedStructVFunc(
                             vfunc["name"],
                             vfunc["return_type"] if "return_type" in vfunc else None,
                             vfunc["offset"],
@@ -187,9 +194,9 @@ class BaseApi:
             for memfunc in struct["member_functions"]:
                 parameters = []
                 for param in memfunc["parameters"]:
-                    parameters.append(DefinedFuncParam(param["name"], param["type"]))
+                    parameters.append(DefinedStructFuncParam(param["name"], param["type"]))
                 member_functions.append(
-                    DefinedMemFunc(
+                    DefinedStructMemFunc(
                         memfunc["signature"],
                         memfunc["return_type"],
                         parameters,
@@ -202,10 +209,10 @@ class BaseApi:
                     parameters = []
                     for param in smemfunc["parameters"]:
                         parameters.append(
-                            DefinedFuncParam(param["name"], param["type"])
+                            DefinedStructFuncParam(param["name"], param["type"])
                         )
                     static_member_functions.append(
-                        DefinedMemFunc(
+                        DefinedStructMemFunc(
                             smemfunc["signature"],
                             smemfunc["return_type"],
                             parameters,
@@ -216,7 +223,7 @@ class BaseApi:
                 static_members = []
                 for sm in struct["static_members"]:
                     static_members.append(
-                        DefinedStaticMember(
+                        DefinedStructStaticMember(
                             sm["signature"],
                             sm["relative_follow_offsets"],
                             sm["return_type"],
@@ -244,7 +251,7 @@ class BaseApi:
                     static_members,
                 )
             )
-        return DefinedExport(enums, structs)
+        return DefinedStructExport(enums, structs)
 
 
 api = None
@@ -273,36 +280,43 @@ if api is None:
                 # type: (str) -> None
                 self.remove_struct_members(self.get_struct_id(fullname))
 
-            def delete_enum_members(self, enum):
-                # type: (DefinedEnum) -> None
-                e = self.get_enum_id(enum.type)
-                for value in enum.values:
-                    self.remove_enum_member(e, value, enum.name)
-
             @property
             def get_file_path(self):
                 return os.path.join(
                     os.path.dirname(os.path.realpath(__file__)), "ffxiv_structs.yml"
                 )
+            
+            def can_run(self):
+                return self.enum_exists("Component::Exd::SheetsEnum")
 
             def create_enum_struct(self, enum):
-                # type: (DefinedEnum) -> None
+                # type: (DefinedStructEnum) -> None
                 fullname = enum.type
-                self.create_enum(fullname)
+                
                 e = self.get_enum_id(fullname)
+                if e == idaapi.BADADDR:
+                    e = self.create_enum(fullname)
+
                 self.set_enum_width(e, self.get_size_from_ida_type(enum.underlying))
                 if self.is_signed(enum.underlying):
                     self.set_enum_flag(e, 0x20000)
                 if enum.flags:
+                    if idaapi.IDA_SDK_VERSION < 900:
+                        self.add_enum_member(e, "{0}.{1}".format(enum.name, "tmp"), self.get_enum_default_mask(e))
                     self.set_enum_as_bf(e)
                 for value in enum.values:
                     self.add_enum_member(
                         e, "{0}.{1}".format(enum.name, value), enum.values[value]
                     )
+                if enum.flags and idaapi.IDA_SDK_VERSION < 900:
+                    self.remove_enum_member(e, "tmp", enum.name)
 
             def delete_enum(self, enum):
-                # type: (DefinedEnum) -> None
-                self.delete_enum_members(enum)
+                # type: (DefinedStructEnum) -> None
+                eid = idc.get_enum(enum.type)
+                if eid != idaapi.BADADDR:
+                    self.delete_enum_members(eid)
+                    idc.set_enum_bf(eid, False)
 
             def delete_struct(self, struct):
                 # type: (DefinedStruct) -> None
@@ -359,7 +373,7 @@ if api is None:
                         s, "__vftable", 0, ida_bytes.qword_flag(), None, 8
                     )
                     type = fullname + "_vtbl*" if struct.virtual_functions else "void**"
-                    meminfo = self.get_struct_member(s, 0)
+                    meminfo = self.get_struct_member_by_name(s, "__vftable")
                     self.set_struct_member_info(
                         s, meminfo, 0, self.get_tinfo_from_type(type), 0
                     )
@@ -432,17 +446,23 @@ if api is None:
                             None,
                             self.get_size_from_ida_type(field_type),
                         )
+
                     meminfo = self.get_struct_member_by_name(s, field_name)
-                    if field_is_base:
-                        meminfo.props |= self.get_base_class_flag()
-                    array_size = field.size if hasattr(field, "size") else 0
-                    self.set_struct_member_info(
-                        s,
-                        meminfo,
-                        0,
-                        self.get_tinfo_from_type(field_type, array_size),
-                        0,
-                    )
+                    if meminfo is not None:    
+                        if field_is_base:
+                            if idaapi.IDA_SDK_VERSION >= 900:
+                                meminfo.set_baseclass()
+                            else:
+                                meminfo.props |= self.get_base_class_flag()
+                                
+                        array_size = field.size if hasattr(field, "size") else 0
+                        self.set_struct_member_info(
+                            s,
+                            meminfo,
+                            0,
+                            self.get_tinfo_from_type(field_type, array_size),
+                            0,
+                        )
 
                 if struct.size is not None and struct.size != 0:
                     prev_size = self.get_struct_size(s)
@@ -471,6 +491,9 @@ if api is None:
                         continue
 
                     meminfo = self.get_struct_member_by_name(s, field_name)
+                    if meminfo is None:
+                        raise RuntimeError("Failed to find member {0} in struct {1}".format(field_name, fullname))
+
                     field_type = self.clean_name(virt_func.return_type)
                     field_type = field_type + "(__fastcall* " + field_name + ")("
                     for param in virt_func.parameters:
@@ -505,7 +528,7 @@ if api is None:
                 pass
 
             def update_member_func(self, member_func, struct):
-                # type: (DefinedMemFunc, DefinedStruct) -> None
+                # type: (DefinedStructMemFunc, DefinedStruct) -> None
                 func_name = "{0}.{1}".format(
                     self.clean_name(struct.type), member_func.name
                 )
@@ -537,7 +560,7 @@ if api is None:
                 ida_typeinf.apply_tinfo(ea, tif, ida_typeinf.TINFO_DEFINITE)
 
             def update_virt_func(self, virt_func, struct):
-                # type: (DefinedVFunc, DefinedStruct) -> None
+                # type: (DefinedStructVFunc, DefinedStruct) -> None
                 func_name = "{0}.{1}".format(
                     self.clean_name(struct.type), virt_func.name
                 )
@@ -561,7 +584,7 @@ if api is None:
                 ida_typeinf.apply_tinfo(ea, tif, ida_typeinf.TINFO_DEFINITE)
 
             def update_static_member(self, static_member, struct):
-                # type: (DefinedStaticMember, DefinedStruct) -> None
+                # type: (DefinedStructStaticMember, DefinedStruct) -> None
                 ea = self.search_binary(
                     0, static_member.signature, ida_search.SEARCH_DOWN
                 )
@@ -610,7 +633,7 @@ if api is None:
                     )
                     == ida_kernwin.ASKBTN_YES
                 )
-
+            
         full_padding = (
             ida_kernwin.ask_buttons(
                 "Full Padding",
@@ -645,6 +668,9 @@ if api is None:
         # noinspection PyUnresolvedReferences
 
         class GhidraApi(BaseApi):
+            def can_run(self):
+                return True
+            
             def get_size_from_type(self, name):
                 # type: (str) -> int
                 dt = self.get_datatype(name)
@@ -726,7 +752,7 @@ if api is None:
                     return dtm.addDataType(datatype, None)
 
             def create_function_def(self, func):
-                # type: (DefinedVFunc) -> FunctionDefinitionDataType
+                # type: (DefinedStructVFunc) -> FunctionDefinitionDataType
                 fd = FunctionDefinitionDataType(func.name)
                 return_type = self.get_datatype(func.return_type)
                 fd.setReturnType(return_type)
@@ -744,7 +770,7 @@ if api is None:
                 return funcs.first if not funcs.size() == 0 else None
 
             def create_memberfunc_args(self, member_func):
-                # type: (DefinedMemFunc) -> list[ParameterImpl]
+                # type: (DefinedStructMemFunc) -> list[ParameterImpl]
                 arg_vars = []
                 for param in member_func.parameters:
                     dt = self.get_datatype(param.type)
@@ -760,7 +786,7 @@ if api is None:
                 )
 
             def create_enum_struct(self, enum):
-                # type: (DefinedEnum) -> None
+                # type: (DefinedStructEnum) -> None
                 if monitor.isCancelled():
                     return
                 enum_size = self.get_size_from_type(enum.underlying) or 4
@@ -771,7 +797,7 @@ if api is None:
                 self.create_datatype(dt)
 
             def delete_enum(self, enum):
-                # type: (DefinedEnum) -> None
+                # type: (DefinedStructEnum) -> None
                 pass
 
             def delete_struct(self, struct):
@@ -822,7 +848,7 @@ if api is None:
                     if ft is None:
                         continue
 
-                    if isinstance(field, DefinedFixedField):
+                    if isinstance(field, DefinedStructFixedField):
                         ft = ArrayDataType(ft, int(field.size), ft.getLength() or -1)
 
                     if not struct.union:
@@ -969,7 +995,7 @@ if api is None:
                     dt.replaceAtOffset(0, dtm.getPointer(vt_type), -1, "VTable", "")
 
             def update_member_func(self, member_func, struct):
-                # type: (DefinedMemFunc, DefinedStruct) -> None
+                # type: (DefinedStructMemFunc, DefinedStruct) -> None
                 if monitor.isCancelled():
                     return
                 if not member_func.parameters:
@@ -994,7 +1020,7 @@ if api is None:
                 )
 
             def update_virt_func(self, virt_func, struct):
-                # type: (DefinedVFunc, DefinedStruct) -> None
+                # type: (DefinedStructVFunc, DefinedStruct) -> None
                 if monitor.isCancelled():
                     return
                 func_name = "{0}.{1}".format(struct.type, virt_func.name)
@@ -1017,7 +1043,7 @@ if api is None:
                 )
 
             def update_static_member(self, static_member, struct):
-                # type: (DefinedStaticMember, DefinedStruct) -> None
+                # type: (DefinedStructStaticMember, DefinedStruct) -> None
                 pass
 
             def should_update_member_func(self):
@@ -1041,6 +1067,9 @@ if api is None:
     else:
         # TODO: VTables, Unions
         class BinjaApi(BaseApi):
+            def can_run(self):
+                return True
+            
             def get_binja_type(self, name):
                 # type: (str) -> str
                 lookup = {
@@ -1099,7 +1128,7 @@ if api is None:
                 return os.path.join(os.path.dirname(__file__), "ffxiv_structs.yml")
 
             def create_enum_struct(self, enum):
-                # type: (DefinedEnum) -> None
+                # type: (DefinedStructEnum) -> None
                 members = []
                 for value in enum.values:
                     members.append((value, enum.values[value]))
@@ -1126,7 +1155,7 @@ if api is None:
                     if field_type is None:
                         continue
 
-                    if isinstance(field, DefinedFixedField):
+                    if isinstance(field, DefinedStructFixedField):
                         field_type = binaryninja.Type.array(field_type, int(field.size))
                     struct_type.add_member_at_offset(
                         field.name,
@@ -1160,7 +1189,7 @@ if api is None:
                         return addr
 
             def update_member_func(self, member_func, struct):
-                # type: (DefinedMemFunc, DefinedStruct) -> None
+                # type: (DefinedStructMemFunc, DefinedStruct) -> None
                 func_name = "{0}.{1}".format(struct.type, member_func.name)
 
                 func = None
@@ -1193,7 +1222,7 @@ if api is None:
                         param_var.name = param.name
 
             def update_virt_func(self, virt_func, struct):
-                # type: (DefinedVFunc, DefinedStruct) -> None
+                # type: (DefinedStructVFunc, DefinedStruct) -> None
                 func_name = "{0}.{1}".format(struct.type, virt_func.name)
 
                 func = None
@@ -1221,7 +1250,7 @@ if api is None:
                         param_var.name = param.name
 
             def update_static_member(self, static_member, struct):
-                # type: (DefinedStaticMember, DefinedStruct) -> None
+                # type: (DefinedStructStaticMember, DefinedStruct) -> None
                 pass
 
             def should_update_member_func(self):
@@ -1263,6 +1292,9 @@ def get_time():
 
 
 def run():
+    if not api.can_run():
+        raise RuntimeError("This script depends on exdgetters. Run that script before retrying")
+
     print("{0} Loading yaml".format(get_time()))
     yaml = api.get_yaml()
 
@@ -1273,6 +1305,8 @@ def run():
     print("{0} Deleting old enums and creating new ones".format(get_time()))
     for enum in yaml.enums:
         api.delete_enum(enum)
+    
+    for enum in yaml.enums:
         api.create_enum_struct(enum)
 
     print("{0} Creating new structs".format(get_time()))

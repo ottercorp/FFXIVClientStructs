@@ -10,7 +10,7 @@ namespace FFXIVClientStructs.FFXIV.Client.UI.Agent;
 [Agent(AgentId.ScreenLog)]
 [GenerateInterop]
 [Inherits<AgentInterface>]
-[StructLayout(LayoutKind.Explicit, Size = 0x3F0)]
+[StructLayout(LayoutKind.Explicit, Size = 0x400)]
 public unsafe partial struct AgentScreenLog {
 
     [FieldOffset(0x350)] public StdDeque<BalloonInfo> BalloonQueue;
@@ -37,7 +37,7 @@ public unsafe struct BalloonInfo {
     [FieldOffset(0xE0)] public float CameraDistance;
     [FieldOffset(0xE4)] public int BalloonId; // matches BalloonCounter when the balloon is made
     [FieldOffset(0xE8)] public ushort ParentBone;
-    [FieldOffset(0xE9), CExportIgnore] public byte Slot; // Does not exist at current offset or was removed
+    [FieldOffset(0xE9), CExporterIgnore] public byte Slot; // Does not exist at current offset or was removed
 }
 
 // not sure how this maps to the addon yet, might just be in order though

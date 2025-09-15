@@ -10,7 +10,7 @@ namespace FFXIVClientStructs.FFXIV.Component.GUI;
 [GenerateInterop(isInherited: true)]
 [Inherits<AtkEventListener>]
 [StructLayout(LayoutKind.Explicit, Size = 0x238)]
-[VirtualTable("48 89 51 28 48 8D 05 ?? ?? ?? ?? 48 89 01", 7, 74)]
+[VirtualTable("48 8D 05 ?? ?? ?? ?? 48 8B D9 48 89 01 33 ED 48 8B 89 ?? ?? ?? ?? 8B F2", 3, 74)]
 public unsafe partial struct AtkUnitBase : ICreatable {
     [FieldOffset(0x8), FixedSizeArray(isString: true)] internal FixedSizeArray32<byte> _name;
     [FieldOffset(0x28)] public AtkUldManager UldManager;
@@ -104,7 +104,7 @@ public unsafe partial struct AtkUnitBase : ICreatable {
     [FieldOffset(0x1A8)] public int Param; // appears to be a generic field that some addons use for storage
     [FieldOffset(0x1AC)] public uint OpenTransitionDuration;
     [FieldOffset(0x1B0)] public uint CloseTransitionDuration;
-    [FieldOffset(0x1B4)] public uint Flags1B4; // used by SetFlag
+    [FieldOffset(0x1B4)] public uint Flags1B4; // used by SetFlag, AddonConfig related?
     [FieldOffset(0x1B8)] public byte AddonParamUnknown1; // used in RaptureAtkUnitManager.vf18
     [FieldOffset(0x1B9)] public byte NumOpenPopups; // used for dialogs and context menus to block inputs via ShouldIgnoreInputs
     [FieldOffset(0x1BA)] public byte Unk1BA;
@@ -156,7 +156,10 @@ public unsafe partial struct AtkUnitBase : ICreatable {
     [FieldOffset(0x1F8)] public uint CollisionNodeListCount;
     [FieldOffset(0x1FC), FixedSizeArray] internal FixedSizeArray5<OperationGuide> _operationGuides; // the little button hints in controller mode
 
-    public uint DepthLayer => (Flags198 >> 16) & 0xF;
+    public uint DepthLayer {
+        get => (Flags198 >> 16) & 0xF;
+        set => SetDepthLayer(value);
+    }
 
     public bool IsVisible {
         get => (Flags198 & 0x200000) != 0;
@@ -169,6 +172,9 @@ public unsafe partial struct AtkUnitBase : ICreatable {
     public bool IsReady => (Flags1A1 & 0x01) != 0;
 
     public Span<AtkValue> AtkValuesSpan => new Span<AtkValue>(AtkValues, AtkValuesCount);
+
+    [MemberFunction("E8 ?? ?? ?? ?? 66 45 2B E6")]
+    public static partial float GetGlobalUIScale();
 
     [MemberFunction("E8 ?? ?? ?? ?? 33 D2 48 8D 9F")]
     public partial void Ctor();
@@ -188,10 +194,7 @@ public unsafe partial struct AtkUnitBase : ICreatable {
     [MemberFunction("E8 ?? ?? ?? ?? 66 2B DE")]
     public partial float GetScaledHeight(bool getScaledHeight); // False returns unscaled height
 
-    [MemberFunction("E8 ?? ?? ?? ?? 66 45 2B E6")]
-    public partial float GetGlobalUIScale(); // TODO: should be static
-
-    [MemberFunction("E8 ?? ?? ?? ?? 8D 4B FC")]
+    [MemberFunction("E8 ?? ?? ?? ?? 44 84 B7")]
     public partial AtkResNode* GetNodeById(uint nodeId);
 
     [MemberFunction("E8 ?? ?? ?? ?? 8D 56 1E")]
@@ -203,10 +206,7 @@ public unsafe partial struct AtkUnitBase : ICreatable {
     [MemberFunction("E8 ?? ?? ?? ?? 8D 3C 36")]
     public partial AtkComponentButton* GetComponentButtonById(uint nodeId);
 
-    [MemberFunction("E8 ?? ?? ?? ?? 8D 3C 36"), Obsolete("Renamed to GetComponentButtonById")]
-    public partial AtkComponentButton* GetButtonNodeById(uint nodeId);
-
-    [MemberFunction("E8 ?? ?? ?? ?? 49 89 46 48")]
+    [MemberFunction("E8 ?? ?? ?? ?? 45 33 FF 48 89 43")]
     public partial AtkComponentList* GetComponentListById(uint nodeId);
 
     [MemberFunction("E8 ?? ?? ?? ?? 8D 56 31")]
@@ -220,10 +220,10 @@ public unsafe partial struct AtkUnitBase : ICreatable {
     }
 
     [MemberFunction("E9 ?? ?? ?? ?? 83 C3 F9")]
-    public partial byte FireCallbackInt(int callbackValue); // TODO: return bool
+    public partial bool FireCallbackInt(int callbackValue);
 
     [MemberFunction("E8 ?? ?? ?? ?? 0F B6 E8 8B 44 24 20")]
-    public partial void FireCallback(uint valueCount, AtkValue* values, bool close = false); // TODO: return bool
+    public partial bool FireCallback(uint valueCount, AtkValue* values, bool close = false);
 
     [MemberFunction("E8 ?? ?? ?? ?? 32 C0 88 45 67")]
     public partial void UpdateCollisionNodeList(bool clearFocus);
@@ -251,7 +251,7 @@ public unsafe partial struct AtkUnitBase : ICreatable {
     [MemberFunction("E8 ?? ?? ?? ?? F3 0F 10 0D ?? ?? ?? ?? 45 33 C9 F3 0F 59 0D")]
     public partial void SetOpenTransition(float duration, short offsetX, short offsetY, float scale);
 
-    [MemberFunction("E8 ?? ?? ?? ?? 41 8D 57 47 48 8B CE")]
+    [MemberFunction("E8 ?? ?? ?? ?? 45 33 C0 4C 89 BF")]
     public partial void SetCloseTransition(float duration, short offsetX, short offsetY, float scale);
 
     [MemberFunction("E8 ?? ?? ?? ?? 48 8B 03 8B D7 4C 8B 83")]
@@ -325,6 +325,9 @@ public unsafe partial struct AtkUnitBase : ICreatable {
 
     [VirtualFunction(30)]
     public partial void GetRootBounds(Bounds* outBounds);
+
+    [VirtualFunction(31)]
+    public partial bool SetDepthLayer(uint depthLayerIndex);
 
     [VirtualFunction(32)]
     public partial bool ShouldAllowCursorFocus();

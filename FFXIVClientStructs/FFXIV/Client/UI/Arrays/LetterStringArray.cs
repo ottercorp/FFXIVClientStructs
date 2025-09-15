@@ -2,13 +2,16 @@ using FFXIVClientStructs.FFXIV.Component.GUI;
 
 namespace FFXIVClientStructs.FFXIV.Client.UI.Arrays;
 
-[CExportIgnore]
+[CExporterIgnore]
 [GenerateInterop]
 [StructLayout(LayoutKind.Explicit, Size = 393 * 8)]
 public unsafe partial struct LetterStringArray {
-    public static LetterStringArray* Instance() => (LetterStringArray*)AtkStage.Instance()->GetStringArrayData(StringArrayType.Letter)->StringArray;
+    public static LetterStringArray* Instance() {
+        var stringArray = AtkStage.Instance()->GetStringArrayData(StringArrayType.Letter);
+        return stringArray == null ? null : (LetterStringArray*)stringArray->StringArray;
+    }
 
-    [FieldOffset(0), FixedSizeArray, CExportIgnore] internal FixedSizeArray393<CStringPointer> _data;
+    [FieldOffset(0), FixedSizeArray, CExporterIgnore] internal FixedSizeArray393<CStringPointer> _data;
 
     /// <summary>
     /// Ordered based on date received. It doesn't care about which tab.

@@ -1,5 +1,4 @@
 using System.Collections.Immutable;
-using System.Data.Common;
 using InteropGenerator.Extensions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -18,8 +17,8 @@ public sealed class GenerateStringOverloadsAttributeIsValidAnalyzer : Diagnostic
 
         context.RegisterCompilationStartAction(static context => {
             // get the attribute symbol
-            if (context.Compilation.GetTypeByMetadataName(InteropTypeNames.GenerateStringOverloads) is not { } generateStringOverloadsAttribute ||
-                context.Compilation.GetTypeByMetadataName(InteropTypeNames.StringIgnore) is not { } stringIgnoreAttribute ||
+            if (context.Compilation.GetTypeByMetadataName(InteropTypeNames.GenerateStringOverloadsAttribute) is not { } generateStringOverloadsAttribute ||
+                context.Compilation.GetTypeByMetadataName(InteropTypeNames.StringIgnoreAttribute) is not { } stringIgnoreAttribute ||
                 context.Compilation.GetTypeByMetadataName(InteropTypeNames.CStringPointer) is not { } cStringPointerType)
                 return;
 

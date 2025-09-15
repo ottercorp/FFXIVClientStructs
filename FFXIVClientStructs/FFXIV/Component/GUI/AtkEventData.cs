@@ -50,7 +50,6 @@ public partial struct AtkEventData {
             Held = 2,
             /// <remarks> For <see cref="AtkEventType.InputNavigation"/>. </remarks>
             Repeat = 3,
-            [Obsolete("Renamed to Repeat")] Unk3 = 3,
         }
     }
 

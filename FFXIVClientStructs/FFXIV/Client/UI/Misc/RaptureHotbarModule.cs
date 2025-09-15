@@ -1,14 +1,16 @@
 using System.Runtime.CompilerServices;
 using FFXIVClientStructs.FFXIV.Client.Game;
+using FFXIVClientStructs.FFXIV.Client.System.Input;
 using UserFileEvent = FFXIVClientStructs.FFXIV.Client.UI.Misc.UserFileManager.UserFileEvent;
 
 namespace FFXIVClientStructs.FFXIV.Client.UI.Misc;
 
 // Client::UI::Misc::RaptureHotbarModule
 //   Client::UI::Misc::UserFileManager::UserFileEvent
+//   Client::System::Input::InputData::InputCodeModifiedInterface
 [GenerateInterop]
-[Inherits<UserFileEvent>]
-[StructLayout(LayoutKind.Explicit, Size = 0x28D90)]
+[Inherits<UserFileEvent>, Inherits<InputData.InputCodeModifiedInterface>]
+[StructLayout(LayoutKind.Explicit, Size = 0x2A9B8)]
 public unsafe partial struct RaptureHotbarModule {
     public static RaptureHotbarModule* Instance() {
         var uiModule = UI.UIModule.Instance();
@@ -39,57 +41,58 @@ public unsafe partial struct RaptureHotbarModule {
     [FieldOffset(0x5A)] public bool DatFileLoadedSuccessfully;
 
     // PvE hotbars starting from MCH onwards, appears to track whether a hotbar was initialized?
-    [FieldOffset(0x5C), FixedSizeArray] internal FixedSizeArray12<bool> _expacJobHotbarsCreated;
+    [FieldOffset(0x5C), FixedSizeArray] internal FixedSizeArray12<bool> _expacJobHotbarsCreated; // TODO: Verify (7.3)
 
     // PvP hotbars for all jobs, appears to track if it's been initialized. 
-    [FieldOffset(0x68), FixedSizeArray] internal FixedSizeArray22<bool> _pvPHotbarsCreated;
+    // note: named this way so the actual field becomes PvPHotbarsCreated.
+    [FieldOffset(0x68), FixedSizeArray] internal FixedSizeArray22<bool> _pvPHotbarsCreated; // TODO: Verify (7.3)
 
     // ????? maybe AllowResets?
-    [FieldOffset(0x7E)] internal bool ClearCallbackPresent;
+    [FieldOffset(0x7E)] internal bool ClearCallbackPresent; // TODO: Verify (7.3), possibly 0x83
 
     /// <summary>
     /// A state field to track the current materia melding state (locked - 1 / standard - 2 / advanced - 3), and whether
     /// the hotbars were migrated to replace actions or not.
     /// </summary>
-    [FieldOffset(0x80)] internal uint MateriaMeldState;
+    [FieldOffset(0x84)] internal uint MateriaMeldState;
 
     /// <summary>
     /// A bitfield representing whether a specific hotbar is to be considered "shared" or not.
     /// </summary>
-    [FieldOffset(0x84), FixedSizeArray] internal FixedSizeArray4<byte> _hotbarShareStateBitmask;
+    [FieldOffset(0x88), FixedSizeArray] internal FixedSizeArray4<byte> _hotbarShareStateBitmask;
 
     /// <summary>
     /// Another bitmask that appears to be related to hotbar sharing state.
     /// Initialized to 0x3E3F8 (default share state) on game start, but doesn't ever appear to be updated or read elsewhere.
     /// Dead field?
     /// </summary>
-    [FieldOffset(0x88), FixedSizeArray] internal FixedSizeArray4<byte> _hotbarShareStateBitmask2;
+    [FieldOffset(0x8C), FixedSizeArray] internal FixedSizeArray4<byte> _hotbarShareStateBitmask2;
 
-    [FieldOffset(0x90)] public ClearCallback* ClearCallbackPtr;
+    [FieldOffset(0x98)] public ClearCallback* ClearCallbackPtr;
 
     /// <summary>
     /// An array of all active hotbars loaded and available to the player. This field tracks both normal hotbars
     /// (indices 0 to 9) and cross hotbars (indices 10 to 17).
     /// </summary>
-    [FieldOffset(0x98), FixedSizeArray] internal FixedSizeArray18<Hotbar> _hotbars;
+    [FieldOffset(0xA0), FixedSizeArray] internal FixedSizeArray18<Hotbar> _hotbars;
 
     public Span<Hotbar> StandardHotbars => new(Unsafe.AsPointer(ref Hotbars[0]), 10);
     public Span<Hotbar> CrossHotbars => new(Unsafe.AsPointer(ref Hotbars[10]), 8);
 
-    [FieldOffset(0xFC98)] public Hotbar PetHotbar;
-    [FieldOffset(0x10A98)] public Hotbar PetCrossHotbar;
+    [FieldOffset(0xFCA0)] public Hotbar PetHotbar;
+    [FieldOffset(0x10AA0)] public Hotbar PetCrossHotbar;
 
     /// <summary>
     /// A scratch hotbar slot used for temporary operations such as saving and temporary rewrites.
     /// </summary>
-    [FieldOffset(0x11898)] public HotbarSlot ScratchSlot;
+    [FieldOffset(0x118A0)] public HotbarSlot ScratchSlot;
 
     // No idea how this field works. Observed so far:
     // 15 (0x0E) - Quest mount (?)
     // 18 (0x12) - Mount/FashionAccessory
     // 34 (0x22) - Carbuncle up
     // Seems to control something with overriding the main bar too?
-    [FieldOffset(0x11978)] public uint PetHotbarMode;
+    [FieldOffset(0x11980)] public uint PetHotbarMode;
 
     /// <summary>
     /// A field containing all saved hotbars, as persisted to disk. This field tracks both normal and cross hotbars, at
@@ -100,9 +103,9 @@ public unsafe partial struct RaptureHotbarModule {
     /// To retrieve PvP hotbar information, pass in the result of the <see cref="GetPvPSavedHotbarIndexForClassJobId"/>
     /// method.
     /// </remarks>
-    [FieldOffset(0x1197C), FixedSizeArray] internal FixedSizeArray65<SavedHotbarGroup> _savedHotbars;
+    [FieldOffset(0x11984), FixedSizeArray] internal FixedSizeArray70<SavedHotbarGroup> _savedHotbars;
 
-    [FieldOffset(0x2871C)] public CrossHotbarFlags CrossHotbarFlags;
+    [FieldOffset(0x2A344)] public CrossHotbarFlags CrossHotbarFlags;
 
     /// <summary>
     /// Field to track the player's current Grand Company. Used for emote refresh/update purposes.
@@ -111,7 +114,7 @@ public unsafe partial struct RaptureHotbarModule {
     /// If this field is out of sync with game state, it will be updated on the next frame. Setting
     /// this field manually appears to have no effect (?).
     /// </remarks>
-    [FieldOffset(0x28720)] public uint GrandCompanyId;
+    [FieldOffset(0x2A348)] public uint GrandCompanyId;
 
     /// <summary>
     /// Field to indicate whether the PvP hotbar is currently active or not.
@@ -120,24 +123,24 @@ public unsafe partial struct RaptureHotbarModule {
     /// If this field is out of sync with the game's PVP state, it will be updated on the next frame. Setting
     /// this field manually will not enable the PvP hotbars.
     /// </remarks>
-    [FieldOffset(0x28724)] public bool PvPHotbarsActive;
+    [FieldOffset(0x2A34C)] public bool PvPHotbarsActive;
 
     /// <summary>
     /// Field to indicate that the PvP hotbar swap notification (AgentPvpScreenInformation) needs to be shown.
     /// This field is set to <c>false</c> after the agent has been shown.
     /// </summary>
-    [FieldOffset(0x28725)] public bool ShowPvPHotbarSwapNotification;
+    [FieldOffset(0x2A34D)] public bool ShowPvPHotbarSwapNotification;
 
     /// <summary>
     /// Hotbar slots representing available Duty Actions (see also <see cref="DutyActionManager.GetDutyActionId"/>).
     /// </summary>
-    [FieldOffset(0x28728), FixedSizeArray] internal FixedSizeArray2<DutyActionSlot> _dutyActionSlots;
+    [FieldOffset(0x2A350), FixedSizeArray] internal FixedSizeArray2<DutyActionSlot> _dutyActionSlots;
 
     /// <summary>
     /// Sets whether Duty Actions are present or not. Controls whether to show the appropriate UI element and whether
     /// to rewrite the special DutyAction General Actions.
     /// </summary>
-    [FieldOffset(0x288F8)] public bool DutyActionsPresent;
+    [FieldOffset(0x2A520)] public bool DutyActionsPresent;
 
     [MemberFunction("E9 ?? ?? ?? ?? 73 25")]
     public partial byte ExecuteSlot(HotbarSlot* hotbarSlot);
@@ -151,7 +154,7 @@ public unsafe partial struct RaptureHotbarModule {
     /// </summary>
     /// <param name="macroSet">The macro set to scan for.</param>
     /// <param name="macroIndex">The macro index to scan for.</param>
-    [MemberFunction("E8 ?? ?? ?? ?? EB 13 FF 52 68 44 0F B6 C6")]
+    [MemberFunction("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 41 54 41 55 41 56 41 57 48 83 EC 20 44 0F B6 E2 4C 8D A9")]
     public partial void DeleteMacroSlots(byte macroSet, byte macroIndex);
 
     /// <summary>
@@ -162,7 +165,7 @@ public unsafe partial struct RaptureHotbarModule {
     /// </summary>
     /// <param name="macroSet">The macro set to scan for.</param>
     /// <param name="macroIndex">The macro index to scan for.</param>
-    [MemberFunction("E8 ?? ?? ?? ?? EB 13 FF 52 68 44 0F B6 C3")]
+    [MemberFunction("E8 ?? ?? ?? ?? 48 8B 4B ?? 48 8B 01 FF 50 ?? 45 33 C9 41 B0")]
     public partial void ReloadMacroSlots(byte macroSet, byte macroIndex);
 
     /// <summary>
@@ -241,9 +244,7 @@ public unsafe partial struct RaptureHotbarModule {
     /// </remarks>
     /// <param name="hotbarId">The hotbar ID (bounded between 0 and 17) to check.</param>
     /// <returns>Returns true if the hotbar is shared, false otherwise.</returns>
-    public bool IsHotbarShared(uint hotbarId) {
-        return ((1 << ((int)hotbarId & 7)) & this.HotbarShareStateBitmask[(int)hotbarId >> 3]) > 0;
-    }
+    public bool IsHotbarShared(uint hotbarId) => HotbarShareStateBitmask.CheckBitInSpan(hotbarId);
 
     /// <summary>
     /// Sets a hotbar slot and triggers a save for it automatically via <see cref="WriteSavedSlot"/>. This will
@@ -259,7 +260,7 @@ public unsafe partial struct RaptureHotbarModule {
     /// <param name="commandId">The command ID to set.</param>
     /// <param name="ignoreSharedHotbars">Unclear use, appears to ignore writing to shared slots if set.</param>
     /// <param name="allowSaveToPvP">If in PVP mode, allow saving to PVP hotbars. No effect if not in PVP mode.</param>
-    [MemberFunction("E8 ?? ?? ?? ?? B0 01 EB BA")]
+    [MemberFunction("E8 ?? ?? ?? ?? EB ?? 0F B6 44 24 ?? 44 8B CD")]
     public partial void SetAndSaveSlot(uint hotbarId, uint slotId, HotbarSlotType commandType, uint commandId,
         bool ignoreSharedHotbars = false, bool allowSaveToPvP = true);
 
@@ -270,7 +271,7 @@ public unsafe partial struct RaptureHotbarModule {
     /// <param name="commandType">The command type to save.</param>
     /// <param name="commandId">The command ID to save.</param>
     /// <returns>Returns <c>true</c> if the save is successful, false otherwise.</returns>
-    [MemberFunction("E8 ?? ?? ?? ?? EB 62 83 7C 24")]
+    [MemberFunction("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 41 56 48 83 EC ?? 33 DB 48 63 FA")]
     public partial bool SetAndSaveFirstAvailableNormalSlot(uint hotbarId, HotbarSlotType commandType, uint commandId);
 
     /// <summary>
@@ -280,7 +281,7 @@ public unsafe partial struct RaptureHotbarModule {
     /// <param name="commandType">The command type to save.</param>
     /// <param name="commandId">The command ID to save.</param>
     /// <returns>Returns <c>true</c> if the save is successful, false otherwise.</returns>
-    [MemberFunction("E8 ?? ?? ?? ?? EB 5D 83 7C 24")]
+    [MemberFunction("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 41 56 48 83 EC ?? 48 63 F2 48 8D 05")]
     public partial bool SetAndSaveFirstAvailableCrossSlot(uint hotbarId, HotbarSlotType commandType, uint commandId);
 
     /// <summary>
@@ -289,14 +290,14 @@ public unsafe partial struct RaptureHotbarModule {
     /// <param name="commandType">The command type to save.</param>
     /// <param name="commandId">The command ID to save.</param>
     /// <returns>Returns <c>true</c> if the save is successful, false otherwise.</returns>
-    [MemberFunction("E8 ?? ?? ?? ?? E9 ?? ?? ?? ?? 83 FD 0A")]
+    [MemberFunction("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 41 56 48 83 EC ?? 41 8B E8 4C 8D 91")]
     public partial bool SetAndSaveFirstGloballyAvailableNormalSlot(HotbarSlotType commandType, uint commandId);
 
     /// <summary>
     /// Attempt to add the specified action to the first free slot of *any* normal hotbar.
     /// </summary>
     /// <inheritdoc cref="SetAndSaveFirstGloballyAvailableNormalSlot"/>
-    [MemberFunction("E8 ?? ?? ?? ?? E9 ?? ?? ?? ?? 83 FD 08")]
+    [MemberFunction("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 41 56 48 83 EC ?? 41 8B E8 4C 8D 15")]
     public partial bool SetAndSaveFirstGloballyAvailableCrossSlot(HotbarSlotType commandType, uint commandId);
 
     /// <summary>
@@ -319,7 +320,7 @@ public unsafe partial struct RaptureHotbarModule {
     /// </summary>
     /// <param name="hotbarId">The saved hotbar ID to select.</param>
     /// <param name="slotId">The saved slot ID to clear.</param>
-    [MemberFunction("E8 ?? ?? ?? ?? FF C3 83 FB 10 7C E3")]
+    [MemberFunction("E8 ?? ?? ?? ?? BA ?? ?? ?? ?? 48 8B CF 48 8B 5C 24 ?? 48 8B 74 24 ?? 48 83 C4 ?? 5F E9 ?? ?? ?? ?? 48 8B CF")]
     public partial void ClearSavedSlotById(uint hotbarId, uint slotId);
 
     /// <summary>
@@ -353,7 +354,7 @@ public unsafe partial struct RaptureHotbarModule {
     /// Sets the value of <see cref="DutyActionsPresent"/>.
     /// </summary>
     /// <param name="present">Whether to show/enable duty actions or not.</param>
-    [MemberFunction("E9 ?? ?? ?? ?? FF D2 48 8B C8 33 D2")]
+    [MemberFunction("E9 ?? ?? ?? ?? 41 FF 50 ?? 48 8B C8")]
     public partial void SetDutyActionsPresent(bool present);
 
     /// <summary>

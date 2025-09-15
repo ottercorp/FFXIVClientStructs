@@ -14,17 +14,22 @@ public unsafe partial struct RecipeNote {
 
     [FieldOffset(0xB8)] public RecipeData* RecipeList;
 
-    [StructLayout(LayoutKind.Explicit, Size = 0x450)]
+    [FieldOffset(0x118)] public ushort ActiveCraftRecipeId;
+
+    [StructLayout(LayoutKind.Explicit, Size = 0x460)]
     public struct RecipeData {
         // E8 ?? ?? ?? ?? 48 8B 8E ?? ?? ?? ?? 33 FF 48 85 C9 74 0C E8 ?? ?? ?? ?? 48 89 BE ?? ?? ?? ?? 48 8B 86 ?? ?? ?? ?? 48 89 5C 24   (7.1)
         [FieldOffset(0x00)] public RecipeEntry* Recipes;
         [FieldOffset(0x08)] public int RecipeCount;
-        [FieldOffset(0x438)] public ushort SelectedIndex;
+        [FieldOffset(0x448)] public ushort SelectedIndex;
         public RecipeEntry* SelectedRecipe => Recipes + SelectedIndex;
     }
 
     [StructLayout(LayoutKind.Explicit, Size = 0x88)]
     public struct RecipeIngredient {
+        [FieldOffset(0x08)] public byte NQCount;
+        [FieldOffset(0x09)] public byte HQCount;
+
         [FieldOffset(0x10)] public Utf8String Name;
         [FieldOffset(0x78)] public uint ItemId;
         [FieldOffset(0x7C)] public uint IconId;
@@ -79,7 +84,7 @@ public unsafe partial struct RecipeNote {
         [FieldOffset(0x3E6)] public ushort PatchNumber;
     }
 
-    [MemberFunction("4C 8B 81 ?? ?? ?? ?? 4D 85 C0 74 2E")]
+    [MemberFunction("4C 8B 81 ?? ?? ?? ?? 4D 85 C0 74 ?? ?? ?? ?? 4D 85 C9")]
     public partial bool IsRecipeUnlocked(ushort recipeId);
 
     [MemberFunction("E8 ?? ?? ?? ?? 0F B7 F8 6B 83")]

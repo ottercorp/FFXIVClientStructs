@@ -2,13 +2,16 @@ using FFXIVClientStructs.FFXIV.Component.GUI;
 
 namespace FFXIVClientStructs.FFXIV.Client.UI.Arrays;
 
-[CExportIgnore]
+[CExporterIgnore]
 [GenerateInterop]
 [StructLayout(LayoutKind.Explicit, Size = 10 * 4)]
 public unsafe partial struct BuddyNumberArray {
-    public static BuddyNumberArray* Instance() => (BuddyNumberArray*)AtkStage.Instance()->GetNumberArrayData(NumberArrayType.Buddy)->IntArray;
+    public static BuddyNumberArray* Instance() {
+        var numberArray = AtkStage.Instance()->GetNumberArrayData(NumberArrayType.Buddy);
+        return numberArray == null ? null : (BuddyNumberArray*)numberArray->IntArray;
+    }
 
-    [FieldOffset(0), FixedSizeArray, CExportIgnore] internal FixedSizeArray10<int> _data;
+    [FieldOffset(0), FixedSizeArray, CExporterIgnore] internal FixedSizeArray10<int> _data;
 
     [FieldOffset(0 * 4)] public int CurrentExp;
     [FieldOffset(1 * 4)] public int MaxExp;

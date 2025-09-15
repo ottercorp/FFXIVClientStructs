@@ -17,12 +17,17 @@ public unsafe partial struct AtkTexture : ICreatable {
     [MemberFunction("E8 ?? ?? ?? ?? 48 8B 87 ?? ?? ?? ?? 48 8D 0D ?? ?? ?? ?? 45 33 ED")]
     public partial void Ctor();
 
-    // TODO: use IconSubFolder enum here
     [MemberFunction("E9 ?? ?? ?? ?? 0F BA F0 14")]
-    public partial int LoadIconTexture(uint iconId, int version = 1);
+    public partial int LoadIconTexture(uint iconId, IconSubFolder iconSubFolder = IconSubFolder.None);
 
     [MemberFunction("E8 ?? ?? ?? ?? 85 C0 75 2F 48 8B 83"), GenerateStringOverloads]
     public partial int LoadTexture(CStringPointer path, int scale = 1);
+
+    [MemberFunction("E8 ?? ?? ?? ?? 66 03 46 08")]
+    public partial uint GetTextureWidth();
+
+    [MemberFunction("E8 ?? ?? ?? ?? 0F 28 C6 8B C0")]
+    public partial uint GetTextureHeight();
 
     [MemberFunction("E8 ?? ?? ?? ?? C6 43 10 02")]
     public partial int ReleaseTexture();
@@ -35,6 +40,12 @@ public unsafe partial struct AtkTexture : ICreatable {
 
     [MemberFunction("E8 ?? ?? ?? ?? 8B 57 ?? 4C 8B C0 48 8B CB E8 ?? ?? ?? ?? 48 8B 5C 24 ?? B0")]
     public partial Texture* GetKernelTexture();
+
+    /// <summary>
+    /// Expects a 255 byte large buffer to store string result, does not automatically add null terminator, use a 0-initialized byte buffer.
+    /// </summary>
+    [MemberFunction("E8 ?? ?? ?? ?? 90 48 FF C7")]
+    public static partial int GetIconPath(byte* buffer, uint iconId, int textureScale, IconSubFolder iconSubFolder);
 
     [VirtualFunction(0)]
     public partial void Destroy(bool free);

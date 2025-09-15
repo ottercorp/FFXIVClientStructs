@@ -2,13 +2,16 @@ using FFXIVClientStructs.FFXIV.Component.GUI;
 
 namespace FFXIVClientStructs.FFXIV.Client.UI.Arrays;
 
-[CExportIgnore]
+[CExporterIgnore]
 [GenerateInterop]
 [StructLayout(LayoutKind.Explicit, Size = 53 * 4)]
 public unsafe partial struct EnemyListNumberArray {
-    public static EnemyListNumberArray* Instance() => (EnemyListNumberArray*)AtkStage.Instance()->GetNumberArrayData(NumberArrayType.EnemyList)->IntArray;
+    public static EnemyListNumberArray* Instance() {
+        var numberArray = AtkStage.Instance()->GetNumberArrayData(NumberArrayType.EnemyList);
+        return numberArray == null ? null : (EnemyListNumberArray*)numberArray->IntArray;
+    }
 
-    [FieldOffset(0), FixedSizeArray, CExportIgnore] internal FixedSizeArray53<int> _data;
+    [FieldOffset(0), FixedSizeArray, CExporterIgnore] internal FixedSizeArray53<int> _data;
 
     [FieldOffset(0 * 4)] public int Unk0;
     [FieldOffset(1 * 4)] public int Unk1;
@@ -16,12 +19,12 @@ public unsafe partial struct EnemyListNumberArray {
     [FieldOffset(3 * 4)] public int UnkEntityId;
     [FieldOffset(4 * 4)] public int Unk4;
 
-    [FieldOffset(5 * 4), FixedSizeArray, CExportIgnore] internal FixedSizeArray8<EnemyListEnemyNumberArray> _enemies;
+    [FieldOffset(5 * 4), FixedSizeArray, CExporterIgnore] internal FixedSizeArray8<EnemyListEnemyNumberArray> _enemies;
 
-    [CExportIgnore]
+    [CExporterIgnore]
     [StructLayout(LayoutKind.Explicit, Size = 6 * 4)]
     public partial struct EnemyListEnemyNumberArray {
-        [FieldOffset(0 * 4), FixedSizeArray, CExportIgnore] internal FixedSizeArray6<int> _data;
+        [FieldOffset(0 * 4), FixedSizeArray, CExporterIgnore] internal FixedSizeArray6<int> _data;
 
         /// <summary>
         /// Range from 0 to 100

@@ -2,13 +2,16 @@ using FFXIVClientStructs.FFXIV.Component.GUI;
 
 namespace FFXIVClientStructs.FFXIV.Client.UI.Arrays;
 
-[CExportIgnore]
+[CExporterIgnore]
 [GenerateInterop]
 [StructLayout(LayoutKind.Explicit, Size = 5564 * 4)]
 public unsafe partial struct ActionBarNumberArray {
-    public static ActionBarNumberArray* Instance() => (ActionBarNumberArray*)AtkStage.Instance()->GetNumberArrayData(NumberArrayType.ActionBar)->IntArray;
+    public static ActionBarNumberArray* Instance() {
+        var numberArray = AtkStage.Instance()->GetNumberArrayData(NumberArrayType.ActionBar);
+        return numberArray == null ? null : (ActionBarNumberArray*)numberArray->IntArray;
+    }
 
-    [FieldOffset(0), FixedSizeArray, CExportIgnore] internal FixedSizeArray5564<int> _data;
+    [FieldOffset(0), FixedSizeArray, CExporterIgnore] internal FixedSizeArray5564<int> _data;
 
     [FieldOffset(0 * 4)] public bool HotBarLocked;
     [FieldOffset(5482 * 4)] public bool DisplayPetBar;
@@ -17,18 +20,18 @@ public unsafe partial struct ActionBarNumberArray {
 
     [FieldOffset(15 * 4), FixedSizeArray] internal FixedSizeArray20<ActionBarBarNumberArray> _bars;
 
-    [CExportIgnore]
+    [CExporterIgnore]
     [GenerateInterop]
     [StructLayout(LayoutKind.Explicit, Size = 272 * 4)]
     public partial struct ActionBarBarNumberArray {
-        [FieldOffset(0), FixedSizeArray, CExportIgnore] internal FixedSizeArray272<int> _data;
+        [FieldOffset(0), FixedSizeArray, CExporterIgnore] internal FixedSizeArray272<int> _data;
 
         [FieldOffset(0 * 4), FixedSizeArray] internal FixedSizeArray12<ActionBarSlotNumberArray> _slots;
 
-        [CExportIgnore]
+        [CExporterIgnore]
         [StructLayout(LayoutKind.Explicit, Size = 17 * 4)]
         public partial struct ActionBarSlotNumberArray {
-            [FieldOffset(0), FixedSizeArray, CExportIgnore] internal FixedSizeArray17<int> _data;
+            [FieldOffset(0), FixedSizeArray, CExporterIgnore] internal FixedSizeArray17<int> _data;
 
             [FieldOffset(0 * 4)] public int ActionType;
             [FieldOffset(1 * 4)] public bool Unk1;

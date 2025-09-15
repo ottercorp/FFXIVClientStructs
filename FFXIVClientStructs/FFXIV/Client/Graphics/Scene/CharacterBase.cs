@@ -14,45 +14,61 @@ namespace FFXIVClientStructs.FFXIV.Client.Graphics.Scene;
 // base class for graphics objects representing characters (human, demihuman, monster, and weapons)
 [GenerateInterop(isInherited: true)]
 [Inherits<DrawObject>]
-[VirtualTable("48 8D 05 ?? ?? ?? ?? 89 AF ?? ?? ?? ?? 48 89 07 48 8D 9F ?? ?? ?? ?? B8 ?? ?? ?? ?? 89 AF ?? ?? ?? ?? 66 89 87 ?? ?? ?? ?? 48 8B CB", 3)]
+[VirtualTable("48 8D 05 ?? ?? ?? ?? 89 AF ?? ?? ?? ?? ?? ?? ?? 48 8D 9F", 3)]
 [StructLayout(LayoutKind.Explicit, Size = 0xA20)]
 public unsafe partial struct CharacterBase {
     public const int PathBufferSize = 260;
     public const int MaterialsPerSlot = 10;
 
-    [FieldOffset(0x90)] public byte UnkFlags_01;
-    [FieldOffset(0x91)] public byte UnkFlags_02;
-    [FieldOffset(0x92)] public byte UnkFlags_03;
-    [FieldOffset(0x98)] public int SlotCount; // model slots
+    [Flags]
+    public enum StateFlag : ulong {
+        VisorToggled = 0x00_00_00_00_40,
+        VisorChanging = 0x00_00_00_00_80,
+        HasUmbrella = 0x00_00_01_00_00,
+        VieraEarsHidden = 0x00_80_00_00_00,
+        VieraEarsChanging = 0x01_00_00_00_00
+    }
+
+    [FieldOffset(0x90)] public StateFlag StateFlags;
+    [FieldOffset(0x9C)] public int SlotCount; // model slots
     [FieldOffset(0xA0)] public Skeleton* Skeleton; // Client::Graphics::Render::Skeleton
 
     [FieldOffset(0xA8)] public Model** Models; // size = SlotCount
 
-    [FieldOffset(0xD0)] public Attach Attach;
-    [FieldOffset(0x148)] public void* PostBoneDeformer; // Client::Graphics::Scene::PostBoneDeformer ptr
+    [FieldOffset(0xD8)] public Attach Attach;
+    [FieldOffset(0x150)] public void* PostBoneDeformer; // Client::Graphics::Scene::PostBoneDeformer ptr
 
     public bool IsChangingVisor {
-        get => (UnkFlags_01 & 0x80) == 0x80;
-        set => UnkFlags_01 = (byte)(value ? UnkFlags_01 | 0x80 : UnkFlags_01 & ~0x80);
+        get => StateFlags.HasFlag(StateFlag.VisorChanging);
+        set => StateFlags = value ? StateFlags | StateFlag.VisorChanging : StateFlags & ~StateFlag.VisorChanging;
     }
 
     public bool VisorToggled {
-        get => (UnkFlags_01 & 0x40) == 0x40;
-        set => UnkFlags_01 = (byte)(value ? UnkFlags_01 | 0x40 : UnkFlags_01 & ~0x40);
+        get => StateFlags.HasFlag(StateFlag.VisorToggled);
+        set => StateFlags = value ? StateFlags | StateFlag.VisorToggled : StateFlags & ~StateFlag.VisorToggled;
     }
 
     public bool HasUmbrella {
-        get => (UnkFlags_03 & 0x01) == 0x01;
-        set => UnkFlags_03 = (byte)(value ? UnkFlags_03 | 0x01 : UnkFlags_03 & ~0x01);
+        get => StateFlags.HasFlag(StateFlag.HasUmbrella);
+        set => StateFlags = value ? StateFlags | StateFlag.HasUmbrella : StateFlags & ~StateFlag.HasUmbrella;
     }
 
+    public bool HideVieraEars {
+        get => StateFlags.HasFlag(StateFlag.VieraEarsHidden);
+        set => StateFlags = value ? StateFlags | StateFlag.VieraEarsHidden : StateFlags & ~StateFlag.VieraEarsHidden;
+    }
 
-    [FieldOffset(0x150)]
-    public BonePhysicsModule* BonePhysicsModule; // Client::Graphics::Physics::BonePhysicsModule ptr
+    public bool VieraEarsChanging {
+        get => StateFlags.HasFlag(StateFlag.VieraEarsChanging);
+        set => StateFlags = value ? StateFlags | StateFlag.VieraEarsChanging : StateFlags & ~StateFlag.VieraEarsChanging;
+    }
 
-    [FieldOffset(0x170)] public ModelRenderer.Callback RenderModelCallback;
-    [FieldOffset(0x190)] public ModelRenderer.Callback RenderMaterialCallback;
-    [FieldOffset(0x1B0)] public ModelRenderer.Callback UnkCallback3;
+    [FieldOffset(0x158)] public BonePhysicsModule* BonePhysicsModule; // Client::Graphics::Physics::BonePhysicsModule ptr
+    [FieldOffset(0x160)] public BoneKineDriverModule* BoneKineDriverModule;
+
+    [FieldOffset(0x178)] public ModelRenderer.Callback RenderModelCallback;
+    [FieldOffset(0x198)] public ModelRenderer.Callback RenderMaterialCallback;
+    [FieldOffset(0x1B8)] public ModelRenderer.Callback UnkCallback3;
 
     [FieldOffset(0x224)] public float VfxScale;
     [FieldOffset(0x270)] public ConstantBuffer* CharacterDataCBuffer; // Size has been observed to be 0xB0, contents may be InstanceParameter
@@ -72,9 +88,10 @@ public unsafe partial struct CharacterBase {
 
     [FieldOffset(0x2FC)] public uint HasModelFilesInSlotLoaded; // tracks which slots have loaded materials, etc into staging
 
-    [FieldOffset(0x300)] public void* TempData; // struct with temporary data (size = 0x88)
+    [FieldOffset(0x300)] public void* TempData; // struct with temporary data (size >= 0x88)
 
-    [FieldOffset(0x308)] public void* TempSlotData; // struct with temporary data for each slot (size = 0x88 * slot count)
+    [FieldOffset(0x308), Obsolete($"Use {nameof(PerSlotStagingArea)} instead", true)] public void* TempSlotData; // struct with temporary data for each slot (size = 0xE0 * slot count)
+    [FieldOffset(0x308)] public SlotStagingArea* PerSlotStagingArea;
 
     [FieldOffset(0x350)] public Material** Materials; // size = SlotCount * MaterialsPerSlot
 
@@ -82,7 +99,7 @@ public unsafe partial struct CharacterBase {
 
     [FieldOffset(0x360)] public void** IMCArray; // array of Client::System::Resource::Handle::ImageChangeDataResourceHandle ptrs size = SlotCount - IMC file for model in slot
 
-    [FieldOffset(0x3D8)] internal FixedSizeArray5<SkeletonAnimationContainer> _skeletonAnimationContainers; // tentative name
+    [FieldOffset(0x3D8), FixedSizeArray] internal FixedSizeArray5<SkeletonAnimationContainer> _skeletonAnimationContainers; // tentative name
 
     [FieldOffset(0x940)] public SkeletonResourceHandle* MaterialAnimationSkeleton;
 
@@ -134,6 +151,12 @@ public unsafe partial struct CharacterBase {
     [VirtualFunction(79)]
     public partial CStringPointer ResolvePhybPath(byte* pathBuffer, nuint pathBufferSize, uint partialSkeletonIndex);
 
+    [VirtualFunction(80)]
+    public partial CStringPointer ResolveKdbPath(byte* pathBuffer, nuint pathBufferSize, uint partialSkeletonIndex);
+
+    [VirtualFunction(82)]
+    public partial CStringPointer ResolveBnmBPath(byte* pathBuffer, nuint pathBufferSize, uint partialSkeletonIndex);
+
     [VirtualFunction(84)]
     public partial CStringPointer ResolvePapPath(byte* pathBuffer, nuint pathBufferSize, uint unkAnimationIndex, byte* animationName);
 
@@ -151,6 +174,9 @@ public unsafe partial struct CharacterBase {
     /// </remarks>
     [VirtualFunction(90)]
     public partial CStringPointer ResolveMtrlPath(byte* pathBuffer, nuint pathBufferSize, uint slotIndex, byte* mtrlFileName);
+
+    [VirtualFunction(91)]
+    public partial CStringPointer ResolveSkinMtrlPath(byte* pathBuffer, nuint pathBufferSize, uint slotIndex);
 
     [VirtualFunction(92)]
     public partial CStringPointer ResolveDecalPath(byte* pathBuffer, nuint pathBufferSize, uint slotIndex);
@@ -187,6 +213,16 @@ public unsafe partial struct CharacterBase {
             return ResolvePhybPath(pBuffer, (nuint)pathBuffer.Length, partialSkeletonIndex);
     }
 
+    public ReadOnlySpan<byte> ResolveKdbPath(Span<byte> pathBuffer, uint partialSkeletonIndex) {
+        fixed (byte* pBuffer = pathBuffer)
+            return ResolveKdbPath(pBuffer, (nuint)pathBuffer.Length, partialSkeletonIndex);
+    }
+
+    public ReadOnlySpan<byte> ResolveBnmBPath(Span<byte> pathBuffer, uint partialSkeletonIndex) {
+        fixed (byte* pBuffer = pathBuffer)
+            return ResolveBnmBPath(pBuffer, (nuint)pathBuffer.Length, partialSkeletonIndex);
+    }
+
     public ReadOnlySpan<byte> ResolvePapPath(Span<byte> pathBuffer, uint unkAnimationIndex, ReadOnlySpan<byte> animationName) {
         fixed (byte* pAnimationName = animationName)
         fixed (byte* pBuffer = pathBuffer)
@@ -216,6 +252,11 @@ public unsafe partial struct CharacterBase {
         fixed (byte* pMtrlFileName = mtrlFileName)
         fixed (byte* pBuffer = pathBuffer)
             return ResolveMtrlPath(pBuffer, (nuint)pathBuffer.Length, slotIndex, pMtrlFileName);
+    }
+
+    public ReadOnlySpan<byte> ResolveSkinMtrlPath(Span<byte> pathBuffer, uint slotIndex) {
+        fixed (byte* pBuffer = pathBuffer)
+            return ResolveSkinMtrlPath(pBuffer, (nuint)pathBuffer.Length, slotIndex);
     }
 
     public ReadOnlySpan<byte> ResolveDecalPath(Span<byte> pathBuffer, uint slotIndex) {
@@ -261,6 +302,16 @@ public unsafe partial struct CharacterBase {
         return Encoding.UTF8.GetString(ResolvePhybPath(pathBuffer, partialSkeletonIndex));
     }
 
+    public string ResolveKdbPath(uint partialSkeletonIndex) {
+        Span<byte> pathBuffer = stackalloc byte[PathBufferSize];
+        return Encoding.UTF8.GetString(ResolveKdbPath(pathBuffer, partialSkeletonIndex));
+    }
+
+    public string ResolveBnmBPath(uint partialSkeletonIndex) {
+        Span<byte> pathBuffer = stackalloc byte[PathBufferSize];
+        return Encoding.UTF8.GetString(ResolveBnmBPath(pathBuffer, partialSkeletonIndex));
+    }
+
     public string ResolvePapPath(uint unkAnimationIndex, string animationName) {
         var animationNameByteCount = Encoding.UTF8.GetByteCount(animationName);
         Span<byte> animationNameBytes = animationNameByteCount <= 511 ? stackalloc byte[512] : new byte[animationNameByteCount + 1];
@@ -304,6 +355,11 @@ public unsafe partial struct CharacterBase {
         return Encoding.UTF8.GetString(ResolveMtrlPath(pathBuffer, slotIndex, mtrlFileNameBytes));
     }
 
+    public string ResolveSkinMtrlPath(uint slotIndex) {
+        Span<byte> pathBuffer = stackalloc byte[PathBufferSize];
+        return Encoding.UTF8.GetString(ResolveSkinMtrlPath(pathBuffer, slotIndex));
+    }
+
     public string ResolveDecalPath(uint slotIndex) {
         Span<byte> pathBuffer = stackalloc byte[PathBufferSize];
         return Encoding.UTF8.GetString(ResolveDecalPath(pathBuffer, slotIndex));
@@ -321,10 +377,10 @@ public unsafe partial struct CharacterBase {
     #endregion
 
     [VirtualFunction(108)]
-    public partial byte IsFreeCompanyCrestVisibleOnSlot(byte slot);
+    public partial bool IsFreeCompanyCrestVisibleOnSlot(byte slot);
 
     [VirtualFunction(109)]
-    public partial void SetFreeCompanyCrestVisibleOnSlot(byte slot, byte isVisible);
+    public partial void SetFreeCompanyCrestVisibleOnSlot(byte slot, bool isVisible);
 
     [VirtualFunction(110)]
     public partial void SetFreeCompanyCrest(Texture* freeCompanyCrest);
@@ -338,5 +394,11 @@ public unsafe partial struct CharacterBase {
         [FieldOffset(0x38)] public StdVector<Pointer<ResourceHandle>> PapVector3;
 
         [FieldOffset(0xF8)] public ResourceHandle* AnimationExchangeTable;
+    }
+
+    [StructLayout(LayoutKind.Explicit, Size = 0xE0)]
+    public struct SlotStagingArea {
+        [FieldOffset(0x08)] public ModelResourceHandle* ModelResourceHandle;
+        [FieldOffset(0x68)] public MaterialResourceHandle* SkinMaterialResourceHandle;
     }
 }

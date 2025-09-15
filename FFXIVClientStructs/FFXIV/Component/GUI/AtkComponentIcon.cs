@@ -16,7 +16,6 @@ public unsafe partial struct AtkComponentIcon : ICreatable {
     [FieldOffset(0xC4)] public IconSubFolder IconSubFolder;
     [FieldOffset(0xC8)] public AtkUldAsset* Texture;
     [FieldOffset(0xD0)] public AtkResNode* FrameContainer;
-    [FieldOffset(0xD0), Obsolete("Renamed to FrameContainer")] public AtkResNode* IconAdditionsContainer;
     [FieldOffset(0xD8)] public AtkResNode* ComboBorder;
     [FieldOffset(0xE0)] public AtkResNode* Frame;
     [FieldOffset(0xE8)] public AtkResNode* OuterResNode; // seems to be used for showing tooltips and mouse click to open a window
@@ -27,19 +26,19 @@ public unsafe partial struct AtkComponentIcon : ICreatable {
     [FieldOffset(0x110), FixedSizeArray] internal FixedSizeArray2<IndicatorNodesEntry> _indicatorNodes;
     [FieldOffset(0x130)] public IconComponentFlags Flags;
 
-    [MemberFunction("33 D2 C7 81 ?? ?? ?? ?? ?? ?? ?? ?? 48 89 51 08 48 8D 05 ?? ?? ?? ?? 48 89 51 10 48 89 51 18 48 89 51 20 48 89 51 28 48 89 51 30 48 89 51 38 48 89 51 40 89 51 48 48 89 51 50 48 89 51 58 48 89 51 60 48 89 51 68 89 51 70 48 89 51 78 48 89 91 ?? ?? ?? ?? 48 89 91 ?? ?? ?? ?? 66 89 91 ?? ?? ?? ?? 48 89 91 ?? ?? ?? ?? 88 91 ?? ?? ?? ?? 48 89 01 48 8B C1 89 91 ?? ?? ?? ?? 48 89 91 ?? ?? ?? ?? 48 89 91 ?? ?? ?? ?? 48 89 91 ?? ?? ?? ?? 48 89 91 ?? ?? ?? ??")]
+    [MemberFunction("45 33 C0 C7 81 ?? ?? ?? ?? ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? 4C 89 41 ?? ?? ?? ?? BA")]
     public partial void Ctor();
 
     [MemberFunction("E8 ?? ?? ?? ?? 8D 4D 12")]
     public partial bool LoadIcon(uint iconId);
 
-    [MemberFunction("E8 ?? ?? ?? ?? 8D 4D 12")]
+    [MemberFunction("E8 ?? ?? ?? ?? 48 8B 7C 24 ?? 33 D2 48 8B CB")]
     public partial bool LoadLocalizedIcon(LocalizedIconInfo* info);
 
     [MemberFunction("E8 ?? ?? ?? ?? 0F B6 03 F6 D0")]
     public partial void UnloadIcon();
 
-    [MemberFunction("E8 ?? ?? ?? ?? 84 C0 74 08 49 8B CD")]
+    [MemberFunction("E8 ?? ?? ?? ?? 84 C0 74 ?? 49 8B CC E8 ?? ?? ?? ?? 33 D2")]
     public partial bool IsIconLoaded();
 
     // as seen in AtkComponentDragDrop.ReceiveEvent:
@@ -47,7 +46,7 @@ public unsafe partial struct AtkComponentIcon : ICreatable {
     // 3 = MouseDown
     // 4 = MouseOut
     // 6 = MouseUp
-    [MemberFunction("E8 ?? ?? ?? ?? 0F B6 84 DF")]
+    [MemberFunction("E8 ?? ?? ?? ?? 0F B6 84 DE")]
     public partial void SetTimelineState(ushort keyframeValue);
 
     [MemberFunction("E8 ?? ?? ?? ?? 4D 8B C4 40 0F B6 D6")]
@@ -71,7 +70,7 @@ public unsafe partial struct AtkComponentIcon : ICreatable {
     [MemberFunction("E8 ?? ?? ?? ?? 48 8B 0F 41 C1 EC 06")]
     public partial void SetIsDyeLocked(bool enabled);
 
-    [MemberFunction("E8 ?? ?? ?? ?? 41 F6 C7 10 74 5C")]
+    [MemberFunction("E8 ?? ?? ?? ?? C1 EE ?? 41 B8")]
     public partial void SetHasSecondDyeChannel(bool enabled);
 
     [MemberFunction("E8 ?? ?? ?? ?? 32 D2 45 8B C4")]
@@ -92,7 +91,7 @@ public unsafe partial struct AtkComponentIcon : ICreatable {
     [MemberFunction("E8 ?? ?? ?? ?? 45 33 F6 FF C6")]
     public partial void SetOuterResNode(AtkResNode* node);
 
-    [MemberFunction("E8 ?? ?? ?? ?? 8B 87 ?? ?? ?? ?? 84 C0")]
+    [MemberFunction("E8 ?? ?? ?? ?? 8B 84 24 ?? ?? ?? ?? 39 86")]
     public partial void UpdateIndicator();
 
     [MemberFunction("48 83 EC 38 41 83 F9 02")]

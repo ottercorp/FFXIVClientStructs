@@ -41,6 +41,9 @@ public unsafe partial struct InventoryManager {
     [FieldOffset(0x3620)] internal InventoryItem UnkInventoryItem0;
     [FieldOffset(0x3668)] internal InventoryItem UnkInventoryItem1;
 
+    [MemberFunction("48 89 6C 24 ?? 56 57 41 56 48 83 EC 50 48 8B E9 44 8B F2")]
+    public partial void SendTradeRequest(uint entityID);
+
     [MemberFunction("E8 ?? ?? ?? ?? 88 58 18")]
     public partial InventoryContainer* GetInventoryContainer(InventoryType inventoryType);
 
@@ -53,8 +56,14 @@ public unsafe partial struct InventoryManager {
     [MemberFunction("E8 ?? ?? ?? ?? 8B F0 8D 4F FE")]
     public partial int GetItemCountInContainer(uint itemId, InventoryType inventoryType, bool isHq = false, short minCollectability = 0);
 
-    [MemberFunction("E8 ?? ?? ?? ?? EB 7A 83 F8 04")]
-    public partial int MoveItemSlot(InventoryType srcContainer, ushort srcSlot, InventoryType dstContainer, ushort dstSlot, byte unk = 0);
+    [MemberFunction("E8 ?? ?? ?? ?? 48 8B 03 66 FF C5")]
+    public partial int MoveItemSlot(InventoryType srcContainer, ushort srcSlot, InventoryType dstContainer, ushort dstSlot, bool a6 = false);
+
+    [MemberFunction("40 55 53 56 57 41 55 41 57 48 8D 6C 24 ?? 48 81 EC ?? ?? ?? ?? 48 8B 05 ?? ?? ?? ?? 48 33 C4 48 89 45 ?? 8D B2")]
+    public partial int SplitItem(InventoryType container, ushort slot, int quantity);
+
+    [MemberFunction("E8 ?? ?? ?? ?? 48 8D 8B ?? ?? ?? ?? 48 8B 11")]
+    public partial int DiscardItem(InventoryType container, ushort slot);
 
     [MemberFunction("E8 ?? ?? ?? ?? 85 C0 7F 66")]
     private partial uint GetEquippedItemIdForSlot(int slotId);
@@ -75,7 +84,7 @@ public unsafe partial struct InventoryManager {
     [MemberFunction("E8 ?? ?? ?? ?? 8B F8 39 43 78")]
     public partial uint GetRetainerGil();
 
-    [MemberFunction("E8 ?? ?? ?? ?? 8B F8 39 BB ?? ?? ?? ?? 74 58 44 8B C7 BA ?? ?? ?? ?? 49 8B CF")]
+    [MemberFunction("E8 ?? ?? ?? ?? 48 8B 4B ?? 44 8B F8 ?? ?? ?? FF 52 ?? 80 BB")]
     public partial uint GetFreeCompanyGil();
 
     [MemberFunction("E8 ?? ?? ?? ?? 3B C3 73 25")]
@@ -102,18 +111,27 @@ public unsafe partial struct InventoryManager {
     [MemberFunction("E8 ?? ?? ?? ?? 8D 4F DD")]
     private static partial int GetSpecialItemId(byte switchCase);
 
-    /// <summary>  Gets the current maximum weekly number of limited tomestones tha player can earn. </summary>
+    /// <summary> Gets the current maximum weekly number of limited tomestones tha player can earn. </summary>
     [MemberFunction("E8 ?? ?? ?? ?? 42 8D 0C 2B")]
     public static partial int GetLimitedTomestoneWeeklyLimit();
 
-    [MemberFunction("E8 ?? ?? ?? ?? 48 0F AF C7 48 03 E8")]
+    [MemberFunction("E8 ?? ?? ?? ?? 49 89 84 3C")]
     public partial ulong GetRetainerMarketPrice(short slot);
 
-    [MemberFunction("E8 ?? ?? ?? ?? 48 8B 4B ?? 40 88 71")]
+    [MemberFunction("E8 ?? ?? ?? ?? 33 C0 89 87 ?? ?? ?? ?? 8B 47 20")]
+    public partial void SetTradeGilAmount(uint amount);
+
+    [MemberFunction("E8 ?? ?? ?? ?? 48 8B 4E ?? 40 88 69")]
     public partial void SetRetainerMarketPrice(short slot, uint price);
+
+    [MemberFunction("E8 ?? ?? ?? ?? 4C 8B B4 35")]
+    public partial void SetSlotBlocked(InventoryType type, short slot);
 
     [MemberFunction("E8 ?? ?? ?? ?? 39 6B 38")]
     public partial void SetSlotUnblocked(InventoryType type, short slot);
+
+    [MemberFunction("E8 ?? ?? ?? ?? 80 BF ?? ?? ?? ?? ?? 74 57 44 0F B6 8F ?? ?? ?? ??")]
+    public partial void RefuseTrade();
 
     /// <summary> Gets the number of (limited) tomestones the user has acquired during the current reset cycle. </summary>
     public int GetWeeklyAcquiredTomestoneCount() => GetLimitedTomestoneCount(GetSpecialItemId(9));

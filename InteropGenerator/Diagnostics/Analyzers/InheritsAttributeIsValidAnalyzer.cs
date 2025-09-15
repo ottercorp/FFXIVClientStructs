@@ -6,7 +6,7 @@ using static InteropGenerator.Diagnostics.DiagnosticDescriptors;
 
 namespace InteropGenerator.Diagnostics.Analyzers;
 
-[DiagnosticAnalyzer(Microsoft.CodeAnalysis.LanguageNames.CSharp)]
+[DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class InheritsAttributeIsValidAnalyzer : DiagnosticAnalyzer {
 
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = [InheritedStructIsNotMarkedInherited];

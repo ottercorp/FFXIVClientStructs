@@ -15,7 +15,7 @@ public unsafe partial struct AgentBannerEditor {
     /// <param name="enabledGearsetIndex">
     /// The index of the gearset in a filtered <see cref="RaptureGearsetModule.Entries"/> list of only enabled gearsets.
     /// </param>
-    [MemberFunction("E8 ?? ?? ?? ?? 40 32 FF EB 1A")]
+    [MemberFunction("E8 ?? ?? ?? ?? EB ?? 48 8B 4B ?? ?? ?? ?? FF 90 ?? ?? ?? ?? 48 8B C8 BA ?? ?? ?? ?? E8 ?? ?? ?? ?? 40 32 FF")]
     public partial void OpenForGearset(int enabledGearsetIndex);
 }
 
@@ -92,17 +92,17 @@ public unsafe partial struct AgentBannerEditorState {
     [FieldOffset(0x3F0)] public int CloseDialogAddonId;
     [FieldOffset(0x3F4)] public bool HasDataChanged;
 
-    [MemberFunction("E8 ?? ?? ?? ?? 33 D2 48 8B CF E8 ?? ?? ?? ?? 48 8B 8F ?? ?? ?? ?? 48 8B 01 FF 50 58")]
+    [MemberFunction("E8 ?? ?? ?? ?? 33 D2 48 8B CE E8 ?? ?? ?? ?? 48 8B 8E ?? ?? ?? ?? ?? ?? ?? FF 50")]
     public partial void Save();
 
     [MemberFunction("48 89 5C 24 ?? 48 89 7C 24 ?? 80 79 2C 00")]
     public partial int GetPresetIndex(ushort backgroundIndex, ushort frameIndex, ushort accentIndex);
 
     [MemberFunction("E8 ?? ?? ?? ?? 48 8B 74 24 ?? 44 0A F8")]
-    public partial void SetFrame(int frameId);
+    public partial bool SetFrame(int frameId);
 
     [MemberFunction("E8 ?? ?? ?? ?? 48 8B 6C 24 ?? 44 0A F8")]
-    public partial void SetAccent(int accentId);
+    public partial bool SetAccent(int accentId);
 
     [MemberFunction("E8 ?? ?? ?? ?? 32 C0 EB 3F")]
     public partial void SetHasChanged(bool hasDataChanged);
