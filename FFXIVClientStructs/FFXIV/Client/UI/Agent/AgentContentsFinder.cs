@@ -23,10 +23,8 @@ public unsafe partial struct AgentContentsFinder {
     [FieldOffset(0x1E98)] public StdVector<Pointer<Contents>> ContentList;
     [FieldOffset(0x1EB0)] public StdVector<ContentsId> SelectedContent;
     [FieldOffset(0x1EC8)] public ContentsId SelectedDuty;
-    [FieldOffset(0x1ECC), Obsolete("Use SelectedDuty.Id instead")] public int SelectedDutyId; // ContentFinderCondition rowId for duties, ContentRoulette rowId for roulette
     [FieldOffset(0x1ED8)] public byte NumCollectedRewards; // Value used for "Reward already received"
-    // TODO: change to bool
-    [FieldOffset(0x1ED9)] public byte HasRouletteSelected; // Prevents more roulettes from being selected
+    [FieldOffset(0x1ED9)] public bool HasRouletteSelected; // Prevents more roulettes from being selected
 
     // TODO: this is part of an event interface class
     [FieldOffset(0x1F18)] public UIModule* UIModule;
@@ -56,7 +54,7 @@ public unsafe partial struct AgentContentsFinder {
     [MemberFunction("40 53 48 83 EC ?? 48 8B 01 48 8B D9 FF 50 ?? 84 C0 74 ?? 48 8B CB C6 83")]
     public partial void Refresh();
 
-    [MemberFunction("E9 ?? ?? ?? ?? 48 8B 06 48 8B CE 48 81 C4")]
+    [MemberFunction("E8 ?? ?? ?? ?? 41 C6 45 ?? ?? 4C 8D 9C 24")]
     public partial void UpdateAddon();
 
     [GenerateInterop]

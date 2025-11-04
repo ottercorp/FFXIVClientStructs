@@ -6,10 +6,11 @@ namespace FFXIVClientStructs.FFXIV.Component.GUI;
 // Component::GUI::AtkUnitManager
 //   Component::GUI::AtkEventListener
 [GenerateInterop(isInherited: true)]
+[Inherits<AtkEventListener>]
+[VirtualTable("48 8D 05 ?? ?? ?? ?? 48 8B D9 ?? ?? ?? 48 81 C1 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 8D 15", 3, 43)]
 [StructLayout(LayoutKind.Explicit, Size = 0x9C90)]
 public unsafe partial struct AtkUnitManager {
-    [FieldOffset(0x0)] public AtkEventListener AtkEventListener; // TODO: let AtkUnitManager inherit from AtkEventListener
-    [FieldOffset(0x30), FixedSizeArray, CExportIgnore] internal FixedSizeArray13<AtkUnitList> _depthLayers;
+    [FieldOffset(0x30), FixedSizeArray, CExporterIgnore] internal FixedSizeArray13<AtkUnitList> _depthLayers;
     [FieldOffset(0x30)] public AtkUnitList DepthLayerOneList;
     [FieldOffset(0x840)] public AtkUnitList DepthLayerTwoList;
     [FieldOffset(0x1050)] public AtkUnitList DepthLayerThreeList;
@@ -70,6 +71,9 @@ public unsafe partial struct AtkUnitManager {
     /// <returns>Pointer to AtkUnitBase or null</returns>
     [MemberFunction("E8 ?? ?? ?? ?? 48 3B E8 75 0E")]
     public partial AtkUnitBase* GetAddonByNode(AtkResNode* node);
+
+    [MemberFunction("E8 ?? ?? ?? ?? 40 B5 ?? 48 83 C3")]
+    public partial bool SetAddonDepthLayer(ushort id, uint depthLayerIndex);
 
     public enum AddonStatus {
         NotLoaded = 0,

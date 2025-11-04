@@ -56,31 +56,30 @@ public unsafe partial struct AgentMJIPouch {
     public partial struct PouchInventoryData {
         [FieldOffset(0xA0)] public StdVector<PouchInventoryItem> Inventory;
         [FieldOffset(0xB8), FixedSizeArray] internal FixedSizeArray4<StdVector<Pointer<PouchInventoryItem>>> _inventories;
-        [FieldOffset(0xB8), CExportIgnore] public StdVector<Pointer<PouchInventoryItem>> Materials;
-        [FieldOffset(0xD0), CExportIgnore] public StdVector<Pointer<PouchInventoryItem>> Produce;
-        [FieldOffset(0xE8), CExportIgnore] public StdVector<Pointer<PouchInventoryItem>> StockStores;
-        [FieldOffset(0x100), CExportIgnore] public StdVector<Pointer<PouchInventoryItem>> Tools;
+        [FieldOffset(0xB8), CExporterIgnore] public StdVector<Pointer<PouchInventoryItem>> Materials;
+        [FieldOffset(0xD0), CExporterIgnore] public StdVector<Pointer<PouchInventoryItem>> Produce;
+        [FieldOffset(0xE8), CExporterIgnore] public StdVector<Pointer<PouchInventoryItem>> StockStores;
+        [FieldOffset(0x100), CExporterIgnore] public StdVector<Pointer<PouchInventoryItem>> Tools;
         [FieldOffset(0x118)] public StdVector<Pointer<PouchInventoryItem>> ItemPouchItems;
         [FieldOffset(0x130)] public StdVector<Utf8String> InventoryNames;
         [FieldOffset(0x148)] public uint MJIItemPouchItemCount;
         [FieldOffset(0x150), FixedSizeArray] internal FixedSizeArray3<AgentMJICraftSchedule.MaterialAllocationEntry> _materialAllocation;
     }
-}
 
-[StructLayout(LayoutKind.Explicit, Size = 0x88)]
-public struct PouchInventoryItem {
-    [FieldOffset(0x00)] public uint ItemId;
-    [FieldOffset(0x04)] public uint IconId;
-    [FieldOffset(0x08), Obsolete("Use RowId instead")] public int SlotIndex;
-    /// <remarks>MJIItemPouch or MJIKeyItem RowId</remarks>
-    [FieldOffset(0x08)] public uint RowId;
-    [FieldOffset(0x0C)] public int StackSize;
-    [FieldOffset(0x10)] public int MaxStackSize;
-    [FieldOffset(0x14)] public byte InventoryIndex;
-    [FieldOffset(0x15)] public byte ItemCategory;
-    [FieldOffset(0x16)] public byte SortIndex;
-    [FieldOffset(0x17)] public byte MjiGatheringItemRowId;
-    [FieldOffset(0x18)] public byte Undiscovered; // TODO: bool, also move this struct into the agent
+    [StructLayout(LayoutKind.Explicit, Size = 0x88)]
+    public struct PouchInventoryItem {
+        [FieldOffset(0x00)] public uint ItemId;
+        [FieldOffset(0x04)] public uint IconId;
+        /// <remarks>MJIItemPouch or MJIKeyItem RowId</remarks>
+        [FieldOffset(0x08)] public uint RowId;
+        [FieldOffset(0x0C)] public int StackSize;
+        [FieldOffset(0x10)] public int MaxStackSize;
+        [FieldOffset(0x14)] public byte InventoryIndex;
+        [FieldOffset(0x15)] public byte ItemCategory;
+        [FieldOffset(0x16)] public byte SortIndex;
+        [FieldOffset(0x17)] public byte MjiGatheringItemRowId;
+        [FieldOffset(0x18)] public bool IsUndiscovered;
 
-    [FieldOffset(0x20)] public Utf8String Name;
+        [FieldOffset(0x20)] public Utf8String Name;
+    }
 }

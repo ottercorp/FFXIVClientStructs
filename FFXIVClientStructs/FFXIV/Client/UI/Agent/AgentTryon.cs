@@ -9,7 +9,7 @@ namespace FFXIVClientStructs.FFXIV.Client.UI.Agent;
 [Agent(AgentId.Tryon)]
 [GenerateInterop]
 [Inherits<AgentInterface>]
-[StructLayout(LayoutKind.Explicit, Size = 0x6D8)]
+[StructLayout(LayoutKind.Explicit, Size = 0x6E0)]
 [VirtualTable("48 8D 05 ?? ?? ?? ?? 48 8D 4F 28 48 89 07 E8 ?? ?? ?? ?? 48 C7 87", 3)]
 public unsafe partial struct AgentTryon {
     [FieldOffset(0x28)] public TryonCharaView CharaView;
@@ -22,13 +22,14 @@ public unsafe partial struct AgentTryon {
     //   Client::UI::Misc::CharaView
     [GenerateInterop]
     [Inherits<CharaView>]
-    [StructLayout(LayoutKind.Explicit, Size = 0x320)]
+    [StructLayout(LayoutKind.Explicit, Size = 0x328)]
     public unsafe partial struct TryonCharaView {
         [FieldOffset(0x318)] public bool DoUpdate; // beware: fetches data from agent too, happens in vf10
         [FieldOffset(0x319)] public bool HideOtherEquipment;
         [FieldOffset(0x31A)] public bool HideVisor;
         [FieldOffset(0x31B)] public bool HideWeapon;
         [FieldOffset(0x31C)] public bool CloseVisor;
-        [FieldOffset(0x31D)] public bool DrawWeapon;
+        [FieldOffset(0x31D)] public bool HideVieraEars;
+        [FieldOffset(0x31E)] public bool DrawWeapon;
     }
 }

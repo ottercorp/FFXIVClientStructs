@@ -1,5 +1,4 @@
 using System.Collections.Immutable;
-using InteropGenerator.Extensions;
 using InteropGenerator.Helpers;
 using InteropGenerator.Models;
 
@@ -137,6 +136,8 @@ public sealed partial class InteropGenerator {
         using (writer.WriteBlock()) {
             foreach (VirtualFunctionInfo vfi in structInfo.VirtualFunctions) {
                 var functionPointerType = $"delegate* unmanaged <{structInfo.Name}*, {vfi.MethodInfo.GetParameterTypeStringWithTrailingType()}{vfi.MethodInfo.ReturnType}>";
+                foreach (string attr in vfi.MethodInfo.InheritableAttributes)
+                    writer.WriteLine(attr);
                 writer.WriteLine($"[global::System.Runtime.InteropServices.FieldOffsetAttribute({vfi.Index * 8})] public {functionPointerType} {vfi.MethodInfo.Name};");
             }
         }
@@ -147,7 +148,7 @@ public sealed partial class InteropGenerator {
     }
 
     private static void RenderDelegateTypes(StructInfo structInfo, IndentedTextWriter writer) {
-        writer.WriteLine($"public static partial class Delegates");
+        writer.WriteLine("public static partial class Delegates");
         using (writer.WriteBlock()) {
             foreach (MemberFunctionInfo memberFunctionInfo in structInfo.MemberFunctions) {
                 RenderDelegateTypeForMethod(structInfo.Name, memberFunctionInfo.MethodInfo, writer);
@@ -172,6 +173,8 @@ public sealed partial class InteropGenerator {
                 paramTypesAndNames += $", {methodInfo.GetParameterTypesAndNamesString()}";
         }
         string methodModifiers = methodInfo.Modifiers.Replace(" partial", string.Empty).Replace(" static", string.Empty);
+        foreach (string attr in methodInfo.InheritableAttributes)
+            writer.WriteLine(attr);
         writer.WriteLine($"{methodModifiers} delegate {methodInfo.ReturnType} {methodInfo.Name}({paramTypesAndNames});");
     }
 
@@ -250,8 +253,8 @@ public sealed partial class InteropGenerator {
             string paramNames = methodInfo.GetParameterNamesStringForStringOverload(paramsToOverload);
 
             // "string" overload
-            if (methodInfo.ObsoleteInfo is not null) {
-                writer.WriteLine($"""[global::System.ObsoleteAttribute("{methodInfo.ObsoleteInfo.Message}", {methodInfo.ObsoleteInfo.IsError.ToLowercaseString()})]""");
+            foreach (string inheritedAttribute in stringOverloadInfo.InheritableAttributes) {
+                writer.WriteLine(inheritedAttribute);
             }
             writer.WriteLine(methodInfo.GetDeclarationStringForStringOverload("string", paramsToOverload));
             using (writer.WriteBlock()) {
@@ -279,8 +282,8 @@ public sealed partial class InteropGenerator {
                 }
             }
             // "ReadOnlySpan<byte>" overload
-            if (methodInfo.ObsoleteInfo is not null) {
-                writer.WriteLine($"""[global::System.ObsoleteAttribute("{methodInfo.ObsoleteInfo.Message}", {methodInfo.ObsoleteInfo.IsError.ToLowercaseString()})]""");
+            foreach (string inheritedAttribute in stringOverloadInfo.InheritableAttributes) {
+                writer.WriteLine(inheritedAttribute);
             }
             writer.WriteLine(methodInfo.GetDeclarationStringForStringOverload("ReadOnlySpan<byte>", paramsToOverload));
             using (writer.WriteBlock()) {
@@ -303,15 +306,15 @@ public sealed partial class InteropGenerator {
     private static void RenderFixedSizeArrayAccessors(StructInfo structInfo, IndentedTextWriter writer) {
         foreach (FixedSizeArrayInfo fixedSizeArrayInfo in structInfo.FixedSizeArrays) {
             writer.WriteLine($"""/// <inheritdoc cref="{fixedSizeArrayInfo.FieldName}" />""");
-            if (fixedSizeArrayInfo.ObsoleteInfo is not null) {
-                writer.WriteLine($"""[global::System.ObsoleteAttribute("{fixedSizeArrayInfo.ObsoleteInfo.Message}", {fixedSizeArrayInfo.ObsoleteInfo.IsError.ToLowercaseString()})]""");
+            foreach (string inheritedAttribute in fixedSizeArrayInfo.InheritableAttributes) {
+                writer.WriteLine(inheritedAttribute);
             }
             // [UnscopedRef] public Span<T> FieldName => _fieldName;
             writer.WriteLine($"[global::System.Diagnostics.CodeAnalysis.UnscopedRefAttribute] public Span<{fixedSizeArrayInfo.Type}> {fixedSizeArrayInfo.GetPublicFieldName()} => {fixedSizeArrayInfo.FieldName};");
             if (fixedSizeArrayInfo.IsString) {
                 writer.WriteLine($"""/// <inheritdoc cref="{fixedSizeArrayInfo.FieldName}" />""");
-                if (fixedSizeArrayInfo.ObsoleteInfo is not null) {
-                    writer.WriteLine($"""[global::System.ObsoleteAttribute("{fixedSizeArrayInfo.ObsoleteInfo.Message}", {fixedSizeArrayInfo.ObsoleteInfo.IsError.ToLowercaseString()})]""");
+                foreach (string inheritedAttribute in fixedSizeArrayInfo.InheritableAttributes) {
+                    writer.WriteLine(inheritedAttribute);
                 }
                 writer.WriteLine($"public string {fixedSizeArrayInfo.GetPublicFieldName()}String");
                 using (writer.WriteBlock()) {
@@ -341,6 +344,14 @@ public sealed partial class InteropGenerator {
                         }
                     }
                 }
+            }
+            if (fixedSizeArrayInfo.IsBitArray) {
+                writer.WriteLine($"""/// <inheritdoc cref="{fixedSizeArrayInfo.FieldName}" />""");
+                foreach (string inheritedAttribute in fixedSizeArrayInfo.InheritableAttributes) {
+                    writer.WriteLine(inheritedAttribute);
+                }
+                // public BitArray FieldName => new BitArray((byte*)global::System.Runtime.CompilerServices.Unsafe.AsPointer(ref _fieldName[0]), bitCount);
+                writer.WriteLine($"public BitArray {fixedSizeArrayInfo.GetPublicFieldName()}BitArray => new BitArray((byte*)global::System.Runtime.CompilerServices.Unsafe.AsPointer(ref {fixedSizeArrayInfo.FieldName}[0]), {fixedSizeArrayInfo.BitCount});");
             }
         }
     }

@@ -15,7 +15,7 @@ public enum InventoryType : uint {
     KeyItems = 2004,
     HandIn = 2005,
     Unknown2006 = 2006,
-    DamagedGear = 2007,
+    BlockedItems = 2007,
     Unknown2008 = 2008,
     Examine = 2009,
     Reclaim = 2010, // LegacyItemStorage, HousingWithdrawStorage
@@ -42,8 +42,8 @@ public enum InventoryType : uint {
     PremiumSaddleBag1 = 4100,
     PremiumSaddleBag2 = 4101,
 
-    Cosmopouch1 = 5000,
-    Cosmopouch2 = 5001,
+    Cosmopouch1 = 5000, // Cosmic Exploration: Mission Inventory (including Fishing Bait)
+    Cosmopouch2 = 5001, // Cosmic Exploration: Mech Ops Inventory
 
     Invalid = 9999,
 

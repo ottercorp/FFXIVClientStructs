@@ -3,7 +3,7 @@ namespace FFXIVClientStructs.FFXIV.Client.Graphics.Render;
 // Client::Graphics::Render::GraphicsConfig
 //   Client::Graphics::Singleton
 [GenerateInterop]
-[StructLayout(LayoutKind.Explicit, Size = 0xC8)]
+[StructLayout(LayoutKind.Explicit, Size = 0xD0)]
 public unsafe partial struct GraphicsConfig {
     [StaticAddress("48 8B 05 ?? ?? ?? ?? 0F B6 8B ?? ?? ?? ?? 88 48", 3, isPointer: true)]
     public static partial GraphicsConfig* Instance();
@@ -58,4 +58,8 @@ public unsafe partial struct GraphicsConfig {
     [FieldOffset(0x54)] public byte GraphicsRezoUpscaleType;
 
     [FieldOffset(0x56)] public bool GrassEnableDynamicInterference;
+
+    [FieldOffset(0x65)] public bool HousingSSAOEnable;
+
+    [FieldOffset(0x74)] public float JitterMultiplier;
 }

@@ -9,7 +9,7 @@ namespace FFXIVClientStructs.FFXIV.Client.Game.Control;
 [Inherits<ChangeEventInterface>]
 [StructLayout(LayoutKind.Explicit, Size = 0x40)]
 public unsafe partial struct EmoteManager {
-    [StaticAddress("48 8D 0D ?? ?? ?? ?? E8 ?? ?? ?? ?? 40 84 ED 74 18", 3)]
+    [StaticAddress("48 8D 0D ?? ?? ?? ?? 48 83 C4 ?? 5E E9 ?? ?? ?? ?? 80 7E", 3)]
     public static partial EmoteManager* Instance();
 
     [FieldOffset(0x30)] public float IdlePoseCountdown;
@@ -19,6 +19,6 @@ public unsafe partial struct EmoteManager {
     [MemberFunction("E8 ?? ?? ?? ?? 84 C0 0F 84 ?? ?? ?? ?? 48 85 F6 74 05")]
     public partial bool CanExecuteEmote(ushort emoteId);
 
-    [MemberFunction("E8 ?? ?? ?? ?? 40 84 ED 74 18")]
+    [MemberFunction("E8 ?? ?? ?? ?? 84 C0 0F 85 ?? ?? ?? ?? 0F B6 1D")]
     public partial bool ExecuteEmote(ushort emoteId, PlayEmoteOption* playEmoteOption = null);
 }

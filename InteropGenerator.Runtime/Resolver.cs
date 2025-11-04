@@ -8,9 +8,9 @@ namespace InteropGenerator.Runtime;
 public sealed class Resolver {
     private static readonly Lazy<Resolver> Instance = new(() => new Resolver());
 
-    public readonly HashSet<Address> Addresses = new();
-
     private readonly List<Address>?[] _preResolveArray = new List<Address>[256];
+
+    public readonly HashSet<Address> Addresses = new();
 
     private nint _baseAddress;
     private bool _cacheChanged;

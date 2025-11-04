@@ -1,9 +1,10 @@
+using FFXIVClientStructs.FFXIV.Client.Game.Event;
 using FFXIVClientStructs.FFXIV.Client.System.Memory;
 
 namespace FFXIVClientStructs.FFXIV.Client.Game;
 
 // Client::Game::InventoryItem
-[GenerateInterop]
+[GenerateInterop(isInherited: true)]
 [VirtualTable("66 89 51 0C 48 8D 05", 7)]
 [StructLayout(LayoutKind.Explicit, Size = 0x48)]
 public unsafe partial struct InventoryItem : ICreatable {
@@ -29,6 +30,7 @@ public unsafe partial struct InventoryItem : ICreatable {
     [FieldOffset(0x32), FixedSizeArray] internal FixedSizeArray5<byte> _materiaGrades;
     [FieldOffset(0x37), FixedSizeArray] internal FixedSizeArray2<byte> _stains;
     [FieldOffset(0x3C)] public uint GlamourId;
+    [FieldOffset(0x40)] public EventId EventId;
 
     [Flags]
     public enum ItemFlags : byte {
@@ -43,7 +45,7 @@ public unsafe partial struct InventoryItem : ICreatable {
     public partial void Ctor();
 
     [VirtualFunction(0)]
-    public partial void Dtor();
+    public partial void Dtor(byte freeFlags);
 
     /// <summary>Copies the values from the other InventoryItem and, if it's symbolic, resolves its linked item.</summary>
     [VirtualFunction(1)]
@@ -109,6 +111,22 @@ public unsafe partial struct InventoryItem : ICreatable {
     //[VirtualFunction(21)]
     //public partial void SetIsHighQuality2(bool isHighQuality);
 
+    [VirtualFunction(22)]
+    public partial bool IsCollectable();
+
+    [VirtualFunction(23)]
+    public partial ushort GetCollectability();
+
+    [VirtualFunction(24)]
+    public partial void SetCollectability(ushort value);
+
+    /// <remarks> Calculated as: 100 * <see cref="Condition"/> / 30000 </remarks>
+    [MemberFunction("E8 ?? ?? ?? ?? 44 0F B6 C0 41 8D 57")]
+    public partial byte GetConditionPercentage();
+
+    [MemberFunction("E8 ?? ?? ?? ?? ?? ?? ?? 48 8B CF 48 8B 58")]
+    public partial void SetLinkedItem(InventoryType type, ushort slot);
+
     /// <summary>
     /// Resolves a symbolic InventoryItem, returning a pointer to the linked InventoryItem or to itself if not symbolic.
     /// </summary>
@@ -144,6 +162,12 @@ public unsafe partial struct InventoryItem : ICreatable {
     public partial byte GetMateriaGrade(byte materiaSlot);
 
     /// <summary>Gets the materia count from the original InventoryItem or itself if not symbolic.</summary>
-    [MemberFunction("E8 ?? ?? ?? ?? 0F B6 57 67")]
+    [MemberFunction("E8 ?? ?? ?? ?? 45 0F B6 7D")]
     public partial byte GetMateriaCount();
+
+    [MemberFunction("E8 ?? ?? ?? ?? 80 7F 5E 01")]
+    public static partial uint GetParameterValue(uint baseParamRowId, InventoryItem* inventoryItem, bool includeMateria, bool checkHQ, bool checkPvPCharacterFlag, bool checkPvPItemFlag);
+
+    [MemberFunction("E8 ?? ?? ?? ?? 66 89 46 12")]
+    public static partial uint GetParameterMaxValue(uint baseParamRowId, [CExporterExcel("Item")] void* itemRowData);
 }

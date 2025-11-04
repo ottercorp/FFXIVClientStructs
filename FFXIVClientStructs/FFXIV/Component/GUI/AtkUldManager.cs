@@ -31,7 +31,6 @@ public unsafe partial struct AtkUldManager {
     [FieldOffset(0x80)] public ushort RootNodeWidth;
     [FieldOffset(0x82)] public ushort RootNodeHeight;
     [FieldOffset(0x84)] public ushort NodeListSize; // this is the allocated size of nodelist, count is the amount of nodes it has
-    [FieldOffset(0x86), Obsolete("Use ResourceFlags")] public byte Flags1;
     [FieldOffset(0x86)] public AtkUldManagerResourceFlag ResourceFlags;
     [FieldOffset(0x88)] public AtkUldManagerBaseType BaseType;
     [FieldOffset(0x89)] public AtkLoadState LoadedState; // 3 is fully loaded
@@ -45,41 +44,42 @@ public unsafe partial struct AtkUldManager {
     public partial AtkResNode* SearchNodeById(uint id);
 
     [MemberFunction("E8 ?? ?? ?? ?? 4C 8B F0 48 85 C0 0F 84 ?? ?? ?? ?? 49 8B 4D 08")]
-    public partial AtkComponentBase* CreateAtkComponent(ComponentType type); // TODO: takes (u)int param but enum is byte
+    public partial AtkComponentBase* CreateAtkComponent(uint type);
 
-    [MemberFunction("E8 ?? ?? ?? ?? 49 8B 55 08 48 89 04 17")]
-    public partial AtkResNode* CreateAtkNode(NodeType type); // TODO: takes uint param but enum is ushort
+    public AtkComponentBase* CreateAtkComponent(ComponentType type)
+        => CreateAtkComponent((uint)type);
 
-    public static AtkResNode* CreateAtkNodeStatic(NodeType type) => MemberFunctionPointers.CreateAtkNode(null, type);
+    [MemberFunction("E8 ?? ?? ?? ?? 49 8B 55 ?? 0F B7 CD")]
+    public partial AtkResNode* CreateAtkNode(uint type);
 
-    public static AtkResNode* CreateAtkResNode() {
-        return CreateAtkNodeStatic(NodeType.Res);
-    }
+    public AtkResNode* CreateAtkNode(NodeType type)
+        => CreateAtkNode((uint)type);
 
-    public static AtkImageNode* CreateAtkImageNode() {
-        return (AtkImageNode*)CreateAtkNodeStatic(NodeType.Image);
-    }
+    public static AtkResNode* CreateAtkNodeStatic(NodeType type)
+        => MemberFunctionPointers.CreateAtkNode(null, (uint)type);
 
-    public static AtkTextNode* CreateAtkTextNode() {
-        return (AtkTextNode*)CreateAtkNodeStatic(NodeType.Text);
-    }
+    public static AtkResNode* CreateAtkResNode()
+        => CreateAtkNodeStatic(NodeType.Res);
 
-    public static AtkNineGridNode* CreateAtkNineGridNode() {
-        return (AtkNineGridNode*)CreateAtkNodeStatic(NodeType.NineGrid);
-    }
+    public static AtkImageNode* CreateAtkImageNode()
+        => (AtkImageNode*)CreateAtkNodeStatic(NodeType.Image);
 
-    public static AtkCounterNode* CreateAtkCounterNode() {
-        return (AtkCounterNode*)CreateAtkNodeStatic(NodeType.Counter);
-    }
+    public static AtkTextNode* CreateAtkTextNode()
+        => (AtkTextNode*)CreateAtkNodeStatic(NodeType.Text);
 
-    public static AtkCollisionNode* CreateAtkCollisionNode() {
-        return (AtkCollisionNode*)CreateAtkNodeStatic(NodeType.Collision);
-    }
+    public static AtkNineGridNode* CreateAtkNineGridNode()
+        => (AtkNineGridNode*)CreateAtkNodeStatic(NodeType.NineGrid);
 
-    [MemberFunction("E8 ?? ?? ?? ?? 66 41 3B B7")]
+    public static AtkCounterNode* CreateAtkCounterNode()
+        => (AtkCounterNode*)CreateAtkNodeStatic(NodeType.Counter);
+
+    public static AtkCollisionNode* CreateAtkCollisionNode()
+        => (AtkCollisionNode*)CreateAtkNodeStatic(NodeType.Collision);
+
+    [MemberFunction("E8 ?? ?? ?? ?? 33 ED 66 89 6B")]
     public partial void ExpandNodeListSize(ushort newNodeListSize);
 
-    [MemberFunction("E8 ?? ?? ?? ?? 49 8B 44 24 ?? 41 8B CF")]
+    [MemberFunction("E8 ?? ?? ?? ?? 49 8B 47 ?? 41 8B CC")]
     public partial void UpdateDrawNodeList();
 
     [MemberFunction("40 57 48 83 EC 30 0F B6 81 ?? ?? ?? ?? 48 8B F9 A8 01")]

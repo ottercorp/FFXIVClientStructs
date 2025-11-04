@@ -5,12 +5,12 @@ namespace FFXIVClientStructs.FFXIV.Component.GUI;
 // Component::GUI::AtkImageNode
 //   Component::GUI::AtkResNode
 //     Component::GUI::AtkEventTarget
-// common CreateAtkNode function "E8 ?? ?? ?? ?? 49 8B 55 08 48 89 04 17"
+// common CreateAtkNode function "E8 ?? ?? ?? ?? 49 8B 55 ?? 0F B7 CD"
 // type 2
 [GenerateInterop]
 [Inherits<AtkResNode>]
 [StructLayout(LayoutKind.Explicit, Size = 0xC0)]
-[VirtualTable("E8 ?? ?? ?? ?? 49 8B 55 08 48 89 04 17", [1, 87])]
+[VirtualTable("E8 ?? ?? ?? ?? 49 8B 55 ?? 0F B7 CD", [1, 87])]
 public unsafe partial struct AtkImageNode : ICreatable {
     [FieldOffset(0xB0)] public AtkUldPartsList* PartsList;
     [FieldOffset(0xB8)] public ushort PartId;
@@ -24,7 +24,7 @@ public unsafe partial struct AtkImageNode : ICreatable {
     }
 
     [MemberFunction("E8 ?? ?? ?? ?? 48 8B 8D ?? ?? ?? ?? 48 8B 71 08"), GenerateStringOverloads]
-    public partial void LoadTexture(CStringPointer texturePath, uint scale = 1); // TODO: scale should be int
+    public partial void LoadTexture(CStringPointer texturePath, int scale = 1);
 
     [MemberFunction("E8 ?? ?? ?? ?? 83 E7 0F")]
     public partial void LoadIconTexture(uint iconId, int language);

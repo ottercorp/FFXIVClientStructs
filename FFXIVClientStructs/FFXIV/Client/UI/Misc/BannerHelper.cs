@@ -18,7 +18,8 @@ public unsafe partial struct BannerHelper {
 
     #region CharaView Helpers
 
-    [MemberFunction("E8 ?? ?? ?? ?? 0F 2E F0 7A 13")]
+    //[MemberFunction("E8 ?? ?? ?? ?? 0F 2E F0 7A 13")] CN 7.3
+    [MemberFunction("E8 ?? ?? ?? ?? 48 8B 4E ?? 48 8D 54 24 ?? E8 ?? ?? ?? ?? 49 8B DE")]
     public partial void ExportedPortraitData_ApplyBannerModuleEntry(ExportedPortraitData* to, BannerModuleEntry* from);
 
     [MemberFunction("E8 ?? ?? ?? ?? F6 45 72 01")]
@@ -34,17 +35,17 @@ public unsafe partial struct BannerHelper {
     [MemberFunction("E8 ?? ?? ?? ?? 84 C0 0F 84 ?? ?? ?? ?? 49 8B 4F 28 4C 89 6C 24")]
     public partial bool HasCurrentBannerData();
 
-    [MemberFunction("E8 ?? ?? ?? ?? 48 8D 55 B0 48 8B CF E8 ?? ?? ?? ?? 48 8B BC 24")]
+    [MemberFunction("E8 ?? ?? ?? ?? 48 8D 54 24 ?? 48 8B CB E8 ?? ?? ?? ?? B0 ?? EB")]
     public partial void BannerData_ApplyBannerModuleEntry(BannerData* to, BannerModuleEntry* from);
 
-    [MemberFunction("E8 ?? ?? ?? ?? 48 8B AC 24 ?? ?? ?? ?? 48 8B 4C 24 ?? 48 33 CC E8 ?? ?? ?? ?? 48 83 C4 60")]
+    [MemberFunction("E8 ?? ?? ?? ?? B0 ?? EB ?? 80 BB")]
     public partial bool SendBannerData(BannerData* bannerData);
 
     #endregion
 
     #region CharaCardData Helpers
 
-    [MemberFunction("E8 ?? ?? ?? ?? 49 8B 6E 28")]
+    [MemberFunction("E8 ?? ?? ?? ?? 48 8B 6F ?? 48 8B 8D")]
     public partial void RequestCurrentCharaCard();
 
     [MemberFunction("E8 ?? ?? ?? ?? 84 C0 74 17 48 8B 4F 28")]
@@ -91,10 +92,10 @@ public unsafe partial struct BannerHelper {
     [MemberFunction("41 0F B6 80 ?? ?? ?? ?? 88 42 60")]
     public partial void BannerModuleEntry_ApplyRaceGenderHeightTribe(BannerModuleEntry* bannerModuleEntry, Character* character);
 
-    [MemberFunction("E8 ?? ?? ?? ?? 88 44 24 22 40 84 ED")]
+    [MemberFunction("E8 ?? ?? ?? ?? 84 C0 74 ?? 44 0F B6 C3")]
     public partial bool BannerModuleEntry_IsCurrentCharaCardBannerOutdated(BannerModuleEntry* bannerModuleEntry, bool logError); // not exactly sure
 
-    [MemberFunction("E8 ?? ?? ?? ?? 84 C0 74 1D 4C 8D 44 24")]
+    [MemberFunction("E8 ?? ?? ?? ?? 84 C0 75 ?? 66 C7 86")]
     public partial bool BannerModuleEntry_IsCharacterDataOutdated(BannerModuleEntry* bannerModuleEntry, bool logError);
 
     #endregion
@@ -151,6 +152,7 @@ public enum BannerGearVisibilityFlag : uint {
     HeadgearHidden = 1 << 0,
     WeaponHidden = 1 << 1,
     VisorClosed = 1 << 2,
+    HideVieraEars = 1 << 3,
 }
 
 public enum CharaCardDataChangeReason {

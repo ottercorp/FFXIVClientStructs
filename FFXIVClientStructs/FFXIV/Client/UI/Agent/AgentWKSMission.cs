@@ -15,10 +15,10 @@ public unsafe partial struct AgentWKSMission {
     [MemberFunction("40 53 48 83 EC ?? 8B DA E8 ?? ?? ?? ?? 48 85 C0 74 ?? E8 ?? ?? ?? ?? 48 83 B8 ?? ?? ?? ?? ?? 74 ?? E8 ?? ?? ?? ?? 0F B7 D3")]
     public partial void StartMission(ushort missionUnitId);
 
-    [MemberFunction("E8 ?? ?? ?? ?? 44 0F B6 F0 33 C0")]
+    [MemberFunction("E8 ?? ?? ?? ?? 3A D8 74 ?? 41 FE C6")]
     public partial byte JobIndexToClassJobId(byte jobIndex);
 
-    [MemberFunction("E8 ?? ?? ?? ?? 0F B6 D8 84 C0 74 ?? 4D 8B 55")]
+    [MemberFunction("E8 ?? ?? ?? ?? 0F B6 D8 84 C0 74 ?? 49 8B 55")]
     public partial bool GetBasicMissions(StdVector<MissionEntry>* list);
 
     [MemberFunction("E8 ?? ?? ?? ?? EB ?? 48 81 C2")]
@@ -27,7 +27,7 @@ public unsafe partial struct AgentWKSMission {
     [MemberFunction("E8 ?? ?? ?? ?? E9 ?? ?? ?? ?? 0F B6 4A ?? 85 C9")]
     public partial bool GetMissionLog(StdVector<MissionEntry>* list);
 
-    [StructLayout(LayoutKind.Explicit, Size = 0xB0)]
+    [StructLayout(LayoutKind.Explicit, Size = 0x120)]
     public struct MissionData {
         [FieldOffset(0x01)] public byte SelectedJobIndex;
         [FieldOffset(0x02)] public byte SelectedTabIndex;
@@ -39,17 +39,21 @@ public unsafe partial struct AgentWKSMission {
         [FieldOffset(0x14)] private uint ConfirmMissionId;
         [FieldOffset(0x18)] private uint ConfirmAddonId;
         [FieldOffset(0x1C)] private uint MapMissionId;
-        [FieldOffset(0x20)] public Utf8String SelectedMissionTitle;
-        [FieldOffset(0x88)] public StdVector<MissionEntry> MissionList;
+        [FieldOffset(0x20)] private int MapPlayerPosX;
+        [FieldOffset(0x24)] private int MapPlayerPosY;
+        [FieldOffset(0x28)] public Utf8String SelectedMissionTitle;
+        [FieldOffset(0x90)] public Utf8String ItemLevelWarningText;
+        [FieldOffset(0xF8)] public StdVector<MissionEntry> MissionList;
 
-        [FieldOffset(0xA8)] public byte UpdateFlags;
+        [FieldOffset(0x118)] public byte UpdateFlags;
     }
 
-    [StructLayout(LayoutKind.Explicit, Size = 0x18)]
+    [StructLayout(LayoutKind.Explicit, Size = 0x20)]
     public struct MissionEntry {
         [FieldOffset(0x00)] public uint MissionUnitId;
         [FieldOffset(0x04)] public uint IconId;
-        [FieldOffset(0x10)] public MissionFlags Flags;
+
+        [FieldOffset(0x14)] public MissionFlags Flags; // maybe byte?
         /// <summary>
         /// 1,2,3,4 = D,C,B,A (LevelGroup)<br/>
         /// 12 = Weather-restricted<br/>
@@ -57,7 +61,7 @@ public unsafe partial struct AgentWKSMission {
         /// 14 = Sequential (LockedBehind)<br/>
         /// 15 = Critical (IsSpecialQuest)<br/>
         /// </summary>
-        [FieldOffset(0x14)] public byte MissionGroup;
+        [FieldOffset(0x18)] public byte MissionGroup;
     }
 
     [Flags]

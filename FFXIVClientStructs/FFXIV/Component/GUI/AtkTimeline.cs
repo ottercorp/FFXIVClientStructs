@@ -17,14 +17,18 @@ public unsafe partial struct AtkTimeline {
     [FieldOffset(0x2E)] public AtkTimelineMask Mask;
     [FieldOffset(0x2F)] public AtkTimelineFlags Flags;
 
-    [MemberFunction("E8 ?? ?? ?? ?? 0F BF 43 10")]
-    public partial void PlayAnimation(AtkTimelineJumpBehavior behavior, byte labelId, float startTime = 0, float endTime = 0);
+    [MemberFunction("E8 ?? ?? ?? ?? 0F BF 4B ?? 66 FF C7")]
+    public partial void PlayAnimation(AtkTimelineJumpBehavior behavior, ushort labelId, float startTime = 0, float endTime = 0);
+
+    [Obsolete("LabelId is the wrong data type (byte), use PlayAnimation overload with ushort LabelId instead", true)]
+    public void PlayAnimation(AtkTimelineJumpBehavior behavior, byte labelId, float startTime = 0, float endTime = 0)
+        => PlayAnimation(behavior, (ushort)labelId, startTime, endTime);
 
     [MemberFunction("40 53 48 83 EC 30 0F B7 41 2A")]
     public partial void UpdateChildTimelines(float frameTime);
 
     [MemberFunction("E8 ?? ?? ?? ?? 84 C0 74 7D 48 8B 43 20")]
-    public partial void GetInterpolatedValue(int keyGroupId, AtkTimelineKeyGroupType keyGroupType, AtkTimelineKeyValue* output); // TODO: return bool
+    public partial bool GetInterpolatedValue(int keyGroupId, AtkTimelineKeyGroupType keyGroupType, AtkTimelineKeyValue* output);
 }
 
 [Flags]

@@ -1,5 +1,6 @@
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.System.String;
+using FFXIVClientStructs.FFXIV.Common.Component.BGCollision;
 
 namespace FFXIVClientStructs.FFXIV.Client.LayoutEngine;
 
@@ -31,8 +32,16 @@ public unsafe partial struct LayoutWorld {
     [FieldOffset(0x228)] public StdMap<ulong, Pointer<byte>>* RsfMap; // Key is v0 index hash, value is always 64 bytes in size
 
     /// <remarks> Tries to get it from <see cref="ActiveLayout"/> first, then from <see cref="GlobalLayout"/>. </remarks>
-    [MemberFunction("E9 ?? ?? ?? ?? 8B 43 78 45 33 C0")]
-    public static partial ILayoutInstance* GetLayoutInstance(InstanceType instanceType, uint instanceId, uint subId = 0);
+    [MemberFunction("E8 ?? ?? ?? ?? 48 89 47 ?? 0F 57 C0")] // TODO: replace with sig: E8 ?? ?? ?? ?? 48 85 C0 0F 84 ?? ?? ?? ?? 48 8B 10 48 8B C8 FF 92 ?? ?? ?? ?? 8B 4E 04
+    [Obsolete("Use GetLayoutInstanceStatic", true)] // TODO: 7.4 remove this obsolete
+    public static partial ILayoutInstance* GetLayoutInstance(InstanceType instanceType, uint instanceId, uint subId = 0); // TODO: Make non static
+
+    /// <inheritdoc cref="GetLayoutInstance" />
+    [MemberFunction("E8 ?? ?? ?? ?? 48 89 47 ?? 0F 57 C0")]
+    public static partial ILayoutInstance* GetLayoutInstanceStatic(InstanceType instanceType, uint instanceId, uint subId = 0);
+
+    [MemberFunction("E8 ?? ?? ?? ?? 48 8B F0 48 85 C0 74 ?? 8B 90")]
+    public static partial ILayoutInstance* GetColliderLayoutInstance(InstanceType instanceType, Collider* collider);
 
     [MemberFunction("E8 ?? ?? ?? ?? 45 33 F6 44 89 B7")]
     public static partial void UnloadPrefetchLayout();
@@ -44,7 +53,7 @@ public unsafe partial struct LayoutWorld {
     [MemberFunction("48 89 5C 24 ?? 48 89 74 24 ?? 57 48 81 EC ?? ?? ?? ?? 48 8B 05 ?? ?? ?? ?? 48 33 C4 48 89 84 24 ?? ?? ?? ?? 48 83 B9 ?? ?? ?? ?? ?? 48 8B F1"), GenerateStringOverloads]
     public partial CStringPointer ResolveRsvString(CStringPointer rsvString);
 
-    [MemberFunction("40 53 55 56 57 41 54 41 55 41 56 41 57 48 81 EC ?? ?? ?? ?? 48 8B 05 ?? ?? ?? ?? 48 33 C4 48 89 84 24 ?? ?? ?? ?? 4D 8B E8")]
+    [MemberFunction("40 53 55 56 57 41 54 41 55 41 56 41 57 48 81 EC ?? ?? ?? ?? 48 8B 05 ?? ?? ?? ?? 48 33 C4 48 89 84 24 ?? ?? ?? ?? 4D 8B E0")]
     public partial bool AddRsvString(byte* rsvString, byte* resolvedString, nuint resolvedStringSize);
 
     [MemberFunction("4C 8B 81 ?? ?? ?? ?? 4D 85 C0 74 45")]

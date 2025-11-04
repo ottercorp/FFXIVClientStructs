@@ -28,13 +28,13 @@ public unsafe partial struct LogViewer {
 
     [FieldOffset(0xA8)] public AtkTimer AtkTimer;
 
-    [FieldOffset(0xD9)] public byte IsScrolledBottom;
+    [FieldOffset(0xD9)] public bool IsScrolledBottom;
 
-    [FieldOffset(0xF9)] public byte IsContextMenuShown;
+    [FieldOffset(0xF9)] public bool IsContextMenuShown;
 
     [FieldOffset(0x120)] public bool IsMaximized;
     [FieldOffset(0x121)] public bool IsSelectingText;
 
-    [MemberFunction("48 85 D2 0F 84 ?? ?? ?? ?? 4C 8B DC 55 56 41 55 49 8D AB")]
+    [MemberFunction("48 85 D2 0F 84 ?? ?? ?? ?? 4C 8B DC 55 41 54")]
     public partial void HandleLinkClick(LinkData* linkData);
 }

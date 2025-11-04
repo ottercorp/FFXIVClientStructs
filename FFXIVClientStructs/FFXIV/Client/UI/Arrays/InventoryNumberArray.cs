@@ -2,13 +2,15 @@ using FFXIVClientStructs.FFXIV.Component.GUI;
 
 namespace FFXIVClientStructs.FFXIV.Client.UI.Arrays;
 
-[CExportIgnore]
 [GenerateInterop]
 [StructLayout(LayoutKind.Explicit, Size = 1351 * 4)]
 public unsafe partial struct InventoryNumberArray {
-    public static InventoryNumberArray* Instance() => (InventoryNumberArray*)AtkStage.Instance()->GetNumberArrayData(NumberArrayType.Inventory)->IntArray;
+    public static InventoryNumberArray* Instance() {
+        var numberArray = AtkStage.Instance()->GetNumberArrayData(NumberArrayType.Inventory);
+        return numberArray == null ? null : (InventoryNumberArray*)numberArray->IntArray;
+    }
 
-    [FieldOffset(0), FixedSizeArray, CExportIgnore] internal FixedSizeArray1351<int> _data;
+    [FieldOffset(0), FixedSizeArray, CExporterIgnore] internal FixedSizeArray1351<int> _data;
 
     [FieldOffset(0 * 4), FixedSizeArray] internal FixedSizeArray140<InventoryItemNumberArray> _items;
 
@@ -16,10 +18,10 @@ public unsafe partial struct InventoryNumberArray {
 
     [FieldOffset(1292 * 4), FixedSizeArray] internal FixedSizeArray18<InventoryCrystalNumberArray> _crystals;
 
-    [CExportIgnore]
+    [GenerateInterop]
     [StructLayout(LayoutKind.Explicit, Size = 6 * 4)]
     public partial struct InventoryItemNumberArray {
-        [FieldOffset(0), FixedSizeArray, CExportIgnore] internal FixedSizeArray6<int> _data;
+        [FieldOffset(0), FixedSizeArray, CExporterIgnore] internal FixedSizeArray6<int> _data;
 
         [FieldOffset(0 * 4)] public uint IconId;
         [FieldOffset(2 * 4)] internal int _stackCount;
@@ -29,10 +31,10 @@ public unsafe partial struct InventoryNumberArray {
 
         public int StackCount => (_stackCount >> 16) & 0xFFFF;
 
-        [CExportIgnore]
+        [GenerateInterop]
         [StructLayout(LayoutKind.Explicit, Size = 1 * 4)]
         public partial struct ItemFlag {
-            [FieldOffset(0), FixedSizeArray, CExportIgnore] internal FixedSizeArray1<int> _data;
+            [FieldOffset(0), FixedSizeArray, CExporterIgnore] internal FixedSizeArray1<int> _data;
 
             [FieldOffset(0)] public byte ItemType;
             [FieldOffset(2)] public ItemWearableIcon Wearable;
@@ -45,10 +47,10 @@ public unsafe partial struct InventoryNumberArray {
             }
         }
 
-        [CExportIgnore]
+        [GenerateInterop]
         [StructLayout(LayoutKind.Explicit, Size = 1 * 4)]
         public partial struct ItemDye {
-            [FieldOffset(0), FixedSizeArray, CExportIgnore] internal FixedSizeArray1<int> _data;
+            [FieldOffset(0), FixedSizeArray, CExporterIgnore] internal FixedSizeArray1<int> _data;
 
             [FieldOffset(3)] public byte R;
             [FieldOffset(2)] public byte G;
@@ -57,24 +59,24 @@ public unsafe partial struct InventoryNumberArray {
         }
     }
 
-    [CExportIgnore]
+    [GenerateInterop]
     [StructLayout(LayoutKind.Explicit, Size = 3 * 4)]
     public partial struct InventoryKeyItemNumberArray {
         [FieldOffset(0 * 4)] public uint IconId;
         [FieldOffset(1 * 4)] public InventoryKeyItemFlagsNumberArray KeyItemFlags;
         [FieldOffset(2 * 4)] public uint UnkFlags;
 
-        [CExportIgnore]
+        [GenerateInterop]
         [StructLayout(LayoutKind.Explicit, Size = 1 * 4)]
         public partial struct InventoryKeyItemFlagsNumberArray {
-            [FieldOffset(3)] public byte UnkFlags1;
-            [FieldOffset(2)] public byte TooltipIndex;
-            [FieldOffset(1)] public byte UnkFlags3;
             [FieldOffset(0)] public byte StackCount;
+            [FieldOffset(1)] public byte UnkFlags3;
+            [FieldOffset(2)] public byte TooltipIndex;
+            [FieldOffset(3)] public byte UnkFlags1;
         }
     }
 
-    [CExportIgnore]
+    [GenerateInterop]
     [StructLayout(LayoutKind.Explicit, Size = 3 * 4)]
     public partial struct InventoryCrystalNumberArray {
         [FieldOffset(0 * 4)] public uint IconId;

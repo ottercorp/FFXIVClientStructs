@@ -73,18 +73,18 @@ public unsafe partial struct CharaView : ICreatable {
     public partial void OnReady();
 
     [VirtualFunction(10)]
-    public partial void Update();
+    public partial void Update(uint frameIndex, Character* character);
 
-    [MemberFunction("E8 ?? ?? ?? ?? 4D 8B CD 45 8B C4")]
+    [MemberFunction("E8 ?? ?? ?? ?? 4C 8B 4C 24 ?? 45 8B C5")]
     public partial void SetModelData(CharaViewModelData* data);
 
     [MemberFunction("E8 ?? ?? ?? ?? 49 8B 4C 24 ?? 8B 51 04")]
     public partial void Render(uint frameIndex);
 
-    [MemberFunction("E8 ?? ?? ?? ?? 48 85 C0 75 05 0F 57 C9")]
+    [MemberFunction("E8 ?? ?? ?? ?? 44 0F B6 C3 40 0F B6 D7 48 8D 88")]
     public partial Character* GetCharacter();
 
-    [MemberFunction("E8 ?? ?? ?? ?? 48 8B 45 77 48 8D 4D 87")]
+    [MemberFunction("E8 ?? ?? ?? ?? 33 DB 48 8D 3D ?? ?? ?? ?? BD")]
     public partial void UnequipGear(bool hasCharacterData = false, bool characterLoaded = true);
 
     [MemberFunction("E8 ?? ?? ?? ?? FF C5 48 83 C3 1C")]
@@ -112,7 +112,7 @@ public unsafe partial struct CharaViewModelData {
 }
 
 [GenerateInterop]
-[StructLayout(LayoutKind.Explicit, Size = 0x78)]
+[StructLayout(LayoutKind.Explicit, Size = 0x7C)]
 public unsafe partial struct CharaViewCharacterData : ICreatable {
     [FieldOffset(0)] public CustomizeData CustomizeData;
     // Unk 2 bytes
@@ -124,6 +124,7 @@ public unsafe partial struct CharaViewCharacterData : ICreatable {
     [FieldOffset(0x75)] public bool HeadgearHidden;
     [FieldOffset(0x76)] public bool WeaponHidden;
     [FieldOffset(0x77)] public bool VisorClosed;
+    [FieldOffset(0x78)] public bool HideVieraEars;
 
     public static CharaViewCharacterData* Create()
         => IMemorySpace.GetUISpace()->Create<CharaViewCharacterData>();

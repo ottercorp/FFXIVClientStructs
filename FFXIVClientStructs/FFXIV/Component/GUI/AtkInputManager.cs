@@ -1,3 +1,5 @@
+using FFXIVClientStructs.FFXIV.Client.UI;
+
 namespace FFXIVClientStructs.FFXIV.Component.GUI;
 
 [GenerateInterop]
@@ -11,8 +13,17 @@ public unsafe partial struct AtkInputManager {
 
     [FieldOffset(0x80), FixedSizeArray] internal FixedSizeArray256<FocusEntry> _focusList;
 
+    [FieldOffset(0x1880)] public AtkResNode* FocusedNode;
+
     [MemberFunction("E8 ?? ?? ?? ?? 33 C0 48 89 86 ?? ?? ?? ?? 88 86 ?? ?? ?? ?? 38 86")]
     public partial void HandleInput(AtkUnitManager* unitManager, AtkCollisionManager* collisionManager);
+
+    // null is valid when setting focus, this will result in all focus being cleared
+    [MemberFunction("E8 ?? ?? ?? ?? 49 8B 84 FF ?? ?? ?? ??")]
+    public partial bool SetFocus(AtkResNode* node, AtkUnitBase* addon, int focusParam);
+
+    [MemberFunction("E8 ?? ?? ?? ?? 66 89 BE ?? ?? ?? ??")]
+    public partial bool HandleFocus(RaptureAtkUnitManager* unitManager, FocusEntry* focusEntry, AtkEventDispatcher.Event* eventData);
 
     [StructLayout(LayoutKind.Explicit, Size = 0x18)]
     public struct FocusEntry {

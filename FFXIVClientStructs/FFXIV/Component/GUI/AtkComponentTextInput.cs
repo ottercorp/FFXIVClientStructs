@@ -17,16 +17,14 @@ namespace FFXIVClientStructs.FFXIV.Component.GUI;
 [Inherits<AtkTextInput.AtkTextInputEventInterface>]
 [Inherits<SoftKeyboardDeviceInterface.SoftKeyboardInputInterface>]
 [StructLayout(LayoutKind.Explicit, Size = 0x600)]
+[VirtualTable("48 8D 05 ?? ?? ?? ?? 48 89 9F ?? ?? ?? ?? ?? ?? ?? 48 8D 8F ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? 88 9F", 3, 20)]
 public unsafe partial struct AtkComponentTextInput : ICreatable {
     [FieldOffset(0x1F0)] public AtkUldComponentDataTextInput ComponentTextData;
-    [FieldOffset(0x250), Obsolete("Use ComponentTextData.MaxByte instead")] public uint MaxTextLength;
-    [FieldOffset(0x254), Obsolete("Use ComponentTextData.MaxChar instead")] public uint MaxTextLength2;
-    [FieldOffset(0x26C)] public ushort InputSanitizationFlags; // passed to SanitizeString // TODO: change type to AllowedEntities
+    [FieldOffset(0x26C)] public AllowedEntities InputSanitizationFlags;
 
     [FieldOffset(0x280)] public Utf8String UnkText01;
     [FieldOffset(0x2E8)] public Utf8String UnkText02;
 
-    [FieldOffset(0x350), Obsolete("Renamed to AvailableLines")] public Utf8String UnkText03;
     [FieldOffset(0x350)] public Utf8String AvailableLines;
 
     [FieldOffset(0x3B8)] public AtkTextNode* AvailableLinesTextNode;
@@ -39,15 +37,13 @@ public unsafe partial struct AtkComponentTextInput : ICreatable {
     [FieldOffset(0x428)] public AtkTextNode* AutoTranslateMenuPageInfoTextNode;
     [FieldOffset(0x430)] public AtkNineGridNode* AutoTranslateMenuBackground;
 
-    [FieldOffset(0x450), Obsolete("Renamed to HighlightedAutoTranslateOptionColorPrefix")] public Utf8String UnkText04;
     // Utf8Strings containing color macros that are wrapped around the highlighted AutoTranslate option
     [FieldOffset(0x450)] public Utf8String HighlightedAutoTranslateOptionColorPrefix;
 
-    [FieldOffset(0x4B8), Obsolete("Renamed to HighlightedAutoTranslateOptionColorSuffix")] public Utf8String UnkText05;
     [FieldOffset(0x4B8)] public Utf8String HighlightedAutoTranslateOptionColorSuffix;
 
-
-    [MemberFunction("E8 ?? ?? ?? ?? E9 ?? ?? ?? ?? 45 33 C9 33 D2 B9 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 8B F0")]
+    // 7.3: inlined, this is an orphaned (no x-ref) copy
+    [MemberFunction("48 89 5C 24 ?? 57 48 83 EC ?? 48 8B D9 E8 ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? 48 C7 83")]
     public partial void Ctor();
 
     [MemberFunction("E8 ?? ?? ?? ?? 45 32 C0 33 D2"), GenerateStringOverloads]
@@ -58,6 +54,6 @@ public unsafe partial struct AtkComponentTextInput : ICreatable {
     /// </summary>
     /// <param name="text">Text to insert.</param>
     /// <param name="unique">If true, only insert if the text is not already in the input.</param>
-    [MemberFunction("E8 ?? ?? ?? ?? EB 5D E8"), GenerateStringOverloads]
+    [MemberFunction("E8 ?? ?? ?? ?? 48 8B 83 ?? ?? ?? ?? 33 F6 45 33 C9"), GenerateStringOverloads]
     public partial void InsertText(CStringPointer text, bool unique = false);
 }

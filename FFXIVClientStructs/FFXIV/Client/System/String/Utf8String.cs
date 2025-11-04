@@ -6,7 +6,6 @@ using FFXIVClientStructs.STD.Helper;
 namespace FFXIVClientStructs.FFXIV.Client.System.String;
 
 // Client::System::String::Utf8String
-// ctor "E8 ?? ?? ?? ?? 48 03 1F"
 [GenerateInterop]
 [StructLayout(LayoutKind.Explicit, Size = 0x68)]
 public unsafe partial struct Utf8String : ICreatable, IDisposable, IStaticNativeObjectOperation<Utf8String> {
@@ -102,13 +101,13 @@ public unsafe partial struct Utf8String : ICreatable, IDisposable, IStaticNative
     [MemberFunction("48 89 5C 24 ?? 57 48 83 EC 50 48 8B 05 ?? ?? ?? ?? 48 33 C4 48 89 44 24 ?? 33 C0 48 C7 44 24")]
     public static partial int ToInteger(Utf8String* value, int fromBase = 0); // base 0 = detect format (0x hex, 0b bin, 0o oct)
 
-    [MemberFunction("E8 ?? ?? ?? ?? 8D 56 40")]
+    [MemberFunction("E8 ?? ?? ?? ?? F7 C3")]
     public partial void Ctor();
 
     [MemberFunction("E8 ?? ?? ?? ?? 41 8B CF EB 15")]
     public partial Utf8String* Ctor_FromSequence(byte* str, nuint length);
 
-    [MemberFunction("E8 ?? ?? ?? ?? 48 83 6E ?? ?? 75 08")]
+    [MemberFunction("E8 ?? ?? ?? ?? C7 44 F5")]
     public partial void Dtor();
 
     [MemberFunction("E8 ?? ?? ?? ?? 4D 39 2E"), GenerateStringOverloads]
@@ -120,7 +119,7 @@ public unsafe partial struct Utf8String : ICreatable, IDisposable, IStaticNative
     [MemberFunction("E8 ?? ?? ?? ?? 85 ED 79")]
     public partial void Clear();
 
-    [MemberFunction("E8 ?? ?? ?? ?? EB 17 45 85 E4")]
+    [MemberFunction("E8 ?? ?? ?? ?? 84 C0 41 8B F6")]
     public partial bool EqualTo(Utf8String* other);
 
     [MemberFunction("E8 ?? ?? ?? ?? EB 25 83 F9 03"), GenerateStringOverloads]
@@ -140,7 +139,7 @@ public unsafe partial struct Utf8String : ICreatable, IDisposable, IStaticNative
     [MemberFunction("E8 ?? ?? ?? ?? 48 8B F8 48 3B C3")]
     public partial Utf8String* CopySubStrTo(Utf8String* destination, int start, int length);
 
-    [MemberFunction("E8 ?? ?? ?? ?? 48 8D 4D A7 E8 ?? ?? ?? ?? EB 18")]
+    [MemberFunction("E8 ?? ?? ?? ?? 48 8D 4D ?? E8 ?? ?? ?? ?? 41 B4")]
     public partial Utf8String* Replace(Utf8String* toFind, Utf8String* replacement);
 
     [MemberFunction("E8 ?? ?? ?? ?? B9 ?? ?? ?? ?? 45 84 ED")]

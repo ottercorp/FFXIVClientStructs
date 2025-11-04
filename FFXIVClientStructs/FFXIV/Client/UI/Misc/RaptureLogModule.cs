@@ -1,3 +1,5 @@
+using FFXIVClientStructs.FFXIV.Client.Game.Character;
+using FFXIVClientStructs.FFXIV.Client.Game.Control;
 using FFXIVClientStructs.FFXIV.Client.System.String;
 using FFXIVClientStructs.FFXIV.Common.Component.Excel;
 using FFXIVClientStructs.FFXIV.Component.GUI;
@@ -46,16 +48,16 @@ public unsafe partial struct RaptureLogModule {
 
     [FieldOffset(0x3488)] public AddonMessageSub AddonMessageSub3488;
 
-    [MemberFunction("E8 ?? ?? ?? ?? 41 83 EC 01")]
+    [MemberFunction("E8 ?? ?? ?? ?? 41 83 EC ?? 89 43")]
     public partial uint FormatLogMessage(uint logKindId, Utf8String* sender, Utf8String* message, int* timestamp, void* a6, Utf8String* a7, int chatTabIndex);
 
-    [MemberFunction("E8 ?? ?? ?? ?? 8B D8 48 8D 4D 00")]
+    [MemberFunction("E8 ?? ?? ?? ?? 44 39 AE ?? ?? ?? ?? 7E")]
     public partial uint PrintMessage(ushort logKindId, Utf8String* senderName, Utf8String* message, int timestamp, bool silent = false);
 
-    [MemberFunction("E8 ?? ?? ?? ?? 44 03 EB")]
+    [MemberFunction("E9 ?? ?? ?? ?? 40 88 AE")]
     public partial void ShowLogMessage(uint logMessageId);
 
-    [MemberFunction("E8 ?? ?? ?? ?? 41 8B 5E 28")] // ShowLogMessage<uint>
+    [MemberFunction("E9 ?? ?? ?? ?? 0C ?? 88 42")] // ShowLogMessage<uint>
     public partial void ShowLogMessageUInt(uint logMessageId, uint value);
 
     [MemberFunction("E8 ?? ?? ?? ?? 0F BE 4B 44")] // ShowLogMessage<uint,uint>
@@ -64,13 +66,25 @@ public unsafe partial struct RaptureLogModule {
     [MemberFunction("E8 ?? ?? ?? ?? 40 84 ED 0F 84 ?? ?? ?? ?? 83 7F 20 00")] // ShowLogMessage<uint,uint,uint>
     public partial void ShowLogMessageUIntUIntUInt(uint logMessageId, uint value1, uint value2, uint value3);
 
-    [MemberFunction("E8 ?? ?? ?? ?? EB 68 48 8B 07")] // ShowLogMessage<string>
+    [MemberFunction("E8 ?? ?? ?? ?? EB ?? 41 8B 47 ?? 85 C0")] // ShowLogMessage<string>
     public partial void ShowLogMessageString(uint logMessageId, Utf8String* value);
+
+    /// <summary>
+    /// Shows a message in a chat bubble above a characters head.
+    /// </summary>
+    /// <param name="logKindId"> The LogKind RowId. </param>
+    /// <param name="sender"> The senders name. </param>
+    /// <param name="message"> The message. </param>
+    /// <param name="worldId"> The World RowId of the sender. Used for <see cref="CharacterManager.LookupBattleCharaByName(CStringPointer, bool, short)"/>. </param>
+    /// <param name="isLocalPlayer"> If <see langword="true"/>, uses <see cref="Control.LocalPlayer"/>, otherwise looks up the character via <see cref="CharacterManager.LookupBattleCharaByName(CStringPointer, bool, short)"/>. </param>
+    [MemberFunction("E8 ?? ?? ?? ?? 48 8D 4C 24 ?? E8 ?? ?? ?? ?? 41 8B C6 48 8B 8C 24")]
+    public partial void ShowMiniTalkPlayer(ushort logKindId, Utf8String* sender, Utf8String* message, ushort worldId, bool isLocalPlayer);
 
     [MemberFunction("E8 ?? ?? ?? ?? 40 80 C6 41"), GenerateStringOverloads]
     public partial void PrintString(CStringPointer str);
 
-    [MemberFunction("E8 ?? ?? ?? ?? 84 C0 0F 84 ?? ?? ?? ?? 48 8D 4D B0 E8 ?? ?? ?? ?? 48 8B D0")]
+    //[MemberFunction("E8 ?? ?? ?? ?? 84 C0 0F 84 ?? ?? ?? ?? 48 8D 4D B0 E8 ?? ?? ?? ?? 48 8B D0")] CN 7.3
+    [MemberFunction("E8 ?? ?? ?? ?? 84 C0 74 ?? 48 8D 4D ?? E8 ?? ?? ?? ?? 48 8B D0")]
     public partial bool GetLogMessage(int index, Utf8String* str);
 
     [MemberFunction("E8 ?? ?? ?? ?? 84 C0 74 51 44 0F B6 95")]
@@ -79,10 +93,10 @@ public unsafe partial struct RaptureLogModule {
     [MemberFunction("4C 8B D9 48 8B 89")]
     public partial void AddMsgSourceEntry(ulong contentId, ulong accountId, int messageIndex, ushort worldId, ushort chatType);
 
-    [MemberFunction("E8 ?? ?? ?? ?? 4D 8B 44 24 ?? 41 8B D7")]
+    [MemberFunction("48 89 5C 24 ?? 55 48 8D 6C 24 ?? 48 81 EC ?? ?? ?? ?? 48 8B 05 ?? ?? ?? ?? 48 33 C4 48 89 45 ?? 48 63 C2")]
     public partial void SetTabName(int tabIndex, Utf8String* tabName);
 
-    [MemberFunction("E8 ?? ?? ?? ?? 44 8D 73 01")]
+    [MemberFunction("E8 ?? ?? ?? ?? 48 8B 08 44 38 21")]
     public partial Utf8String* GetTabName(int tabIndex);
 
     public bool GetLogMessage(int index, out byte[] message) {

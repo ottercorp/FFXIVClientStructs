@@ -8,13 +8,13 @@ namespace FFXIVClientStructs.FFXIV.Component.GUI;
 // Component::GUI::AtkTextNode
 //   Component::GUI::AtkResNode
 //     Component::GUI::AtkEventTarget
-// common CreateAtkNode function "E8 ?? ?? ?? ?? 49 8B 55 08 48 89 04 17"
+// common CreateAtkNode function "E8 ?? ?? ?? ?? 49 8B 55 ?? 0F B7 CD"
 // type 3
 // simple text node
 [GenerateInterop]
 [Inherits<AtkResNode>]
-[StructLayout(LayoutKind.Explicit, Size = 0x160)]
-[VirtualTable("E8 ?? ?? ?? ?? 49 8B 55 08 48 89 04 17", [1, 144])]
+[StructLayout(LayoutKind.Explicit, Size = 0x168)]
+[VirtualTable("E8 ?? ?? ?? ?? 49 8B 55 ?? 0F B7 CD", [1, 144])]
 public unsafe partial struct AtkTextNode : ICreatable {
     [FieldOffset(0xB0)] public uint TextId;
     [FieldOffset(0xB4)] public ByteColor TextColor;
@@ -35,8 +35,7 @@ public unsafe partial struct AtkTextNode : ICreatable {
     [FieldOffset(0x156)] public byte SheetType;
 
     [FieldOffset(0x158)] public ushort FontCacheHandle;
-    [FieldOffset(0x15A)] public byte TextFlags;
-    [FieldOffset(0x15B)] public byte TextFlags2;
+    [FieldOffset(0x160)] public TextFlags TextFlags;
 
     // 7.0 inlines this ctor
     public void Ctor() {
@@ -50,7 +49,7 @@ public unsafe partial struct AtkTextNode : ICreatable {
     /// The game assumes the pointer passed to this function will stay alive. See <see href="https://github.com/aers/FFXIVClientStructs/issues/1040">here</see> for more information.
     /// </summary>
     /// <param name="str">Null-terminated UTF-8 string buffer to set the text to.</param>
-    [MemberFunction("E8 ?? ?? ?? ?? 8D 4E 32")]
+    [MemberFunction("E8 ?? ?? ?? ?? 33 F6 0F B7 D6")]
     public partial void SetText(CStringPointer str);
 
     public void SetText(string str) {
@@ -71,7 +70,7 @@ public unsafe partial struct AtkTextNode : ICreatable {
         OriginalTextPointer = NodeText.StringPtr;
     }
 
-    [MemberFunction("E8 ?? ?? ?? ?? 4A 8B 9C F6 ?? ?? ?? ??")]
+    [MemberFunction("E8 ?? ?? ?? ?? 40 32 ED 4C 8B C0")]
     public partial CStringPointer GetText();
 
     [MemberFunction("E8 ?? ?? ?? ?? 8D 4E 5A")]
@@ -83,7 +82,7 @@ public unsafe partial struct AtkTextNode : ICreatable {
     [MemberFunction("E8 ?? ?? ?? ?? 0F B7 6D 08")]
     public partial void GetTextDrawSize(ushort* outWidth, ushort* outHeight, byte* text = null, int start = 0, int end = -1, bool considerScale = false);
 
-    [MemberFunction("E8 ?? ?? ?? ?? 48 8B 0E 48 8B 9D")]
+    [MemberFunction("48 85 C9 74 ?? 80 A1 ?? ?? ?? ?? ?? 80 E2")]
     public partial void SetAlignment(AlignmentType alignmentType);
 
     [MemberFunction("E8 ?? ?? ?? ?? 45 33 C0 B2 18")]
@@ -101,21 +100,17 @@ public unsafe partial struct AtkTextNode : ICreatable {
 }
 
 [Flags]
-public enum TextFlags {
-    AutoAdjustNodeSize = 0x01,
-    Bold = 0x02,
-    Italic = 0x04,
-    Edge = 0x08,
-    Glare = 0x10,
-    Emboss = 0x20,
-    WordWrap = 0x40,
-    MultiLine = 0x80
-}
-
-[Flags]
-public enum TextFlags2 {
-    Ellipsis = 0x04,
-    FixedFontResolution = 0x10
+public enum TextFlags : ushort {
+    AutoAdjustNodeSize = 1 << 0,
+    Bold = 1 << 1,
+    Italic = 1 << 2,
+    Edge = 1 << 3,
+    Glare = 1 << 4,
+    Emboss = 1 << 5,
+    WordWrap = 1 << 6,
+    MultiLine = 1 << 7,
+    FixedFontResolution = 1 << 9,
+    Ellipsis = 1 << 10,
 }
 
 public enum FontType : byte {

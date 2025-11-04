@@ -1,4 +1,3 @@
-using System.Runtime.CompilerServices;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.Network;
 using FFXIVClientStructs.FFXIV.Client.Sound;
@@ -25,6 +24,17 @@ public unsafe partial struct Framework {
     //[StaticAddress("49 8B DC 48 89 1D ?? ?? ?? ??", 6, isPointer: true)] //Global 7.2
     public static partial Framework* Instance();
 
+    // Teardown sequence:
+    // - (optional) UIModule.ExitGame() sets UIModule.ShouldExitGame to true, that makes it call Framework.Exit() in its Update function
+    // - Framework.Exit() sets IsExiting to true and sets the ExitCode
+    // - When IsExiting is true: IsDestroying is set to true in TaskIntervalEnd
+    // - When IsDestroying and Framework.Destroy() both return true: Framework.Free() is called
+    // - At the end of Framework.Free(), IsFreed is set to true, which makes it stop calling Tick
+    // - Framework.Dtor() is called and some other stuff happens until WinMain ends
+    [FieldOffset(0x0008)] public bool IsDestroying;
+    [FieldOffset(0x0009)] public bool IsExiting;
+    [FieldOffset(0x000A)] public bool IsFreed;
+    [FieldOffset(0x000C)] public int ExitCode;
     [FieldOffset(0x0010)] public SystemConfig SystemConfig;
     [FieldOffset(0x0460)] public DevConfig DevConfig;
     [FieldOffset(0x0570)] public CharamakeAvatarSaveDataContainer* CharamakeAvatarSaveData;
@@ -97,12 +107,12 @@ public unsafe partial struct Framework {
     [FieldOffset(0x2BD0)] public LuaState LuaState;
 
     [FieldOffset(0x2BF8), FixedSizeArray(isString: true)] internal FixedSizeArray256<byte> _gameVersion;
-    // TODO: convert to array of 64 strings each 32 bytes long if possible
-    [FieldOffset(0x2CF8 + 0 * 0x20), FixedSizeArray(isString: true)] internal FixedSizeArray32<byte> _ex1Version; // Heavensward
-    [FieldOffset(0x2CF8 + 1 * 0x20), FixedSizeArray(isString: true)] internal FixedSizeArray32<byte> _ex2Version; // Stormblood
-    [FieldOffset(0x2CF8 + 2 * 0x20), FixedSizeArray(isString: true)] internal FixedSizeArray32<byte> _ex3Version; // Shadowbringers
-    [FieldOffset(0x2CF8 + 3 * 0x20), FixedSizeArray(isString: true)] internal FixedSizeArray32<byte> _ex4Version; // Endwalker
-    [FieldOffset(0x2CF8 + 4 * 0x20), FixedSizeArray(isString: true)] internal FixedSizeArray32<byte> _ex5Version; // Dawntrail
+    // 0: Heavensward
+    // 1: Stormblood
+    // 2: Shadowbringers
+    // 3: Endwalker
+    // 4: Dawntrail
+    [FieldOffset(0x2CF8), FixedSizeArray] internal FixedSizeArray64<ExVersionString> _exVersions;
 
     [FieldOffset(0x3508)] public bool UseWatchDogThread;
 
@@ -138,10 +148,13 @@ public unsafe partial struct Framework {
     [VirtualFunction(4)]
     public partial bool Tick();
 
+    [MemberFunction("89 51 ?? C6 41 ?? ?? 48 8B 0D")]
+    public partial void Exit(int exitCode);
+
     [MemberFunction("E8 ?? ?? ?? ?? 80 7B 1D 01")]
     public partial UIModule* GetUIModule();
 
-    [MemberFunction("E8 ?? ?? ?? ?? 4C 8B 44 24 ?? 48 8B C8 48 8B D3")]
+    [MemberFunction("E8 ?? ?? ?? ?? 4C 8B 44 24 ?? 48 8B D7 48 8B C8")]
     public partial UIClipboard* GetUIClipboard();
 
     [MemberFunction("80 B9 ?? ?? ?? ?? 00 74 ?? 48 8B 81 ?? ?? ?? ?? C3")]
@@ -167,4 +180,10 @@ public unsafe partial struct Framework {
     /// <returns>Returns <c>true</c> if the API was initialized successfully, false otherwise.</returns>
     [MemberFunction("48 89 5C 24 ?? 57 48 81 EC 40 02 00 00 48 8B 05")]
     public partial bool SetupSteamApi();
+
+    [GenerateInterop]
+    [StructLayout(LayoutKind.Explicit, Size = 32)]
+    public partial struct ExVersionString {
+        [FieldOffset(0), FixedSizeArray(isString: true)] internal FixedSizeArray32<byte> _version;
+    }
 }

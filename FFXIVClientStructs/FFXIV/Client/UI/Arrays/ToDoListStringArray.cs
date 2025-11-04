@@ -2,13 +2,15 @@ using FFXIVClientStructs.FFXIV.Component.GUI;
 
 namespace FFXIVClientStructs.FFXIV.Client.UI.Arrays;
 
-[CExportIgnore]
 [GenerateInterop]
 [StructLayout(LayoutKind.Explicit, Size = 212 * 8)]
 public unsafe partial struct ToDoListStringArray {
-    public static ToDoListStringArray* Instance() => (ToDoListStringArray*)AtkStage.Instance()->GetStringArrayData(StringArrayType.ToDoList)->StringArray;
+    public static ToDoListStringArray* Instance() {
+        var stringArray = AtkStage.Instance()->GetStringArrayData(StringArrayType.ToDoList);
+        return stringArray == null ? null : (ToDoListStringArray*)stringArray->StringArray;
+    }
 
-    [FieldOffset(0), FixedSizeArray, CExportIgnore] internal FixedSizeArray212<CStringPointer> _data;
+    [FieldOffset(0), FixedSizeArray, CExporterIgnore] internal FixedSizeArray212<CStringPointer> _data;
 
     [FieldOffset(0 * 8), FixedSizeArray] internal FixedSizeArray5<CStringPointer> _queuedDuties;
 
