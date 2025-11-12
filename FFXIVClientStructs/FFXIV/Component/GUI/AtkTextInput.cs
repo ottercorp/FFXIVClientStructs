@@ -14,6 +14,7 @@ public unsafe partial struct AtkTextInput {
     [FieldOffset(0x10)] public CompletionModule* CompletionModule;
     [FieldOffset(0x18)] public TextService* TextService;
     [FieldOffset(0x20), FixedSizeArray] internal FixedSizeArray19<Pointer<RaptureAtkHistory>> _atkHistory;
+    [FieldOffset(0xB8)] public int ActiveAtkHistoryIndex;
     [FieldOffset(0xC0)] public RaptureTextModule* RaptureTextModule;
     [FieldOffset(0xC8)] public TextChecker* TextChecker;
     [FieldOffset(0xD0)] public AtkFontCodeModule* AtkFontCodeModule;
@@ -34,6 +35,9 @@ public unsafe partial struct AtkTextInput {
     /// <remarks> Call this only if <see cref="InputSanitizationFlags"/> has Payloads! </remarks>
     [MemberFunction("40 57 48 81 EC ?? ?? ?? ?? 48 8B 05 ?? ?? ?? ?? 48 33 C4 48 89 84 24 ?? ?? ?? ?? 66 83 B9 ?? ?? ?? ?? ??")]
     public partial void OpenCompletion();
+
+    [MemberFunction("E8 ?? ?? ?? ?? 84 C0 0F 85 ?? ?? ?? ?? C6 44 24 ?? ??")]
+    public partial bool ProcessKeyShortcut(SeVirtualKey key, KeyModifiers* modifiers);
 
     // Component::GUI::AtkTextInput::AtkTextInputEventInterface
     // no explicit constructor, just an event interface 
@@ -56,5 +60,15 @@ public unsafe partial struct AtkTextInput {
         [FieldOffset(0x6)] public ushort StringLength;
         [FieldOffset(0x8)] public Utf8String* String1;
         [FieldOffset(0x10)] public Utf8String* String2;
+    }
+
+    [StructLayout(LayoutKind.Explicit, Size = 0x06)]
+    public struct KeyModifiers {
+        [FieldOffset(0x00)] public bool IsControlDown;
+        [FieldOffset(0x01)] public bool IsShiftDown;
+        [FieldOffset(0x02)] public bool IsAltDown;
+        [FieldOffset(0x03)] public bool IsCapitalDown;
+        [FieldOffset(0x04)] public bool IsNumlockDown;
+        [FieldOffset(0x05)] public bool IsScrollDown;
     }
 }

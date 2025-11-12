@@ -125,6 +125,9 @@ public unsafe partial struct Character {
     [MemberFunction("E8 ?? ?? ?? ?? 48 3B 47 ?? 75 ?? 48 8B CE")]
     public partial Character* GetParentCharacter();
 
+    [MemberFunction("E8 ?? ?? ?? ?? 38 43 ?? 0F 85")]
+    public partial bool HasStatus(uint statusId);
+
     /// <summary>Check if this character is in a jumping/falling animation.</summary>
     [MemberFunction("E8 ?? ?? ?? ?? 84 C0 75 46 48 8B 4B 08")]
     public partial bool IsJumping();
@@ -140,6 +143,13 @@ public unsafe partial struct Character {
     /// <summary> Check if the character is using the Cross-region Data Center Travel system. </summary>
     [MemberFunction("E8 ?? ?? ?? ?? 84 C0 74 ?? 80 4E ?? ?? ?? ?? ?? 48 8B CB FF 92")]
     public partial bool IsVoyager();
+
+    /// <summary>
+    /// Checks if Character is in a PvP state <br/>
+    /// Will need to be called multiple times before returning correct result
+    /// </summary>
+    [MemberFunction("E8 ?? ?? ?? ?? 84 C0 75 05 8B 4D F4")]
+    public partial bool IsInPvP();
 
     [VirtualFunction(77)]
     public partial StatusManager* GetStatusManager();
