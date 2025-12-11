@@ -84,7 +84,7 @@ public unsafe partial struct UIModuleInterface {
     [VirtualFunction(74)] public partial MKDSupportJobModule* GetMKDSupportJobModule();
     [VirtualFunction(75)] public partial MKDLoreModule* GetMKDLoreModule();
     [VirtualFunction(76)] public partial MKDSupportJobNoteModule* GetMKDSupportJobNoteModule();
-    // [VirtualFunction(77)] public partial QPNL* GetQPNL();
+    [VirtualFunction(77)] public partial QuickPanelModule* GetQuickPanelModule();
     [VirtualFunction(78)] public partial UIInputData* GetUIInputData();
     [VirtualFunction(79)] public partial UIInputModule* GetUIInputModule();
     // [VirtualFunction(80)] public partial Vf79Struct* GetVf70Struct();
@@ -123,6 +123,8 @@ public unsafe partial struct UIModuleInterface {
     // [VirtualFunction(123)] public partial ??? ShowContentIntroduction(???);
     // [VirtualFunction(124)] public partial ??? IsContentIntroductionInvisible(???);
     // [VirtualFunction(125)] public partial ??? HideContentIntroduction(???);
+    [VirtualFunction(128)] public partial void ChangeUIMode(GameUIMode uiMode);
+    [VirtualFunction(129)] public partial bool InContentsReplay();
     [VirtualFunction(136)] public partial void SetCursorVisibility(bool visible);
     // [VirtualFunction(137)] public partial ??? ToggleCursor(???);
     // [VirtualFunction(151)] public partial ??? ShowEventFadeIn(???);
