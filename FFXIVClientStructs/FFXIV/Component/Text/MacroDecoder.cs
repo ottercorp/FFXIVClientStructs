@@ -7,13 +7,13 @@ public unsafe partial struct MacroDecoder {
 
     [FieldOffset(0x38)] public StdDeque<TextParameter> GlobalParameters;
 
-    [StaticAddress("48 8D 1D ?? ?? ?? ?? 8B 43 20", 3)]
+    [StaticAddress("48 8D 0D ?? ?? ?? ?? 48 89 44 24 ?? E8 ?? ?? ?? ?? 48 83 C4", 3)]
     public static partial Tm* GetMacroTime();
 }
 
 //
 // GlobalParameters
-// Note that the StdDeque (and this list) is zero-based, so you need to subtract 1 from gnum/gstr.
+// NB that the StdDeque (and this list) is zero-based, so you need to subtract 1 from gnum/gstr.
 //
 // |-------|----------------------|----------------------------------------------------|
 // | Index | Type                 | Label                                              |

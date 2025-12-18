@@ -37,7 +37,7 @@ public unsafe partial struct AddonActionBarBase {
     /// <summary>
     /// Trigger the "pulse" effect for the specified hotbar slot, similar to what happens on hotbar slot keypress.
     ///
-    /// Note that this method *CAN* trigger pulses on hotbar slots that don't have an item in them!
+    /// This method *CAN* trigger pulses on hotbar slots that don't have an item in them!
     /// </summary>
     /// <param name="slotIndex">A zero-indexed value of which slot to pulse.</param>
     [VirtualFunction(81)]
@@ -46,7 +46,7 @@ public unsafe partial struct AddonActionBarBase {
     [MemberFunction("E8 ?? ?? ?? ?? 48 81 C6 ?? ?? ?? ?? 83 C7 11")]
     public partial void UpdateHotbarSlot(ActionBarSlot* slot, NumberArrayData* numberArray, StringArrayData* stringArrayData, int numberArrayIndex, int stringArrayIndex);
 
-    [MemberFunction("E8 ?? ?? ?? ?? 4C 8B 64 24 ?? 48 8B 7C 24 ?? 48 8B 74 24 ?? 4C 8B 6C 24 ??")]
+    [MemberFunction("E8 ?? ?? ?? ?? EB 4B 48 8B CB")]
     public partial void ShowTooltip(AtkResNode* node, NumberArrayData* numberArray, StringArrayData* stringArrayData, int numberArrayIndex, int stringArrayIndex);
 }
 

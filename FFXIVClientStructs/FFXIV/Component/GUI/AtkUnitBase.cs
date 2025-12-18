@@ -137,7 +137,7 @@ public unsafe partial struct AtkUnitBase : ICreatable {
     [FieldOffset(0x1D0)] public ushort DrawOrderIndex;
     /// <remarks> Index in <see cref="AtkUnitManager.HudAnchoringTable"/>. </remarks>
     [FieldOffset(0x1D2)] public sbyte HudAnchoringInfoIndex; // -1 = undefined
-    [FieldOffset(0x1D2), Obsolete("Renamed to HudAnchoringInfoIndex")] public byte Unk1D2;
+    [FieldOffset(0x1D2), Obsolete("Renamed to HudAnchoringInfoIndex", true)] public byte Unk1D2;
     // 1 byte padding
     [FieldOffset(0x1D4)] public short X;
     [FieldOffset(0x1D6)] public short Y;
@@ -200,7 +200,7 @@ public unsafe partial struct AtkUnitBase : ICreatable {
     [MemberFunction("E8 ?? ?? ?? ?? 44 84 B7")]
     public partial AtkResNode* GetNodeById(uint nodeId);
 
-    [MemberFunction("E8 ?? ?? ?? ?? 8D 56 1E")]
+    [MemberFunction("E8 ?? ?? ?? ?? 41 C1 EF")]
     public partial AtkTextNode* GetTextNodeById(uint nodeId);
 
     [MemberFunction("E8 ?? ?? ?? ?? 8D 55 77")]
