@@ -39,25 +39,25 @@ public unsafe partial struct AtkModule {
     [FieldOffset(0x72B8)] public StdMap<uint, AddonCallbackEntry> AddonCallbackMapping; // Key is UnitBase->Id
     [FieldOffset(0x72C8)] public AtkMessageBoxManager* AtkMessageBoxManager;
     [FieldOffset(0x72D0)] public TextService TextService;
-    [FieldOffset(0x7300)] public AtkTextInput TextInput;
-    [FieldOffset(0x7FC8)] internal Utf8String Unk7FA8;
-    [FieldOffset(0x8030)] internal Utf8String Unk8010;
-    [FieldOffset(0x8098)] internal Utf8String Unk8078;
-    [FieldOffset(0x8100)] internal Utf8String Unk80E0;
+    [FieldOffset(0x7300 - 0x10)] public AtkTextInput TextInput;
+    [FieldOffset(0x7FC8 - 0x10)] internal Utf8String Unk7FA8;
+    [FieldOffset(0x8030 - 0x10)] internal Utf8String Unk8010;
+    [FieldOffset(0x8098 - 0x10)] internal Utf8String Unk8078;
+    [FieldOffset(0x8100 - 0x10)] internal Utf8String Unk80E0;
 
     // probably an #IFDEF WINDOWS here or something specifically creating a Steam keyboard.
     // hope they don't add more soft keyboards later!
-    [FieldOffset(0x8170)] public SteamGamepadSoftKeyboard SoftKeyboardDevice;
+    [FieldOffset(0x8170 - 0x10)] public SteamGamepadSoftKeyboard SoftKeyboardDevice;
 
-    [FieldOffset(0x8288), FixedSizeArray(isString: true)] internal FixedSizeArray16<byte> _currentUIScene;
-    [FieldOffset(0x8298), FixedSizeArray(isString: true)] internal FixedSizeArray16<byte> _loadingUIScene;
+    [FieldOffset(0x8288 - 0x10), FixedSizeArray(isString: true)] internal FixedSizeArray16<byte> _currentUIScene;
+    [FieldOffset(0x8298 - 0x10), FixedSizeArray(isString: true)] internal FixedSizeArray16<byte> _loadingUIScene;
 
-    [FieldOffset(0x82B0)] internal ushort ScreenWidth; // maybe UI dimensions?
-    [FieldOffset(0x82B2)] internal ushort ScreenHeight;
-    [FieldOffset(0x82B4)] public bool EnableUiDraw;
+    [FieldOffset(0x82B0 - 0x10)] internal ushort ScreenWidth; // maybe UI dimensions?
+    [FieldOffset(0x82B2 - 0x10)] internal ushort ScreenHeight;
+    [FieldOffset(0x82B4 - 0x10)] public bool EnableUiDraw;
 
-    [FieldOffset(0x82B8)] public bool EnableUiInput;
-    [FieldOffset(0x82B9)] public bool IsHudInitialized;
+    [FieldOffset(0x82B8 - 0x10)] public bool EnableUiInput;
+    [FieldOffset(0x82B9 - 0x10)] public bool IsHudInitialized;
 
     [VirtualFunction(44)]
     public partial AddonStatus GetAddonStatus(uint addonId);
@@ -65,10 +65,10 @@ public unsafe partial struct AtkModule {
     [VirtualFunction(45)]
     public partial bool SetAddonDepthLayer(uint addonId, uint depthLayerIndex);
 
-    [VirtualFunction(58)]
+    [VirtualFunction(60)]
     public partial void Update(float delta);
 
-    [VirtualFunction(63), GenerateStringOverloads]
+    [VirtualFunction(65), GenerateStringOverloads]
     public partial bool OpenMapWithMapLink(CStringPointer mapLink);
 
     [MemberFunction("E8 ?? ?? ?? ?? 44 0F B6 44 24 ?? 8B D3")]
