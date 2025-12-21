@@ -59,6 +59,18 @@ globals:
   0x1429CF9AC: g_Client::Game::UI::Chain.MaxTime # not a pointer
   0x1429CFA2C: g_Client::Game::UI::PlayerState.ObjectId
   0x1429CFA30: g_Client::Game::UI::PlayerState.ContentId
+  0x1429D004A: g_Client::Game::UI::PlayerState.UnlockedRaids
+  0x1429D0066: g_Client::Game::UI::PlayerState.UnlockedDungeons
+  0x1429D0078: g_Client::Game::UI::PlayerState.UnlockedGuildOrders
+  0x1429D0082: g_Client::Game::UI::PlayerState.UnlockedTrials
+  0x1429D0090: g_Client::Game::UI::PlayerState.UnlockedCrystallineConflicts
+  0x1429d0093: g_Client::Game::UI::PlayerState.UnlockedFrontlines
+  0x1429d0095: g_Client::Game::UI::PlayerState.CompletedRaids
+  0x1429D00B1: g_Client::Game::UI::PlayerState.CompletedDungeons
+  0x1429D00C3: g_Client::Game::UI::PlayerState.CompletedGuildOrders
+  0x1429D00CD: g_Client::Game::UI::PlayerState.CompletedTrials
+  0x1429D00DB: g_Client::Game::UI::PlayerState.CompletedCrystallineConflicts
+  0x1429D00DE: g_Client::Game::UI::PlayerState.CompletedFrontlines
   0x1429D3210: g_Client::Game::UI::Buddy.CompanionStats.TimeRemaining
   0x1429D3268: g_Client::Game::UI::Buddy.BattleBuddyListPtr
   0x1429DB510: g_Client::Game::UI::ActiveDirector
@@ -437,6 +449,7 @@ functions:
   0x1419648D0: MassivePcContentDirector_IsPlayCutscene # ulong (lua_State* state)
   0x140DED460: GoldSaucerDirector_IsPlayCutscene # ulong (lua_State* state)
   0x1419C27C0: CustomTalk_IsPlayCutsceneContent # ulong (lua_State* state)
+  0x1418E9530: GetInstanceContentTypeAndIndex # bool (int instanceContentId, InstanceContentType *contentType, uint *outIndex)
 
 classes:
   Common::TimePoint:
@@ -14269,6 +14282,8 @@ classes:
     vtbls:
       - ea: 0x1420D1848
         base: Client::UI::Agent::AgentInterface
+    funcs:
+      0x140BBC620: OpenPanel # (this, panel, closeIfOpen, unknown)
   Client::UI::Agent::AgentConfigCharacterChatLogMiniTalk:
     vtbls:
       - ea: 0x142099678
@@ -15360,13 +15375,14 @@ classes:
       0x140C899A0: GetContentDirector
       0x140C899B0: GetQuestBattleDirector
       0x140C89A00: GetGoldSaucerDirector
+      0x140C8C600: CheckInteractRange
       0x140C8D2A0: InteractWithHandlerFromSelector
       0x140C8DCD0: AddDailyHandler
       0x140C8DCF0: RemoveDailyHandler
       0x140C8DD10: IsDailyQuestAvailable
       0x140C8DDE0: InteractWithSelectorOptions
       0x140C8E350: GetEventHandlerById
-      0x140C8FA90: CheckInteractRange
+      0x140C8FA90: CheckInteractRangeEx
       0x140B429E0: GetCurrentContentType
       0x140B42AB0: GetCurrentContentId # static
       0x140B42B30: CanLeaveCurrentContent # static
@@ -15443,11 +15459,11 @@ classes:
       - ea: 0x1420DC5C0
         base: Client::Game::Event::Director
     vfuncs:
-      281: GetCurrentLevel
-      302: GetMaxLevel
-      317: GetContentTimeMax
-      318: GetContentTypeIconId
-      328: SetExperience
+      302: GetCurrentLevel
+      303: GetMaxLevel
+      328: GetContentTimeMax
+      329: GetContentTypeIconId
+      334: SetExperience
     funcs:
       0x140C76600: ctor
       0x140C781A0: ApplyMapEffect

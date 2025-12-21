@@ -56,8 +56,8 @@ public unsafe partial struct PlayerState {
     [FieldOffset(0x165)] public byte FirstClass;
     [FieldOffset(0x166)] public byte StartTown;
     [FieldOffset(0x167)] public byte QuestSpecialFlags;
-    [FieldOffset(0x168), FixedSizeArray] internal FixedSizeArray4<ushort> _activeFestivalIds;
-    [FieldOffset(0x170), FixedSizeArray] internal FixedSizeArray4<ushort> _activeFestivalPhases;
+    [FieldOffset(0x168), FixedSizeArray] internal FixedSizeArray8<ushort> _activeFestivalIds;
+    [FieldOffset(0x178), FixedSizeArray] internal FixedSizeArray8<ushort> _activeFestivalPhases;
 
     [FieldOffset(0x190)] public int BaseStrength;
     [FieldOffset(0x194)] public int BaseDexterity;
@@ -181,6 +181,20 @@ public unsafe partial struct PlayerState {
     // BitCount: OrchestrionSheet.RowCount
     /// <remarks> Use <see cref="IsOrchestrionRollUnlocked"/>. </remarks>
     [FieldOffset(0x608), FixedSizeArray(isBitArray: true, bitCount: 833)] internal FixedSizeArray105<byte> _unlockedOrchestrionRolls;
+
+    [FieldOffset(0x682), FixedSizeArray(isBitArray: true, bitCount: 224)] internal FixedSizeArray28<byte> _unlockedRaids;
+    [FieldOffset(0x69E), FixedSizeArray(isBitArray: true, bitCount: 144)] internal FixedSizeArray18<byte> _unlockedDungeons;
+    [FieldOffset(0x6B0), FixedSizeArray(isBitArray: true, bitCount: 80)] internal FixedSizeArray10<byte> _unlockedGuildOrders;
+    [FieldOffset(0x6BA), FixedSizeArray(isBitArray: true, bitCount: 112)] internal FixedSizeArray14<byte> _unlockedTrials;
+    [FieldOffset(0x6C8), FixedSizeArray(isBitArray: true, bitCount: 24)] internal FixedSizeArray3<byte> _unlockedCrystallineConflicts;
+    [FieldOffset(0x6CB), FixedSizeArray(isBitArray: true, bitCount: 16)] internal FixedSizeArray2<byte> _unlockedFrontlines;
+
+    [FieldOffset(0x6CD), FixedSizeArray(isBitArray: true, bitCount: 224)] internal FixedSizeArray28<byte> _completedRaids;
+    [FieldOffset(0x6E9), FixedSizeArray(isBitArray: true, bitCount: 144)] internal FixedSizeArray18<byte> _completedDungeons;
+    [FieldOffset(0x6FB), FixedSizeArray(isBitArray: true, bitCount: 80)] internal FixedSizeArray10<byte> _completedGuildOrders;
+    [FieldOffset(0x705), FixedSizeArray(isBitArray: true, bitCount: 112)] internal FixedSizeArray14<byte> _completedTrials;
+    [FieldOffset(0x713), FixedSizeArray(isBitArray: true, bitCount: 24)] internal FixedSizeArray3<byte> _completedCrystallineConflicts;
+    [FieldOffset(0x716), FixedSizeArray(isBitArray: true, bitCount: 16)] internal FixedSizeArray2<byte> _completedFrontlines;
 
     #region Weekly Bonus/Weekly Bingo/Wondrous Tails Fields (packet reader in "48 83 EC 28 48 8B D1 48 8D 0D ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 8B 0D ?? ?? ?? ??")
 
