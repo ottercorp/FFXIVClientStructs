@@ -1,7 +1,6 @@
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.Game.Character;
 using FFXIVClientStructs.FFXIV.Client.Game.Object;
-using FFXIVClientStructs.FFXIV.Client.System.String;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using FFXIVClientStructs.FFXIV.Client.UI.Misc;
 using FFXIVClientStructs.FFXIV.Common.Component.Excel;
@@ -25,9 +24,7 @@ public unsafe partial struct RaptureAtkModule {
     }
 
     [FieldOffset(0x82E0 - 0x10)] public GameUIScene UIScene;
-    [FieldOffset(0x82E0 - 0x10), Obsolete($"Renamed to {nameof(UIScene)}")] public ushort UiMode; // 0 = In Lobby, 1 = In Game
     [FieldOffset(0x82E2 - 0x10)] public GameUIMode UIMode;
-    [FieldOffset(0x82E2 - 0x10), Obsolete($"Renamed to {nameof(UIMode)}")] public ushort UISetupStage; // unsure
 
     [FieldOffset(0x8378 - 0x10)] internal Utf8String Unk8358;
     [FieldOffset(0x83E0 - 0x10), FixedSizeArray] internal FixedSizeArray6<Utf8String> _unkArray;
@@ -40,6 +37,8 @@ public unsafe partial struct RaptureAtkModule {
     [FieldOffset(0x8838 - 0x10), FixedSizeArray] internal FixedSizeArray942<AddonFactoryInfo> _addonFactories;
     [FieldOffset(0x11B68 - 0x10)] public StdVector<Utf8String> AddonNames;
     [FieldOffset(0x11B80 - 0x10)] public AddonConfig* AddonConfigPtr;
+
+    [FieldOffset(0x11B8A)] public AtkCursor.CursorType CursorType;
 
     // [FieldOffset(0x11B90)] public ProhibitModule ProhibitModule;
     [FieldOffset(0x11C28 - 0x10)] public int AudioClientRpcTagSize;
@@ -224,7 +223,6 @@ public unsafe partial struct RaptureAtkModule {
 
         /// <remarks> Set when the RetainerMarket inventory has been updated. </remarks>
         RetainerMarketInventoryUpdate = 1 << 2,
-        [Obsolete("Renamed to RetainerMarketInventoryUpdate", true)] RetainerUpdate = 1 << 2,
 
         /// <remarks> Unknown use case. </remarks>
         NameplateUpdate = 1 << 3,

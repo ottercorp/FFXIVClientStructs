@@ -1,4 +1,5 @@
 using FFXIVClientStructs.FFXIV.Client.Game.Character;
+using FFXIVClientStructs.FFXIV.Client.Game.Event;
 using FFXIVClientStructs.FFXIV.Client.Game.Object;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 
@@ -50,8 +51,8 @@ public partial struct CommonSpawnData {
     [FieldOffset(0x18)] public WeaponModelId OffhandWeaponModel;
     [FieldOffset(0x20)] public WeaponModelId CraftToolModel;
     [FieldOffset(0x28)] public GameObjectId CombatTaggerId;
-    [FieldOffset(0x30)] public uint BNpcBaseId;
-    [FieldOffset(0x34)] public uint BNpcNameId;
+    [FieldOffset(0x30)] public uint BaseId;
+    [FieldOffset(0x34)] public uint NameId;
     [FieldOffset(0x38)] public uint LayoutId;
     [FieldOffset(0x3C)] public uint ObjectType; // depends on ObjectKind? can be CompanionOwnerId, can also be FurnitureMemory index
     [FieldOffset(0x40)] public uint EventId;
@@ -91,9 +92,9 @@ public partial struct CommonSpawnData {
     [FieldOffset(0x7F)] public byte StatusLoopVfxId;
     [FieldOffset(0x80)] public byte ForayRank;
     [FieldOffset(0x81)] public byte ForayElement;
-    [FieldOffset(0x82)] private byte Unk82; // ModelContainer+0x21
+    [FieldOffset(0x82)] public byte ModelScaleId; // ModelContainer.ModelScaleId
     [FieldOffset(0x83)] public byte ModelState; // Timeline.ModelState
-    [FieldOffset(0x84)] private byte Unk84; // ModelContainer+0x22
+    [FieldOffset(0x84)] public byte ModelAttributeFlags; // ModelContainer.ModelAttributeFlags
     [FieldOffset(0x85)] public byte AnimationState; // Timeline.AnimationState, 4 bits each
 
     [FieldOffset(0x88), FixedSizeArray] internal FixedSizeArray30<StatusEffect> _statusEffects;
@@ -105,6 +106,9 @@ public partial struct CommonSpawnData {
     [FieldOffset(0x252)] public CustomizeData CustomizeData;
     [FieldOffset(0x26C), FixedSizeArray(isString: true)] internal FixedSizeArray6<byte> _freeCompanyTag;
 
+    [FieldOffset(0x30), Obsolete("Renamed to BaseId")] public uint BNpcBaseId;
+    [FieldOffset(0x34), Obsolete("Renamed to NameId")] public uint BNpcNameId;
+
     [StructLayout(LayoutKind.Explicit, Size = 0x0C)]
     public struct StatusEffect {
         [FieldOffset(0x0)] public ushort StatusId;
@@ -112,4 +116,62 @@ public partial struct CommonSpawnData {
         [FieldOffset(0x4)] public float RemainingTime;
         [FieldOffset(0x8)] public uint SourceObjectId;
     }
+}
+
+[StructLayout(LayoutKind.Explicit, Size = 0x40)]
+public struct SpawnObjectPacket {
+    [FieldOffset(0x00)] public byte ObjectIndex;
+    [FieldOffset(0x01)] public byte ObjectKind;
+    [FieldOffset(0x02)] public byte TargetableStatus;
+    [FieldOffset(0x03)] public byte Visibility;
+    /// <remarks> <see cref="HousingObjectId"/> when <see cref="ObjectKind.HousingEventObject"/>. </remarks>
+    [FieldOffset(0x04)] public uint BaseId;
+    [FieldOffset(0x08)] public uint EntityId;
+    /// <remarks> Used for <see cref="ObjectKind.EventObj"/> or <see cref="ObjectKind.GatheringPoint"/>. </remarks>
+    [FieldOffset(0x0C)] public uint LayoutId;
+    /// <remarks> Used for <see cref="ObjectKind.EventObj"/>, or for <see cref="ObjectKind.HousingEventObject"/> as bool to decide whether it is a <see cref="HousingCombinedObject"/> (true) or a <see cref="HousingEventObject"/> (false). </remarks>
+    [FieldOffset(0x10)] public EventId EventId;
+    [FieldOffset(0x14)] public uint OwnerId;
+    /// <remarks> Used for <see cref="ObjectKind.EventObj"/>. </remarks>
+    [FieldOffset(0x18)] public uint GimmickId;
+    [FieldOffset(0x1C)] public float Radius;
+    [FieldOffset(0x20)] private ushort Unk20; // SharedGroupTimelineState?
+    [FieldOffset(0x22)] public ushort Rotation;
+    /// <remarks> Used for <see cref="ObjectKind.EventObj"/>. </remarks>
+    [FieldOffset(0x24)] public ushort FateId;
+    /// <remarks> Used for <see cref="ObjectKind.EventObj"/>. </remarks>
+    [FieldOffset(0x26)] public byte EventState;
+    [FieldOffset(0x27)] private byte Unk27;
+    [FieldOffset(0x28)] private uint Unk28;
+    [FieldOffset(0x2C)] private uint Unk2C;
+    [FieldOffset(0x30)] private uint Unk30;
+    [FieldOffset(0x34)] public float PositionX;
+    [FieldOffset(0x38)] public float PositionY;
+    [FieldOffset(0x3C)] public float PositionZ;
+}
+
+[GenerateInterop]
+[StructLayout(LayoutKind.Explicit, Size = 0x70)]
+public partial struct SpawnTreasurePacket {
+    [FieldOffset(0x00)] public uint BaseId;
+    [FieldOffset(0x04)] public uint EntityId;
+    [FieldOffset(0x08)] public uint LayoutId;
+    [FieldOffset(0x0C)] public ushort Rotation;
+    [FieldOffset(0x0E)] public byte ObjectIndex;
+    [FieldOffset(0x0F)] public byte ItemCount;
+    [FieldOffset(0x10)] public byte EventState;
+    [FieldOffset(0x11)] public byte CofferKind;
+    [FieldOffset(0x12)] public byte Visibility;
+
+    [FieldOffset(0x14)] public float CountdownTime;
+    [FieldOffset(0x18)] public float CountdownStartTime;
+    [FieldOffset(0x1C)] public float ClaimTime;
+    [FieldOffset(0x20)] public EventId EventId;
+    [FieldOffset(0x24)] public uint ExportedSGRowId;
+    [FieldOffset(0x28)] public byte TargetableStatus;
+
+    [FieldOffset(0x2A)] public ushort PositionX;
+    [FieldOffset(0x2C)] public ushort PositionY;
+    [FieldOffset(0x2E)] public ushort PositionZ;
+    [FieldOffset(0x30), FixedSizeArray] internal FixedSizeArray16<uint> _lootableItemIds;
 }
