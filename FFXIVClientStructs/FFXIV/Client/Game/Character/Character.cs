@@ -1,4 +1,5 @@
 using FFXIVClientStructs.FFXIV.Client.Game.Control;
+using FFXIVClientStructs.FFXIV.Client.Game.Control.MoveControl;
 using FFXIVClientStructs.FFXIV.Client.Game.Object;
 
 namespace FFXIVClientStructs.FFXIV.Client.Game.Character;
@@ -11,10 +12,7 @@ namespace FFXIVClientStructs.FFXIV.Client.Game.Character;
 [StructLayout(LayoutKind.Explicit, Size = 0x2370)]
 [VirtualTable("48 8D 05 ?? ?? ?? ?? 48 89 07 48 8D 8F ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? 48 89 87 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 8D 8F ?? ?? ?? ?? 33 ED 48 8D 05 ?? ?? ?? ??", 3, 87)]
 public unsafe partial struct Character {
-    [FieldOffset(0x600)] public MovementStateOptions MovementState;
-    [BitField<bool>(nameof(IsSwimming), 5)] // found in Client::Game::Event::EventSceneModuleUsualImpl.IsSwimming
-    [FieldOffset(0x628)] public byte Flags628;
-
+    [FieldOffset(0x1F0)] public MoveController MoveController;
     [FieldOffset(0x630)] public EmoteController EmoteController;
     [FieldOffset(0x670)] public MountContainer Mount;
     [FieldOffset(0x6D8)] public CompanionContainer CompanionData;
@@ -33,6 +31,7 @@ public unsafe partial struct Character {
 
     // 0x1AA8: start of some substructure
     [FieldOffset(0x1B28)] public ModelContainer ModelContainer;
+    [FieldOffset(0x1B80)] public RepresentationContainer RepresentationContainer;
 
     /// <remarks> Instance ID of an Event NPC. Used by QuestEventHandler. Seen for Event NPCs that turn into Battle NPCs (during quests, for example.) </remarks>
     [FieldOffset(0x1BC0)] public uint EventNpcInstanceId;
@@ -90,6 +89,15 @@ public unsafe partial struct Character {
     [FieldOffset(0x2369)] public byte SoundVolumeCategory;
     [FieldOffset(0x236A)] public byte SoundVolumeCategoryOverride;
     [FieldOffset(0x236B)] private byte SoundFlags; // 0x40 = SoundVolumeCategory determined
+
+    [FieldOffset(0x600), Obsolete("Moved to MoveController.MovementState")] public MovementStateOptions MovementState;
+    [FieldOffset(0x628), Obsolete] public byte Flags628;
+
+    [Obsolete("Moved to MoveController.IsSwimming")]
+    public bool IsSwimming {
+        get => MoveController.IsSwimming;
+        set => MoveController.IsSwimming = value;
+    }
 
     public bool IsWeaponDrawn => Timeline.IsWeaponDrawn;
     public bool IsCasting => VirtualTable != null && GetCastInfo() is var info && info != null && info->IsCasting;
@@ -164,6 +172,9 @@ public unsafe partial struct Character {
     [VirtualFunction(78)]
     public partial StatusManager* GetStatusManager();
 
+    [VirtualFunction(79)]
+    internal partial StatusManager* GetStatusManager2();
+
     /// <summary>
     /// Gets the <see cref="CastInfo"/> struct for this Character.
     /// May be null for certain Character subclasses, e.g. <see cref="Companion"/>.
@@ -172,13 +183,20 @@ public unsafe partial struct Character {
     [VirtualFunction(80)]
     public partial CastInfo* GetCastInfo();
 
+    [VirtualFunction(81)]
+    internal partial CastInfo* GetCastInfo2();
+
     [VirtualFunction(82)]
     public partial ActionEffectHandler* GetActionEffectHandler();
 
     [VirtualFunction(84)]
     public partial ForayInfo* GetForayInfo();
+
+    [VirtualFunction(85)]
+    internal partial ForayInfo* GetForayInfo2();
 }
 
+// TODO: move to FFXIVClientStructs.FFXIV.Client.Game.Control.MoveControl
 public enum MovementStateOptions : byte {
     Normal = 0,
     Flying = 1,

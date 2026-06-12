@@ -42,18 +42,18 @@ public unsafe partial struct WKSManager {
 
     [FieldOffset(0x107C), FixedSizeArray, Obsolete("Use State.Scores")] internal FixedSizeArray11<int> _scores; // cosmic class scores
 
-    [FieldOffset(0x10F8)] private void* UnkStruct10F8;
-    [FieldOffset(0x1100)] private void* UnkStruct1100;
-    [FieldOffset(0x1108)] public WKSMechaEventModule* MechaEventModule;
-    [FieldOffset(0x1110)] private void* UnkStruct1110;
-    [FieldOffset(0x1118)] private void* UnkStruct1118;
-    [FieldOffset(0x1120)] private void* EmergencyInfoModule; // Red Alert
-    [FieldOffset(0x1128)] private void* UnkStruct1128;
-    [FieldOffset(0x1130)] private void* UnkStruct1130;
+    [FieldOffset(0x10F8)] private void* LivelyActorGroupTable; // LivelyActorGroup stuff. Not a module!
+    [FieldOffset(0x1100)] private void* SharedGroupModule;
+    [FieldOffset(0x1108)] public WKSMechaEventModule* MechaEventModule; // Mech Ops
+    [FieldOffset(0x1110)] private void* JobStateModule; // Mission List
+    [FieldOffset(0x1118)] private void* AchievementModule; // Starward Standings?
+    [FieldOffset(0x1120)] private void* EmergencyModule; // Red Alert
+    [FieldOffset(0x1128)] private void* FortuneModule; // Cosmic Fortunes (Scammingway)
+    [FieldOffset(0x1130)] private void* PraiseHologramModule;
     [FieldOffset(0x1138)] public WKSMissionModule* MissionModule; // Stellar Missions
     [FieldOffset(0x1140)] public WKSResearchModule* ResearchModule;
-    [FieldOffset(0x1148)] private void* UnkStruct1148;
-    [FieldOffset(0x1150)] private void* UnkStruct1150;
+    [FieldOffset(0x1148)] private void* LogModule; // Just prints LogMessages?
+    [FieldOffset(0x1150)] private void* TreasureModule; // Artifact Search
     [FieldOffset(0x1158)] public StdVector<Pointer<WKSModuleBase>> Modules;
 
     [MemberFunction("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 0F B7 DA 48 8B F9 E8 ?? ?? ?? ?? 8B CB")]
@@ -75,23 +75,47 @@ public unsafe partial struct WKSManager {
         Failed = 5,
     }
 
+    [GenerateInterop(isInherited: true)]
     [StructLayout(LayoutKind.Explicit, Size = 0xC)]
-    public struct WKSMissionState {
+    public partial struct WKSMissionState {
         [FieldOffset(0x00)] public ushort MissionUnitId;
         /// <remarks>Used by AgentWKSMission to set silver/gold mission flags when this is 1 or 2.</remarks>
         [FieldOffset(0x04)] public uint MissionFlag;
-        [FieldOffset(0x08)] private ushort Unk8;
+        [FieldOffset(0x08)] private byte Unk8;
+        [FieldOffset(0x09)] private byte Unk9;
         [FieldOffset(0x0A)] public byte Condition; // Needs more testing, but was set to 1 when Critical Mission was abandoned. Could be a bool for showing locked out status?
     }
 
+    [GenerateInterop]
+    [StructLayout(LayoutKind.Explicit, Size = 0x2C)]
+    public partial struct WKSMissionClassState {
+        [FieldOffset(0x00), FixedSizeArray] internal FixedSizeArray3<WKSMissionState> _missions;
+        [FieldOffset(0x24)] private byte Unk24;
+        [FieldOffset(0x26)] private uint Unk26;
+    }
+
+    [GenerateInterop]
+    [Inherits<WKSMissionState>]
+    [StructLayout(LayoutKind.Explicit, Size = 0x10)]
+    public partial struct WKSMasterMissionState {
+        [FieldOffset(0x0C)] private uint UnkC; // Highest Score?
+    }
+
     /// <summary>Per-job state block. WKSState contains 11 of these (one per cosmic class job).</summary>
+    [GenerateInterop]
     [StructLayout(LayoutKind.Explicit, Size = 0x148)]
-    public struct WKSJobState {
+    public partial struct WKSJobState {
+        [FieldOffset(0x00), FixedSizeArray] internal FixedSizeArray4<WKSMissionClassState> _missionClasses;
         [FieldOffset(0xB0)] public WKSMissionState ExtraBasicMission; // This held a single extra A-rank mission entry. Emitted by AgentWKSMission.GetBasicMissions. Purpose yet unclear.
+
         [FieldOffset(0xC0)] public StdVector<WKSMissionState> SequentialMissions;
         [FieldOffset(0xD8)] public StdVector<WKSMissionState> ProvisionalMissions;
         [FieldOffset(0xF0)] public StdVector<WKSMissionState> CriticalMissions;
         [FieldOffset(0x108)] private int CriticalMissionTimestamp; // All jobs with currently open critical missions seem to hold the same value
+
+        [FieldOffset(0x110), FixedSizeArray] internal FixedSizeArray3<WKSMasterMissionState> _masterMissions;
+
+        [FieldOffset(0x140)] public ushort BonusMasterMissionUnitId;
 
         [FieldOffset(0x108), Obsolete("Wrongly documented field as this is most likely a timestamp", true)] public uint CriticalMissionData;
     }
@@ -124,6 +148,8 @@ public unsafe partial struct WKSManager {
         [FieldOffset(0xE40), Obsolete("Use CurrentMission.Rank")] public MissionRank CurrentRank;
         [FieldOffset(0xE46), Obsolete("Use CurrentMission.CollectedTotal")] public ushort CollectedTotal;
         [FieldOffset(0xE48), Obsolete("Use CurrentMission.CollectedIndividual")] public byte CollectedIndividual;
+
+        [FieldOffset(0xE70)] public byte ConsecutiveGoldCount;
 
         [FieldOffset(0xE74)] public uint FishingBait;
 
