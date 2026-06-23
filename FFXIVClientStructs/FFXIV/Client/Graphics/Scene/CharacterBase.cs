@@ -43,6 +43,9 @@ public unsafe partial struct CharacterBase {
     [FieldOffset(0x288)] public Texture** ColorTableTextures; // each one corresponds to a material, size = SlotCount * MaterialsPerSlot
 
     [FieldOffset(0x290)] public Vector4 Tint;
+    [FieldOffset(0x2A0)] private float GlobalScale; // maybe? see vf98
+    [FieldOffset(0x2A4)] private float ModelScale; // maybe? see vf98
+    [FieldOffset(0x2A8)] private float TransparencyDelta; // only set when changed?
 
     [FieldOffset(0x2E0)] public float WeatherWetness;  // Set to 1.0f when raining and not covered or umbrella'd
     [FieldOffset(0x2E4)] public float SwimmingWetness; // Set to 1.0f when in water
@@ -112,9 +115,8 @@ public unsafe partial struct CharacterBase {
     /// Can also perform other setup tasks on the slot, such as <see cref="ColorTableTextures"/>.
     /// </summary>
     /// <param name="slot">The slot to set up.</param>
-    /// <returns>Unknown yet. The typing is as conservative as possible.</returns>
     [MemberFunction("89 54 24 ?? 55 56 41 56 48 81 EC")]
-    public partial nint SetupSlotModel(uint slot);
+    public partial nint SetupSlotModel(uint slot); // TODO: change return type to void
 
     [VirtualFunction(50)]
     public partial ModelType GetModelType();
