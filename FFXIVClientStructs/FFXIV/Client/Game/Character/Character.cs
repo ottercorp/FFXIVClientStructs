@@ -25,7 +25,7 @@ public unsafe partial struct Character {
     [BitField<bool>(nameof(IsOffhandDrawn), 0)]
     [FieldOffset(0x1980)] public byte WeaponFlags;
     [FieldOffset(0x1988)] public VfxContainer Vfx;
-
+    [FieldOffset(0x1A78)] public TargetStatusContainer TargetStatusContainer;
     [FieldOffset(0x1A90)] public EffectContainer Effects;
     [FieldOffset(0x1B10)] public CharacterSetupContainer CharacterSetup;
 
@@ -47,7 +47,9 @@ public unsafe partial struct Character {
     [FieldOffset(0x21E0)] public Balloon Balloon;
     [FieldOffset(0x2260)] public NpcYellBalloon YellBalloon;
     [FieldOffset(0x22E8)] public float Alpha; // TODO: array of 4 (see 41 83 F8 ?? 73 ?? 41 8B C0 F3 0F 11 8C 81)
-    [FieldOffset(0x22F8)] public Companion* CompanionObject; // minion
+    [FieldOffset(0x22F8), Obsolete("Use ChildObject")] public Companion* CompanionObject; // minion
+    /// <summary> Depending on it's ObjectKind, this may be a <see cref="Companion"/>*, Mount (<see cref="Character"/>*), or <see cref="Ornament"/>*. </summary>
+    [FieldOffset(0x22F8)] public Character* ChildObject;
     [FieldOffset(0x2300), FixedSizeArray(isString: true)] internal FixedSizeArray7<byte> _freeCompanyTag;
 
     /// <summary>

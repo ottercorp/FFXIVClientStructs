@@ -113,6 +113,12 @@ public unsafe partial struct DrawObject {
     [VirtualFunction(27)]
     public partial float GetTransparency();
 
+    [VirtualFunction(28)]
+    public partial void SetTargetStatus(int targetStatus);
+
+    [VirtualFunction(29)]
+    public partial int GetTargetStatus();
+
     /// <summary>
     /// This is the inlined routine that is called after modifying the transform of a DrawObject.
     /// </summary>

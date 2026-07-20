@@ -14,7 +14,7 @@ public unsafe partial struct PacketDispatcher {
     [FieldOffset(0x10)] public NetworkModuleProxy* NetworkModuleProxy;
     [FieldOffset(0x18)] public uint GameSessionRandom;
     [FieldOffset(0x1C)] public uint LastPacketRandom;
-    [FieldOffset(0x20)] public uint Key0;
+    [FieldOffset(0x20)] public uint Key0; // TODO: array of 3
     [FieldOffset(0x24)] public uint Key1;
     [FieldOffset(0x28)] public uint Key2;
 
@@ -92,6 +92,9 @@ public unsafe partial struct PacketDispatcher {
 
     [MemberFunction("40 53 57 48 81 EC ?? ?? ?? ?? 48 8B FA 8B")]
     public static partial void HandleActorCastPacket(uint entityId, ActorCastPacket* packet);
+
+    [MemberFunction("E8 ?? ?? ?? ?? B0 ?? 48 8B 5C 24 ?? 48 8B 74 24 ?? 48 83 C4 ?? 5F C3 0F B6 7B")]
+    public static partial void HandleMapEffectPacket(MapEffectPacket* packet);
 
     [VirtualFunction(1)]
     public partial void OnReceivePacket(uint targetId, nint packet);

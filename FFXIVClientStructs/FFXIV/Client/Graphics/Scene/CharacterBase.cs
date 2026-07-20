@@ -3,6 +3,7 @@ using FFXIVClientStructs.FFXIV.Client.Game.Character;
 using FFXIVClientStructs.FFXIV.Client.Graphics.Kernel;
 using FFXIVClientStructs.FFXIV.Client.Graphics.Physics;
 using FFXIVClientStructs.FFXIV.Client.Graphics.Render;
+using FFXIVClientStructs.FFXIV.Client.Graphics.Vfx;
 using FFXIVClientStructs.FFXIV.Client.System.Resource.Handle;
 using FFXIVClientStructs.FFXIV.Common.Math;
 
@@ -25,6 +26,7 @@ public unsafe partial struct CharacterBase {
     [FieldOffset(0xA0)] public Skeleton* Skeleton; // Client::Graphics::Render::Skeleton
 
     [FieldOffset(0xA8)] public Model** Models; // size = SlotCount
+    [FieldOffset(0xB0)] public VfxResourceInstance** VfxResourceInstances; // size = SlotCount
 
     [FieldOffset(0xD8)] public Attach Attach;
     [FieldOffset(0x150)] public void* PostBoneDeformer; // Client::Graphics::Scene::PostBoneDeformer ptr
@@ -46,6 +48,7 @@ public unsafe partial struct CharacterBase {
     [FieldOffset(0x2A0)] private float GlobalScale; // maybe? see vf98
     [FieldOffset(0x2A4)] private float ModelScale; // maybe? see vf98
     [FieldOffset(0x2A8)] private float TransparencyDelta; // only set when changed?
+    [FieldOffset(0x2AC)] public int TargetStatus;
 
     [FieldOffset(0x2E0)] public float WeatherWetness;  // Set to 1.0f when raining and not covered or umbrella'd
     [FieldOffset(0x2E4)] public float SwimmingWetness; // Set to 1.0f when in water
@@ -101,6 +104,7 @@ public unsafe partial struct CharacterBase {
     }
 
     public Span<Pointer<Model>> ModelsSpan => new(Models, SlotCount);
+    public Span<Pointer<VfxResourceInstance>> VfxResourceInstancesSpan => new(VfxResourceInstances, SlotCount);
     public Span<Pointer<Texture>> ColorTableTexturesSpan => new(ColorTableTextures, SlotCount * MaterialsPerSlot);
     public Span<Pointer<MaterialResourceHandle>> MaterialsSpan => new(Materials, SlotCount * MaterialsPerSlot);
 

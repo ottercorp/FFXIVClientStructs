@@ -1,14 +1,12 @@
 version: 2026.06.18.0000.0000
 
 globals:
-  0x142112DA8: g_FloatHalf # 0.5f
-  0x142112E08: g_FloatOne # 1f
-  0x14211BA98: g_FloatOneAndAHalf # 1.5f
-  0x142112E44: g_FloatSix # 6f
+  0x142112E1C: g_Common::Math::HalfPI
+  0x142112E2C: g_Common::Math::PI
+  0x142112E48: g_Common::Math::TwoPI
   0x142113ED0: g_MemoryPoolConfig # { int BlockSize; int BlockCount; }[10], last entry is special for the lookup table
   0x1428E15C0: g_MemoryPoolsStart
   0x1428E1610: g_MemoryPoolsEnd
-  0x14211BA9C: g_FloatTwenty # 20f
 #fail   0x141F0C404: g_ConfigFileName
   0x1421272D0: g_NumberArraySizes
   0x1421274E0: g_StringArraySizes
@@ -588,6 +586,8 @@ classes:
     instances:
       - ea: 0x1428914B0
     funcs:
+      0x140619670: HasKeyboardCameraInput
+      0x1406199B0: HasAnalogCameraInput
       0x140619C40: Update
       0x140619E90: GetInputStatus
       0x141811080: IsAutoRunning # static function, might belong in a different class.
@@ -1054,6 +1054,7 @@ classes:
         base: Client::System::Input::InputDevice
     funcs:
       0x141782F20: ctor
+      0x141783410: ScheduleCursorMove # static
   Client::System::Input::KeyboardDeviceInterface:
     vtbls:
       - ea: 0x14216D118
@@ -1840,6 +1841,8 @@ classes:
       0x140893120: Clear
       0x1408931E0: RequestPrismBox
       0x140893380: IsSetSlotUnlocked
+      0x1408935F0: StoreNewOutfit
+      0x140893840: StoreExistingOutfit
       0x140893B20: RestorePrismBoxItem
       0x140893D00: RestorePrismBoxSetItem
       0x1408945F0: RequestGlamourPlates
@@ -2320,14 +2323,33 @@ classes:
       0x140E0E9B0: GetWeatherForDaytime
   Client::Game::FashionCheckManager: # Fashion Report
     instances:
-      - ea: 0x142AB4B88
+      - ea: 0x142AB4BA8
         pointer: true
     funcs:
       0x140B17C20: Initialize
       0x140B17CF0: Finalizer
       0x140B17D20: HasInstance
       0x140B17D40: GetInstance
-#oldfail       0x140A36C30: ctor  # inlined to Initialize (pre-7.0)
+      0x140B17D50: IsFashionReportUnlocked
+      0x140B17D80: GetRemainingFashionCheckTime
+      0x140B17DB0: RequestInfo
+      0x140B17DF0: SetPlayerInfo
+      0x140B17E00: SetThemeData
+      0x140B17E20: SetEquipEvaluations
+      0x140B17E30: SetHighScore
+      0x140B17FC0: GetScore
+      0x140B17FD0: GetRemaining
+      0x140B17FF0: GetEquipEvaluations
+      0x140B18000: GetHighScore
+      0x140B18010: SendAddEntryReward
+      0x140B18060: SendAddBonusReward
+      0x140B180B0: SendAddEntryAndBonusReward
+      0x140B18100: ResetCommandSent
+      0x140B18110: GetIsCommandSent
+      0x140B18120: GetRandomInteger
+      0x140B18130: GetIsCustomTalkActive
+      0x140B18140: SetCustomTalkActive
+      0x140B18150: UnsetCustomTalkActive
   Client::Game::CustomTodoManager: # Studium Deliveries
     vtbls:
       - ea: 0x142315A50
@@ -2420,7 +2442,7 @@ classes:
       0x1419696A0: dtor
   Client::Game::DawnManager:
     instances:
-      - ea: 0x142AB4B90
+      - ea: 0x142AB4B88
         pointer: true
     funcs:
       0x140AFE1A0: Initialize
@@ -2859,6 +2881,8 @@ classes:
       0x14066E700: GetDuplicatedNode
       0x14066AD80: UpdateDrawNodeList
       0x14066AFF0: TraverseNode
+      0x14066B060: CountDrawNodeCallback
+      0x14066B070: AddDrawNodeCallback
       0x14066D180: Finalizer
       0x140668920: SetupTimelineFromULDResourceHandle # CreateTimeline
       0x1406687B0: SetupComponentTimelineFromULDResourceHandle
@@ -4017,6 +4041,8 @@ classes:
       - ea: 0x142159458
         base: Common::Component::BGCollision::LinkList<Client::Sound::ISoundData,Client::Sound::ISoundData>
     vfuncs:
+      1: Update
+      2: TryReset
       3: GetSoundController
       5: SetIsLoadingSoundResource
       6: GetIsLoadingSoundResource
@@ -4089,6 +4115,13 @@ classes:
       0x140060C80: Finalizer
       0x140060DB0: AddTask
       0x140060E20: ExecuteAllTasks
+  Client::System::Framework::TaskManager::JobPool:
+    funcs:
+      0x14005FE50: ctor
+  Client::System::Framework::TaskManager::JobPool::InnerThread:
+    vtbls:
+      - ea: 0x1421082F8
+        base: Client::System::Threading::Thread
   Client::System::Framework::JobListInterface:
     vtbls:
       - ea: 0x142108330
@@ -5609,8 +5642,15 @@ classes:
     vfuncs:
       0: dtor
     funcs:
+      0x1404738C0: ctor
+      0x1404738F0: Finalizer
       0x140473960: OpenFile
-      0x1404738F0: Close
+      0x140473AF0: Read
+      0x140473BA0: ReadAt
+      0x140473C50: Write
+      0x140473CF0: SetFilePointer
+      0x140473D40: GetFileSize
+      0x140473D80: Close
   Client::System::File::FileHandle:
     funcs:
       0x1404760F0: Reset
@@ -5660,6 +5700,14 @@ classes:
       0x1400D5310: Copy
       0x140095F10: SetPathUtf8String
       0x1400956E0: dtor
+  Client::System::File::SqPackManager:
+    funcs:
+      0x141882A90: ResolveSqPackPath
+      0x141882EC0: ctor
+      0x1418831F0: LoadSqPack
+      0x141883600: LoadDataFiles # inlined in LoadSqPack
+      0x141883760: TryGetOffsetFromIndex
+      0x1418839C0: TryGetOffsetFromIndex2
   Client::System::Resource::Handle::ResourceHandle:
     vtbls:
       - ea: 0x1421446A0
@@ -6027,6 +6075,14 @@ classes:
   Client::System::Resource::Handle::SpmResourceHandleFactory:
     vtbls:
       - ea: 0x142147B60
+        base: Client::System::Resource::Handle::ResourceHandleFactory
+  Client::System::Resource::Handle::CloudAssetResourceHandle:
+    vtbls:
+      - ea: 0x142147B78
+        base: Client::System::Resource::Handle::DefaultResourceHandle
+  Client::System::Resource::Handle::CloudAssetResourceHandleFactory:
+    vtbls:
+      - ea: 0x142147CE0
         base: Client::System::Resource::Handle::ResourceHandleFactory
   Client::System::Resource::Handle::LookAtIkResourceHandle:
     vtbls:
@@ -6492,6 +6548,7 @@ classes:
       11: OnLevelChange
       12: OnClassJobChange
     funcs:
+      0x1401E68C0: HideIfActive # static?!
       0x140482790: ctor
       0x1404827C0: Finalizer
       0x1404828E0: SetOpenerEventInterface
@@ -6896,6 +6953,7 @@ classes:
       0x14022D430: SetDefaultState
       0x14022AEC0: DoClearCommandViaDraw
       0x14022AD90: DoClearCommand
+      0x14022B340: DoSetTargetCommand
 #oldfail       0x14036DBA0: PrimeForDraw
   Client::Graphics::Kernel::Device::RenderThread:
     vtbls:
@@ -7467,6 +7525,8 @@ classes:
       25: GetTint
       26: SetTransparency
       27: GetTransparency
+      28: SetTargetStatus
+      29: GetTargetStatus
     funcs:
       0x14041DD80: ctor
   Client::Graphics::JobSystem<Client::Graphics::Scene::World>:
@@ -9058,6 +9118,7 @@ classes:
       0x1406710D0: GetScaledWidth
       0x140671110: GetScaledHeight
       0x140671150: CalculateBounds
+      0x140671290: GetCollisionNodeAtCoords
       0x140671A80: SetFlag
       0x140671B70: SetAddonParamUnknown1
       0x140671DE0: GetUnitBaseAttachmentPositionInfo
@@ -9089,6 +9150,8 @@ classes:
       0x1406752C0: FireCallback
       0x1406760D0: MoveDelta
       0x140678290: UpdateCollisionNodeList
+      0x1406793B0: PopulateCollisionNodeList
+      0x140679510: CountCollisionNodes
       0x140678ED0: SetOperationGuide
       0x140678CF0: SetOperationGuideEx
       0x140678F20: ClearOperationGuide
@@ -9111,6 +9174,7 @@ classes:
       14: GetAtkResNode
       15: GetFocusNode
       17: InitializeFromComponentData
+      18: GetCollisionNodeAtCoords
     funcs:
       0x14068C7A0: ctor
       0x14068CA20: GetOwnerNodePosition
@@ -9280,8 +9344,11 @@ classes:
       0x1406A2DF0: LoadAtkValues
       0x1406A37C0: ExpandGroupExclusively
       0x1406A48F0: GetItem
+      0x1406A49B0: FindItemGroup
+      0x1406A4BD0: IsItemSectionHeader
       0x1406A4C30: ctor # no xrefs, inlined in AtkUldManager_CreateAtkComponent
       0x1406A4CF0: Finalizer # no xrefs
+      0x1406A7430: CalculateVisibleItemHeightAndCount
       0x1406A7620: CreateItem # inlined (7.3)
   Component::GUI::AtkModule:
     vtbls:
@@ -9430,6 +9497,7 @@ classes:
     funcs:
       0x1406C2730: ctor
       0x1406C2760: Finalizer
+      0x1406C2710: SetActive
   Component::GUI::AtkComponentTab:
     vtbls:
       - ea: 0x142173B20
@@ -9612,6 +9680,7 @@ classes:
       17: GetTransform
       18: SetTransform
       21: HavePrimary
+      22: IsPrimaryLoaded
       23: GetGraphics
       24: GetGraphics2
       25: SetGraphics
@@ -9639,6 +9708,8 @@ classes:
       70: GetTransformImpl
       71: SetTransformImpl
       72: GetBoundingSphereImpl
+    funcs:
+      0x1406FA0E0: IsPrimaryReady
   Client::LayoutEngine::LayoutWorld:
     instances:
       - ea: 0x142A8BB60
@@ -9846,6 +9917,10 @@ classes:
       0x1407077C0: InitAnimationHandlers
       0x1407071A0: InitTimelines
       0x1406FE9F0: ReapplyStain
+      0x1407065C0: IsTimelineIndexValid
+      0x140706420: PlayTimeline
+      0x140706520: StopTimeline
+      0x1407065F0: IsTimelinePlaying
       0x1407985B0: GetObjectStainColorByIndex # static
   Client::LayoutEngine::Layer::TreasureLayoutInstance:
     vtbls:
@@ -9938,6 +10013,10 @@ classes:
   Client::LayoutEngine::Layer::DecalLayoutInstance:
     vtbls:
       - ea: 0x142178420
+        base: Client::LayoutEngine::ILayoutInstance
+  Client::LayoutEngine::Layer::CullingBoxLayoutInstance:
+    vtbls:
+      - ea: 0x142178B70
         base: Client::LayoutEngine::ILayoutInstance
   Client::LayoutEngine::Group::TimeLineLayoutInstance:
     vtbls:
@@ -10078,6 +10157,7 @@ classes:
       # 0x1406416C0: ctor # inlined @ 0x14075CDAD
       0x14077E2D0: HandleInputUpdate
       0x14077EA80: DisablePadMouseMode
+      0x14077EE70: SetCutsceneSkipCallback
       0x14077F1B0: CanEnterIdleCam
       0x14077F210: CanEnterGPose
       0x14077FB40: CheckCastCancel
@@ -10170,6 +10250,8 @@ classes:
       84: GetLogFilterConfig
       86: EnableCutsceneInputMode
       87: DisableCutsceneInputMode
+      88: SetCutsceneSkipCallback
+      89: IsCutsceneSkipCallbackSet
       92: EnterGPose
       93: ExitGPose
       94: IsInGPose
@@ -11574,17 +11656,23 @@ classes:
       11: GetSex
       12: EnableDraw
       13: DisableDraw
+      14: UpdateNextDistanceAndTargetStatus
+      15: SetTargetStatus
+      16: SetDistance
       17: SetDrawObject
+      20: PlayTimeline
+      21: StopTimeline
+      22: IsTimelinePlaying
       23: GetDrawObject
       24: GetCharacterBase
       25: UpdateRadius
       26: Highlight
-      #30: TryGetEventHandler
       30: GetEventHandlersImpl
       34: SetReadyToDraw
       36: Update
       47: GetCenterPosition
       48: GetNameId
+      49: UpdateSharedTimelineState
       54: GetTargetType
       55: PositionModified
       56: RotationModified
@@ -11610,10 +11698,12 @@ classes:
       0x1408985D0: UpdateVisualRotation
       0x140898780: UpdateVisualScale
       0x140898AB0: GetEventHandlers
+      0x1408991E0: IsSharedGroupLoaded
       0x140899230: IsReadyToDraw
       0x140899B70: SetEventId
       0x140899BE0: SetFateId
       0x140899C00: SetEventState
+      0x140899C80: SetVisibility
       0x14089A340: GetAsCharacter
       0x14089A370: GetAsBattleCharaMaybe # might be some other cast, or even Character too?
       0x14089A540: DistanceBetweenHitboxesXZ # static
@@ -11786,7 +11876,7 @@ classes:
         base: Client::Game::Character::ContainerInterface
     funcs:
       # 0x1413136A0: ctor # inlined at 0x1408CF5C4
-      0x1408A94C0: GetCompanionDataID
+      0x1408A94C0: GetCompanionId
       0x1408A92D0: SetupCompanion
   Client::Game::Character::RepresentationContainer:
     vtbls:
@@ -11935,6 +12025,13 @@ classes:
       0x1408C5480: UpdateBannerHeadDirection
       0x1408C5550: SetBannerEyesFollowingCamera
       0x1408C55A0: UpdateBannerEyeDirection
+  Client::Game::Character::TargetStatusContainer:
+    vtbls:
+      - ea: 0x14218C250
+        base: Client::Game::Character::ContainerInterface
+    funcs:
+      0x1408C7AB0: UpdateNextDistanceAndTargetStatus # inlined in GameObject.UpdateNextDistanceAndTargetStatus
+      0x1408C7C70: DetermineTargetStatus
   Client::Game::Character::DrawData:
     vtbls:
       - ea: 0x142163238
@@ -12859,6 +12956,7 @@ classes:
         base: Client::UI::Agent::AgentInterface
     funcs:
       0x140F5F4C0: ctor
+      0x140F5FAB0: OpenSkipDialog
   Client::UI::Agent::AgentCutsceneReplay:
     vtbls:
       - ea: 0x1421EE3C8
@@ -14158,6 +14256,12 @@ classes:
         base: Client::UI::Agent::AgentInterface
     funcs:
       0x140DA9AD0: ctor
+      0x140DABCD0: HandleCrystallizeCallback
+      0x140DACBE0: LoadPrismBoxItems
+      0x140DADB30: ShouldFilterPrismBoxItem
+      0x140DAE5C0: UpdateCrystallizePopulate
+      0x140DAE170: PopulateCrystallizeAndFireRefresh
+      0x140DAED60: ScanCrystallizeInventoryForCategory
       0x140DADDD0: UpdateItems
   Client::UI::Agent::AgentMiragePrismPrismItemDetail:
     vtbls:
@@ -14173,6 +14277,8 @@ classes:
     funcs:
       0x140DB0840: Open # todo: check this (7.4)
       0x140DB0B10: OpenPreview
+      0x140DB1EB0: PopulateHandInItem
+      0x140DB2980: ValidateItems
   Client::UI::Agent::AgentMiragePrismPrismSetConvert::AgentData:
     funcs:
 #fail       0x140C36B10: ctor # inlined (7.3)
@@ -15988,6 +16094,8 @@ classes:
       232: GetOccupiedConditionId
       233: GetOccupiedPermissionId
       251: GetScriptVersion
+      253: UpdateSharedTimelineState
+      254: UpdateTimelinesByBitmask
       258: GetDescription
       259: GetReliefText
       260: GetTimeRemaining # pass current unix timestamp as a2
@@ -17163,6 +17271,7 @@ classes:
         base: Client::Game::Event::EventHandler
     funcs:
       0x140E8A4C0: ctor
+      0x140E87E40: Setup
   Client::Game::Event::ShopEventHandler: # 0x04
     vtbls:
       - ea: 0x1422C6048
@@ -17752,7 +17861,7 @@ classes:
       0x140E52CD0: ctor
   Client::Game::EurekaStoryProgressManager:
     instances:
-      - ea: 0x142AB4BA8
+      - ea: 0x142AB4B90
         pointer: true
     funcs:
       0x140B1B0E0: Initialize
@@ -17944,6 +18053,7 @@ classes:
     funcs:
       0x140B6D8A0: ctor
       0x140B6F470: ApplyMapEffect
+      0x140B6F2E0: PlayMapEffectTimeline
       0x140B703F0: IsPlayCutscene
   Client::Game::InstanceContent::InstanceContentDirector:
     vtbls:
@@ -19647,6 +19757,7 @@ classes:
     funcs:
       0x1412CA250: ctor
       0x1412CC880: IsZoomed
+      0x1412D11C0: ChangeTab
   Client::UI::AddonContextMenu: # 31
     vtbls:
       - ea: 0x1421FA5F8
@@ -23019,6 +23130,8 @@ classes:
         base: Component::GUI::AtkUnitBase
     funcs:
       0x141273410: ctor
+      0x141274120: ToggleGearsetFilter
+      0x1412741F0: SwitchCategory
   Client::UI::AddonMiragePrismPrismBoxFilter: # 642
     vtbls:
       - ea: 0x14222BF90
@@ -26170,7 +26283,10 @@ classes:
       - ea: 0x1422C4DB0
         base: Client::Game::Object::GameObject
     funcs:
+      0x140898A40: GetEventHandlers
+      0x14174DCC0: SetSharedTimelineState
       0x14174DE10: PlayAnimation
+      0x14174DF40: UpdateTimelinesByBitmask
   Client::Game::Object::Treasure:
     vtbls:
       - ea: 0x1422C5020
@@ -26178,6 +26294,9 @@ classes:
   Client::Game::Object::GatheringPointObject::GatheringPointObjectImplBase:
     vtbls:
       - ea: 0x1422C5290
+    vfuncs:
+      0: dtor
+      12: GetName
   Client::Game::Object::GatheringPointObject::GatheringPointObjectImpl:
     vtbls:
       - ea: 0x1422C5300
@@ -26186,6 +26305,8 @@ classes:
     vtbls:
       - ea: 0x1422C5370
         base: Client::Game::Object::GameObject
+    funcs:
+      0x1417503C0: Setup
   Client::Game::Object::AreaObject:
     vtbls:
       - ea: 0x1422C55E0
@@ -26273,6 +26394,10 @@ classes:
 #       0x141464BD0: VectorResize_PixelShader # these 3 functions are identical, just template-generated functions from std::vectors
 #       0x1413EB940: VectorResize_ShaderNode
 #       0x141464510: VectorResize_VertexShader
+  Client::Game::Character::Companion::VfxList:
+    vtbls:
+      - ea: 0x14218C9D0
+        base: Client::Graphics::Vfx::VfxDataListenner
   Client::Game::Character::Companion:
     vtbls:
       - ea: 0x14218C9E0
@@ -26280,8 +26405,9 @@ classes:
       - ea: 0x14218CCA0
         base: Client::Game::Character::CharacterData
     funcs:
+      0x1408D97E0: ctor
       0x141749310: PlaceCompanion
-      # 0x141402A60: ctor # inlined @ 1408a74e5
+      0x1417428E0: GetFollowMountId
   Client::Game::Character::Ornament:
     vtbls:
       - ea: 0x14218C6F8
@@ -26332,6 +26458,7 @@ classes:
       30: GetInputDeltaHMultiplier
       31: GetInputDeltaVMultiplier
     funcs:
+      0x1418973E0: GetCameraInputSource # static
       0x14189DEF0: UpdateRotation
       0x1418A0F50: ctor
       0x1407915B0: WorldToViewportPoint
@@ -26772,6 +26899,7 @@ classes:
         base: SQEX::CDev::Engine::Sd::SdMemoryAllocator
     funcs:
       0x141E6D4B0: SetPosition
+      0x141E6D600: SetIsNonPositional
       0x141E6D6B0: SetPlaybackSpeed
       0x141E6D660: SetPlaybackSpeed2 # something with speed of sound?
       0x141E6DD60: SetMidiNote
