@@ -238,7 +238,7 @@ public unsafe partial struct AtkUnitBase : ICreatable<AtkUnitBase> {
     /// <param name="arrayType">0 for StringArrayData or 1 for NumberArrayData</param>
     /// <param name="arrayIndex">The index in AtkArrayDataHolder</param>
     /// <param name="clean">Resets all values to default, also frees managed strings</param>
-    [MemberFunction("E8 ?? ?? ?? ?? 45 33 C9 8D 56 01")]
+    [MemberFunction("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 41 56 41 57 48 81 EC 90 00 00 00 48 8B 05 ?? ?? ?? ?? 48 33 C4 48 89 84 24 ?? ?? ?? ?? BF 04 00 00 00")]
     public partial void UnsubscribeAtkArrayData(byte arrayType, byte arrayIndex, bool clean = false);
 
     [MemberFunction("E9 ?? ?? ?? ?? 48 8D 15 ?? ?? ?? ?? 41 B9 ?? ?? ?? ??"), GenerateStringOverloads]
