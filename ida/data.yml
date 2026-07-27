@@ -516,6 +516,21 @@ classes:
     funcs:
       0x140844E90: ctor
       0x140844D00: Refresh
+  Client::Game::PvPDuelManager:
+    vtbls:
+      - ea: 0x14216EE38
+        base: Component::GUI::AtkModuleInterface::AtkEventInterface
+    funcs:
+      0x140B271D0: Initialize
+      0x140B27200: Update
+      0x140B27330: RequestDuel
+      0x140B27550: CanRequestDuel
+      0x140B276A0: IsInWolvesDen
+      0x140B27700: IsInDuel
+      0x140B27760: IsDuelingTogether
+      0x140B27960: ProcessPacket
+      0x140B27A80: ProcessIncomingRequestPacket
+      0x140B27F60: IsWithinRange
   Client::Game::ColliderProvider:
     instances:
       - ea: 0x142A9E410
@@ -621,6 +636,7 @@ classes:
       0x141CF10D0: InitializeLobbyConnection
       0x141CF19A0: DtorHelper
       0x141CF6C30: Update
+      0x141CF25D0: SendPacket
   Application::Network::ZoneClient:
     funcs:
       0x141CF80E0: ctor
@@ -2336,11 +2352,11 @@ classes:
       0x140B17DF0: SetPlayerInfo
       0x140B17E00: SetThemeData
       0x140B17E20: SetEquipEvaluations
-      0x140B17E30: SetHighScore
-      0x140B17FC0: GetScore
+      0x140B17E30: SetHighScoreData
+      0x140B17FC0: GetHighScore
       0x140B17FD0: GetRemaining
       0x140B17FF0: GetEquipEvaluations
-      0x140B18000: GetHighScore
+      0x140B18000: GetHighScoreData
       0x140B18010: SendAddEntryReward
       0x140B18060: SendAddBonusReward
       0x140B180B0: SendAddEntryAndBonusReward
@@ -2440,6 +2456,46 @@ classes:
       0x141969520: GetInstance
       0x141968D30: ctor
       0x1419696A0: dtor
+  Client::Game::QuestEffectBase:
+    vtbls:
+      - ea: 0x1423152A0
+    vfuncs:
+      0: dtor
+      1: GetResult
+      5: GetLogMessageId
+      6: SuppressLogMessage
+  Client::Game::QuestEffectTransformationStatus:
+    vtbls:
+      - ea: 0x1424310A8
+        base: Client::Game::QuestEffectBase
+    funcs:
+      0x141C2DAE0: ctor
+  Client::Game::QuestEffectQuestStatusParam:
+    vtbls:
+      - ea: 0x142315310
+        base: Client::Game::QuestEffectBase
+  Client::Game::QuestEffectSequentialEvent:
+    vtbls:
+      - ea: 0x1424310E0
+        base: Client::Game::QuestEffectBase
+    funcs:
+      0x141C2DD80: ctor
+  Client::Game::QuestEffectFreeWork:
+    vtbls:
+      - ea: 0x142315348
+        base: Client::Game::QuestEffectBase
+  Client::Game::QuestEffectInventoryItem:
+    vtbls:
+      - ea: 0x142315380
+        base: Client::Game::QuestEffectBase
+  Client::Game::QuestEffectDemiatma:
+    vtbls:
+      - ea: 0x1423153B8
+        base: Client::Game::QuestEffectBase
+  Client::Game::QuestEffectPlayerLevel:
+    vtbls:
+      - ea: 0x142315498
+        base: Client::Game::QuestEffectBase
   Client::Game::DawnManager:
     instances:
       - ea: 0x142AB4B88
@@ -3796,8 +3852,8 @@ classes:
     instances:
       - ea: 0x142A80790
     funcs:
-      0x1408FC520: ctor
-      0x1408FC550: dtor
+      0x1408FC520: Initialize
+      0x1408FC550: Finalizer
       0x1408FC590: Tick
       0x1408FC5B0: OverrideStatusRemaining
       0x1408FC610: GetStatusManager
@@ -6383,6 +6439,7 @@ classes:
       0x140482630: SetCurrentInstance
       0x140482650: GetCurrentInstance
       0x140481220: HasZoneConnection
+      0x140481420: SendPacket
   Application::Network::PacketReceiverCallbackInterface:
     vtbls:
       - ea: 0x1421642F8
@@ -6598,7 +6655,7 @@ classes:
       0x140494320: HideAll
       0x14048C340: GetAgentScenarioTree
       0x14048C350: GetAgentMateriaAttach
-      0x14048C360: GetAgentGoldSaucerReward
+      0x14048C360: GetAgentFateReward
       0x14048C370: GetAgentCharacterTitleSelect
       0x14048C380: GetAgentReadyCheck
       0x14048C3A0: GetAgentHwdMonument
@@ -6799,6 +6856,10 @@ classes:
   Client::UI::Agent::AgentCursorRect:
     vtbls:
       - ea: 0x142166C58
+        base: Client::UI::Agent::AgentInterface
+  Client::UI::Agent::AgentColorPicker:
+    vtbls:
+      - ea: 0x142166CD8
         base: Client::UI::Agent::AgentInterface
   Client::UI::Agent::AgentLetterEdit:
     vtbls:
@@ -7079,8 +7140,8 @@ classes:
       0x140272C90: ctor
       0x140272E60: SetupFromModelResourceHandle
       0x140274750: ModelDrawInit
-#oldfail       0x140395EF0: GetAttributeIndex
-#oldfail       0x140394B20: GetShapeIndex
+      0x140274640: GetAttributeIndex
+      0x140274700: GetShapeIndex
   Client::Graphics::Render::Light:
     vtbls:
       - ea: 0x142141D18
@@ -7568,8 +7629,13 @@ classes:
       - ea: 0x1421613D8
         base: Client::Graphics::Singleton<Client::Graphics::Scene::CameraManager>
     funcs:
+      0x140420D10: ctor
       0x1404210E0: Update
-#oldfail       0x1404866D0: ctor
+      0x140421580: SetActiveCamera
+  Client::Graphics::Scene::OffscreenCamera:
+    vtbls:
+      - ea: 0x142161388
+        base: Client::Graphics::Scene::Camera
   Client::Graphics::Scene::CharacterUtility:
     instances:
       - ea: 0x1428E1F00
@@ -8436,6 +8502,8 @@ classes:
     funcs:
       0x1408D9AA0: Finalizer
       0x14180A4E0: ctor
+      0x141813DB0: IsFlying
+      0x141814950: IsDiving
   Client::Game::Control::MoveControl::MoveControllerSubMemberForMine:
     instances:
       - ea: 0x142A8AEB0
@@ -9655,6 +9723,14 @@ classes:
     funcs:
       0x1406DF370: ctor # no xrefs, inlined in AtkUldManager_CreateAtkComponent
       0x1406DF360: GetCollisionNode
+  Component::GUI::AtkComponentXBMItem:
+    vtbls:
+      - ea: 0x142174618
+        base: Component::GUI::AtkComponentBase
+  Component::GUI::AtkComponentXBMContentStageEventMap:
+    vtbls:
+      - ea: 0x1421746B8
+        base: Component::GUI::AtkComponentBase
   Client::LayoutEngine::IManagerBase:
     vtbls:
       - ea: 0x142175860
@@ -10289,9 +10365,8 @@ classes:
       163: LoadScreenShowUi
       165: AnnounceHowTo
       167: HideHowTo
-      169: ShowGoldSaucerReward
-      170: HideGoldSaucerReward
-      171: HideGoldSaucerReward_2
+      169: ShowFateReward
+      170: HideFateReward
       176: ShowHousingHarvest
       178: OpenMiniGame
       179: HideHousingHarvest
@@ -11717,6 +11792,14 @@ classes:
       0x140105F80: GetNamePlateColors
       0x140897760: GetNamePlateWorldPosition
       0x1409AA340: GetObjStrId
+      0x140B5A1C0: GetLuaPc
+      0x140B5A200: GetLuaEventNpc
+      0x140B5A240: GetLuaBattleNpc
+      0x140B5A280: GetLuaRetainer
+      0x140B5A2C0: GetLuaCompanion
+      0x140B5A300: GetLuaEventObj
+      0x140B5A340: GetLuaAetheryte
+      0x140E20C70: IsHousingGardeningPlant
       0x1419EFE50: PlayFootStepSound
   Client::Game::Character::CustomizeData:
     funcs:
@@ -11839,7 +11922,10 @@ classes:
       0x140614CD0: PlayEmote
       0x1406150D0: IsEmoting
       0x140615110: IsInEmoteLoop
-      0x140616FA0: GetPoseState
+      0x140615730: TryGetEmoteConditionInfo # static
+      0x140616400: GetPosture
+      0x140616FA0: GetCPoseState
+      0x140618180: SetMode
       0x140618330: GetPoseKind
   Client::Game::Control::EmoteController::FindChairInfo:
     vtbls:
@@ -11928,6 +12014,12 @@ classes:
       0x1408B3C10: GetOrnamentObject
       0x1408B3C20: HasOrnament
       0x1408B3C50: SetupOrnament
+  Client::Game::Character::LifeSkillContainer:
+    vtbls:
+      - ea: 0x14218C228
+        base: Client::Game::Character::ContainerInterface
+    funcs:
+      0x1408C5880: UpdateVfx
   Client::Game::Character::VfxContainer:
     vtbls:
       - ea: 0x14218C2A0
@@ -12012,6 +12104,8 @@ classes:
       # 0x14142EA80: SetSlotSpeed # inlined @ 0x1408B6A6F and other occurrences
       0x1408BF180: GetHeightAdjustActionTimelineRowId
       0x1408BFDE0: SetLipsOverrideTimeline
+      0x1408C1320: IsSittingOnGround
+      0x1408C1340: IsSittingInChair
       0x1408C1DE0: ClearBannerData
       0x1408C2260: GetCurrentBannerTimelineTimestamp
   Client::Game::Character::LookAtContainer:
@@ -12980,12 +13074,23 @@ classes:
         base: Client::UI::Agent::AgentContext::AgentContextUpdateChecker
     funcs:
       0x14052EA10: Finalizer
-  Client::UI::Agent::AgentGoldSaucerReward:
+  Client::UI::Agent::AgentFateReward:
     vtbls:
       - ea: 0x1421EE728
         base: Client::UI::Agent::AgentInterface
     funcs:
       0x140F6B200: ctor
+      0x140F6B4A0: HandleFateReward # type 0
+      0x140F6B610: HandleDynamicEventReward # type variable, but only called with type 1
+      0x140F6B800: HandleGoldSaucerReward # type 3
+      0x140F6B8B0: HandleTreasureHuntReward # type 2
+      0x140F6BA30: HandleMJIReward # type 4
+      0x140F6BB00: HandleWKSReward # type 5
+      0x140F6C390: EnqueueReward
+      0x140F6BC80: ProcessReward
+  Client::UI::Agent::AgentFateReward::Reward:
+    funcs:
+      0x140F6B0E0: ctor
   Client::UI::Agent::AgentFateProgress:
     vtbls:
       - ea: 0x1421EE6A8
@@ -13225,6 +13330,12 @@ classes:
     vtbls:
       - ea: 0x142166D58
         base: Client::UI::Agent::AgentInterface
+  Client::UI::Agent::AgentConfigShare:
+    vtbls:
+      - ea: 0x142167260
+        base: Client::UI::Agent::AgentInterface
+    funcs:
+      0x14050D0E0: ctor
   Client::UI::Agent::AgentCreditPlayer:
     vtbls:
       - ea: 0x1421672E0
@@ -15975,6 +16086,18 @@ classes:
         base: Client::UI::Agent::AgentInterface
       - ea: 0x142199540
         base: Common::Component::Excel::ExcelSheetWaiter
+  Client::UI::Agent::AgentMKDRelicGrowth3:
+    vtbls:
+      - ea: 0x1421995D0
+        base: Client::UI::Agent::AgentInterface
+    funcs:
+      0x140A94A90: ctor
+  Client::UI::Agent::AgentMKDRelicGrowth3Customize:
+    vtbls:
+      - ea: 0x142199650
+        base: Client::UI::Agent::AgentInterface
+    funcs:
+      0x140A96570: ctor
   Client::UI::Agent::AgentQuickPanel:
     vtbls:
       - ea: 0x1421BA808
@@ -16007,6 +16130,24 @@ classes:
         base: Client::UI::Agent::AgentInterface
     funcs:
       0x140AA0290: ctor
+  Client::UI::Agent::AgentXBMItemDetail:
+    vtbls:
+      - ea: 0x142199860
+        base: Client::UI::Agent::AgentItemDetailBase
+    funcs:
+      0x140AA5AE0: ctor
+  Client::UI::Agent::AgentXBMBattleMonsterDetail:
+    vtbls:
+      - ea: 0x1421998E8
+        base: Client::UI::Agent::AgentInterface
+    funcs:
+      0x140AA5EF0: ctor
+  Client::UI::Agent::AgentXBMContentsMainHUD:
+    vtbls:
+      - ea: 0x1421996E0
+        base: Client::UI::Agent::AgentInterface
+    funcs:
+      0x140A96C20: ctor
   Client::UI::Agent::AgentXBMStageDetailList:
     vtbls:
       - ea: 0x142199760
@@ -16025,6 +16166,18 @@ classes:
         base: Client::UI::Agent::AgentInterface
     funcs:
       0x140AABAF0: ctor
+  Client::UI::Agent::AgentXBMResult:
+    vtbls:
+      - ea: 0x142199BC8
+        base: Client::UI::Agent::AgentInterface
+    funcs:
+      0x140AABC90: ctor
+  Client::UI::Agent::AgentXBMRanking:
+    vtbls:
+      - ea: 0x142199C58
+        base: Client::UI::Agent::AgentInterface
+    funcs:
+      0x140AACE30: ctor
   Client::UI::Agent::AgentEventImage:
     vtbls:
       - ea: 0x1421EE568
@@ -16075,10 +16228,13 @@ classes:
       0x140B4F8B0: ctor
       0x140B53E90: QueueFormatStringCallback
       0x140B53F40: QueueActionTimelineCallback
+      0x140B55190: DispatchEvent
     vfuncs:
       0: dtor
       6: Terminate
       7: IsUnlocked
+      20: ProcessEnterTerritory
+      26: ProcessUIEvent # CustomTalkEventHandler calls lua function "OnUI"
       40: ProcessYield
       59: ProcessFormatStringCallback
       60: ProcessActionTimelineCallback
@@ -27372,8 +27528,12 @@ classes:
   Client::Graphics::Physics::ConstraintBase:
     vtbls:
       - ea: 0x142430E40
+    vfuncs:
+      0: dtor
+      1: ResetSkeleton
     funcs:
       0x141C89710: ctor
+      0x141C89730: SetSkeleton
   Client::Graphics::Physics::ConstraintAttract:
     vtbls:
       - ea: 0x142430E68

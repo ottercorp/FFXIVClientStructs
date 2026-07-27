@@ -123,8 +123,8 @@ enums:
     "Preview": 23
     "HoldButton": 24
     "Portrait": 25
-    "Unk26": 26
-    "Unk27": 27
+    "XBMItem": 26
+    "XBMContentStageEventMap": 27
 - type: Component::GUI::AtkCursorNavigationStopFlag
   name: AtkCursorNavigationStopFlag
   underlying: int
@@ -2678,7 +2678,7 @@ enums:
     "MJIKeyItem": 22
     "MJICraftworksObject": 23
     "Cabinet": 24
-    "Unk25": 25
+    "XBMItem": 25
     "TradeRemote": 26
     "HandIn": 27
     "RepairRequest": 28
@@ -2717,7 +2717,7 @@ enums:
     "Unk61": 61
     "Unk62": 62
     "Unk63": 63
-    "Unk64": 64
+    "XBMBattleMonster": 64
 - type: Client::UI::Agent::AlarmSoundEffect
   name: AlarmSoundEffect
   underlying: byte
@@ -2807,6 +2807,16 @@ enums:
     "Blacklisted": 1
     "Muted": 2
     "TermFiltered": 4
+- type: Client::UI::Agent::AgentFashionOpenType
+  name: AgentFashionOpenType
+  underlying: int
+  namespace: Client.UI.Agent
+  flags: False
+  values:
+    "None": -1
+    "Preview": 0
+    "HighScore": 1
+    "Result": 2
 - type: Client::UI::Agent::CardListFilterMode
   name: CardListFilterMode
   underlying: byte
@@ -2931,7 +2941,7 @@ enums:
     "CutsceneReplay": 73
     "MonsterNote": 74
     "ItemSearch": 75
-    "GoldSaucerReward": 76
+    "FateReward": 76
     "FateProgress": 77
     "Catch": 78
     "FreeCompany": 79
@@ -3345,23 +3355,23 @@ enums:
     "MKDRelicGrowth": 487
     "MKDRelicGrowth2": 488
     "MKDRelicGrowth3": 489
-    "Unk490": 490
+    "MKDRelicGrowth3Customize": 490
     "QuickPanel": 491
     "EventTutorial": 492
     "ConfigCharacterChatLogMiniTalk": 493
     "ToggleContextMenu": 494
-    "Unk495": 495
-    "Unk496": 496
-    "Unk497": 497
-    "Unk498": 498
-    "Unk499": 499
+    "ColorPicker": 495
+    "ConfigShare": 496
+    "XBMContentsMainHUD": 497
+    "XBMItemDetail": 498
+    "XBMBattleMonsterDetail": 499
     "XBMMonsterNotebook": 500
     "XBMPetParty": 501
     "XBMStageDetailList": 502
     "XBMStageList": 503
     "XBMStageMap": 504
-    "Unk505": 505
-    "Unk506": 506
+    "XBMResult": 505
+    "XBMRanking": 506
     "EventImage": 507
     "KeyBoardInput": 508
 - type: Client::UI::Agent::InventoryContextFlag
@@ -4986,6 +4996,15 @@ enums:
     "Friends": 1
     "FreeCompany": 2
     "Party": 4
+- type: Client::Game::Event::UIEventType
+  name: UIEventType
+  underlying: int
+  namespace: Client.Game.Event
+  flags: False
+  values:
+    "TitleDeedHouseShop": 1
+    "GroupPose": 2
+    "IdleCamera": 3
 - type: Client::Game::InstanceContent::DynamicEventState
   name: DynamicEventState
   underlying: byte
@@ -5295,6 +5314,14 @@ enums:
     "ExecutingAction1": 8
     "Unk2": 16
     "Unk3": 32
+- type: Client::Game::Event::EventType
+  name: EventType
+  underlying: byte
+  namespace: Client.Game.Event
+  flags: False
+  values:
+    "EnterTerritory": 15
+    "UIEvent": 21
 - type: Client::Game::Event::SceneFlag
   name: SceneFlag
   underlying: unsigned __int64
@@ -5574,6 +5601,19 @@ enums:
     "GameObjectId": 1
     "Unk2": 2
     "Unk3": 3
+- type: Client::Game::Control::EmoteController::Posture
+  name: Posture
+  underlying: int
+  namespace: Client.Game.Control
+  flags: False
+  values:
+    "Normal": 0
+    "SittingOnGround": 1
+    "SittingInChair": 2
+    "Mounted": 3
+    "Dozing": 4
+    "Swimming": 5
+    "Diving": 6
 - type: Client::Game::Control::EmoteController::PoseType
   name: PoseType
   underlying: byte
@@ -7010,6 +7050,18 @@ enums:
     "Available": 0
     "NotYetAvailable": 1
     "NotCurrentlyAvailable": 3
+- type: Client::UI::Agent::AgentFateReward::RewardType
+  name: RewardType
+  underlying: byte
+  namespace: Client.UI.Agent
+  flags: False
+  values:
+    "FateReward": 0
+    "Unk1": 1
+    "Unk2": 2
+    "GoldSaucerReward": 3
+    "MJIReward": 4
+    "WKSReward": 5
 - type: Client::UI::Agent::AgentFreeCompanyProfile::FCProfile::FocusType
   name: FocusType
   underlying: unsigned __int16
@@ -8132,6 +8184,26 @@ structs:
       name: this
     - type: Client::Game::Character::CustomizeData*
       name: source
+- type: Client::Game::Character::DrawData
+  name: DrawData
+  namespace: Client.Game.Character
+  union: False
+  size: 72
+  fields:
+  - type: Client::Graphics::Scene::DrawObject*
+    name: DrawObject
+    offset: 8
+  - type: Client::Graphics::Scene::CharacterBase*
+    name: CharacterBase
+    offset: 16
+  - type: Client::System::Resource::Handle::AttachOffsetResourceHandle*
+    name: AttachOffsetResourceHandle
+    offset: 24
+  - type: unsigned int
+    name: Slot
+    offset: 44
+  virtual_functions: []
+  member_functions: []
 - type: Client::Game::Character::EquipmentModelId
   name: EquipmentModelId
   namespace: Client.Game.Character
@@ -8708,6 +8780,26 @@ structs:
     offset: 224
     size: 14
     is_string: False
+  - type: unsigned __int16
+    name: TimelineIds2
+    offset: 252
+    size: 14
+    is_string: False
+  - type: unsigned __int16
+    name: TimelineIds3
+    offset: 280
+    size: 14
+    is_string: False
+  - type: unsigned __int16
+    name: TimelineIds4
+    offset: 308
+    size: 14
+    is_string: False
+  - type: unsigned __int16
+    name: Unk150
+    offset: 336
+    size: 2
+    is_string: False
   - type: float
     name: TimelineSpeeds
     offset: 340
@@ -8764,6 +8856,61 @@ structs:
       name: slot
     - type: unsigned __int16
       name: actionTimelineId
+- type: Client::Game::Control::EmoteController::EmoteDetails
+  name: EmoteDetails
+  namespace: Client.Game.Control
+  union: False
+  size: 33
+  fields:
+  - type: char*
+    name: Name
+    offset: 0
+  - type: unsigned int
+    name: UnlockLink
+    offset: 8
+  - type: int
+    name: TextCommand
+    offset: 12
+  - type: unsigned int
+    name: Icon
+    offset: 16
+  - type: unsigned __int16
+    name: Order
+    offset: 20
+  - type: byte
+    name: EmoteCategory
+    offset: 22
+  - type: char
+    name: SittingOnGround
+    offset: 23
+  - type: char
+    name: SittingInChair
+    offset: 24
+  - type: char
+    name: Mounted
+    offset: 25
+  - type: char
+    name: Fishing
+    offset: 26
+  - type: char
+    name: Standing
+    offset: 27
+  - type: char
+    name: Swimming
+    offset: 28
+  - type: char
+    name: Diving
+    offset: 29
+  - type: char
+    name: HoldingTorch
+    offset: 30
+  - type: char
+    name: WearingFashionAccessory
+    offset: 31
+  - type: char
+    name: HoldingUmbrella
+    offset: 32
+  member_functions: []
 - type: Client::Game::Control::GameObjectArray
   name: GameObjectArray
   namespace: Client.Game.Control
@@ -8861,7 +9008,19 @@ structs:
   virtual_functions:
   - name: dtor
     offset: 0
-  member_functions: []
+  member_functions:
+  - signature: E8 ?? ?? ?? ?? 38 05
+    return_type: char
+    name: IsFlying
+    parameters:
+    - type: Client::Game::Control::MoveControl::MoveController*
+      name: this
+  - signature: E8 ?? ?? ?? ?? 0F B6 F8 40 80 E6
+    return_type: char
+    name: IsDiving
+    parameters:
+    - type: Client::Game::Control::MoveControl::MoveController*
+      name: this
 - type: Client::Game::Control::TargetSystem::OutlineInfo
   name: OutlineInfo
   namespace: Client.Game.Control
@@ -9105,6 +9264,12 @@ structs:
   - type: Client::Game::Event::EventHandler*
     name: Handler
     offset: 8
+  - type: Client::Game::Event::EventType
+    name: EventType
+    offset: 16
+  - type: unsigned int
+    name: EventParam
+    offset: 20
   - type: unsigned __int16
     name: IconId
     offset: 24
@@ -9804,6 +9969,105 @@ structs:
     - 3
     is_pointer: False
     return_type: Client::Game::EventItemManager
+- type: Client::Game::FashionCheckManager::EquipEvaluationData
+  name: EquipEvaluationData
+  namespace: Client.Game
+  union: False
+  size: 16
+  fields:
+  - type: byte
+    name: Score
+    offset: 0
+  - type: byte
+    name: ItemEvaluations
+    offset: 1
+    size: 11
+    is_string: False
+  member_functions: []
+- type: Client::Game::FashionCheckManager::HighScoreData
+  name: HighScoreData
+  namespace: Client.Game
+  union: False
+  size: 80
+  fields:
+  - type: byte
+    name: Score
+    offset: 0
+  - type: unsigned int
+    name: ItemIds
+    offset: 4
+    size: 11
+    is_string: False
+  - type: unsigned __int16
+    name: GlassesIds
+    offset: 48
+    size: 2
+    is_string: False
+  - type: byte
+    name: Stain0Ids
+    offset: 52
+    size: 6
+    is_string: False
+  - type: byte
+    name: Stain1Ids
+    offset: 58
+    size: 6
+    is_string: False
+  - type: byte
+    name: ItemEvaluations
+    offset: 64
+    size: 11
+    is_string: False
+  member_functions: []
+- type: Client::Game::FashionCheckManager::PlayerInfoData
+  name: PlayerInfoData
+  namespace: Client.Game
+  union: False
+  size: 8
+  fields:
+  - type: byte
+    name: HighScore
+    offset: 0
+  - type: byte
+    name: Remaining
+    offset: 1
+  member_functions: []
+- type: Client::Game::FashionCheckManager::PreviewData
+  name: PreviewData
+  namespace: Client.Game
+  union: False
+  size: 32
+  fields:
+  - type: byte
+    name: HighScore
+    offset: 0
+  - type: byte
+    name: Remaining
+    offset: 1
+  - type: unsigned __int16
+    name: WeeklyTheme
+    offset: 2
+  - type: unsigned __int16
+    name: ItemThemes
+    offset: 4
+    size: 11
+    is_string: False
+  member_functions: []
+- type: Client::Game::FashionCheckManager::ThemeData
+  name: ThemeData
+  namespace: Client.Game
+  union: False
+  size: 24
+  fields:
+  - type: unsigned __int16
+    name: WeeklyTheme
+    offset: 0
+  - type: unsigned __int16
+    name: ItemThemes
+    offset: 2
+    size: 11
+    is_string: False
+  member_functions: []
 - type: Client::Game::GameMain::Festival
   name: Festival
   namespace: Client.Game
@@ -11913,6 +12177,19 @@ structs:
     size: 192
     is_string: True
   member_functions: []
+- type: Client::Game::Network::FateRewardPacket::ItemReward
+  name: ItemReward
+  namespace: Client.Game.Network
+  union: False
+  size: 8
+  fields:
+  - type: unsigned int
+    name: ItemId
+    offset: 0
+  - type: unsigned int
+    name: Amount
+    offset: 4
+  member_functions: []
 - type: Client::Game::Network::HousingPortalPacket::HouseInfoEntry
   name: HouseInfoEntry
   namespace: Client.Game.Network
@@ -12070,26 +12347,20 @@ structs:
     name: VfxId
     offset: 6
   - type: unsigned __int16
-    name: Unk8
+    name: LoadingScreenVfxId
     offset: 8
   - type: byte
     name: WarpType
     offset: 10
   - type: byte
-    name: UnkB
+    name: HideCharacter
     offset: 11
   - type: byte
-    name: UnkC
+    name: FadeOutDelay
     offset: 12
   - type: byte
     name: Flags
     offset: 13
-  - type: byte
-    name: UnkE
-    offset: 14
-  - type: byte
-    name: UnkF
-    offset: 15
   member_functions: []
 - type: Client::Game::Network::QueueUpdatePacket
   name: QueueUpdatePacket
@@ -12632,6 +12903,76 @@ structs:
     name: OwnerType
     offset: 4
   member_functions: []
+- type: Client::Game::QuestEffectBase
+  name: QuestEffectBase
+  namespace: Client.Game
+  union: False
+  size: 16
+  fields: []
+  virtual_functions:
+  - name: dtor
+    offset: 0
+    return_type: Client::Game::QuestEffectBase*
+    parameters:
+    - type: Client::Game::QuestEffectBase*
+      name: this
+    - type: byte
+      name: freeFlags
+  - name: GetResult
+    offset: 8
+    return_type: int
+    parameters:
+    - type: Client::Game::QuestEffectBase*
+      name: this
+    - type: unsigned int
+      name: param1
+    - type: unsigned int
+      name: param2
+    - type: unsigned __int16
+      name: questId
+  - name: GetLogMessageId
+    offset: 40
+    return_type: unsigned int
+    parameters:
+    - type: Client::Game::QuestEffectBase*
+      name: this
+  - name: SuppressLogMessage
+    offset: 48
+    return_type: char
+    parameters:
+    - type: Client::Game::QuestEffectBase*
+      name: this
+  member_functions: []
+- type: Client::Game::QuestEffectManager
+  name: QuestEffectManager
+  namespace: Client.Game
+  union: False
+  size: 424
+  fields:
+  - type: Client::Game::QuestEffectBase*
+    name: EffectHandlers
+    offset: 0
+    size: 47
+    is_string: False
+  - type: unsigned __int16
+    name: UnkQuestId
+    offset: 392
+  - type: unsigned __int16
+    name: UnkQuestEffectId
+    offset: 394
+  - type: unsigned __int16
+    name: UnkColliderInstanceId
+    offset: 396
+  - type: byte
+    name: Flags
+    offset: 400
+  member_functions: []
+  static_members:
+  - signature: 4C 8B 35 ?? ?? ?? ?? 0F B7 C8
+    relative_follow_offsets:
+    - 3
+    is_pointer: False
+    return_type: Client::Game::QuestEffectManager
 - type: Client::Game::RaceChocoboAttributeValues
   name: RaceChocoboAttributeValues
   namespace: Client.Game
@@ -15586,19 +15927,44 @@ structs:
   union: False
   size: 24
   fields:
+  - type: Client::Graphics::Render::Skeleton*
+    name: Skeleton
+    offset: 8
   - type: Client::Graphics::Physics::ConstraintType
     name: Type
     offset: 16
-  virtual_functions: []
+  virtual_functions:
+  - name: dtor
+    offset: 0
+    return_type: Client::Graphics::Physics::ConstraintBase*
+    parameters:
+    - type: Client::Graphics::Physics::ConstraintBase*
+      name: this
+    - type: byte
+      name: freeFlags
+  - name: ResetSkeleton
+    offset: 8
+    return_type: void
+    parameters:
+    - type: Client::Graphics::Physics::ConstraintBase*
+      name: this
   member_functions:
   - signature: E8 ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? C7 43 ?? ?? ?? ?? ?? ?? ?? ?? 33 C0 48 89 43 ?? 48 89 43 ?? 89 43 ?? 48 8B C3 C7 43
     return_type: Client::Graphics::Physics::ConstraintBase*
-    name: Ctor
+    name: ctor
     parameters:
     - type: Client::Graphics::Physics::ConstraintBase*
       name: this
     - type: Client::Graphics::Physics::ConstraintType
       name: type
+  - signature: E8 ?? ?? ?? ?? 84 C0 74 ?? F3 0F 10 44 24 ?? B0 ?? F3 0F 10 4C 24 ?? F3 0F 11 43
+    return_type: char
+    name: SetSkeleton
+    parameters:
+    - type: Client::Graphics::Physics::ConstraintBase*
+      name: this
+    - type: Client::Graphics::Render::Skeleton*
+      name: skeleton
 - type: Client::Graphics::ReferencedClassBase
   name: ReferencedClassBase
   namespace: Client.Graphics
@@ -16003,6 +16369,9 @@ structs:
     offset: 88
     size: 14
     is_string: False
+  - type: Client::Graphics::Scene::OffscreenCamera*
+    name: OffscreenCamera
+    offset: 224
   virtual_functions: []
   member_functions: []
   static_members:
@@ -17354,7 +17723,7 @@ structs:
   member_functions:
   - signature: E8 ?? ?? ?? ?? 33 F6 45 32 F6
     return_type: Client::System::File::FileInterface*
-    name: Ctor
+    name: ctor
     parameters:
     - type: Client::System::File::FileInterface*
       name: this
@@ -19030,13 +19399,13 @@ structs:
   member_functions:
   - signature: E8 ?? ?? ?? ?? F7 C3
     return_type: Client::System::String::Utf8String*
-    name: Ctor
+    name: ctor
     parameters:
     - type: Client::System::String::Utf8String*
       name: this
   - signature: E8 ?? ?? ?? ?? 41 8B CF EB 15
     return_type: Client::System::String::Utf8String*
-    name: Ctor_FromSequence
+    name: ctor_FromSequence
     parameters:
     - type: Client::System::String::Utf8String*
       name: this
@@ -19046,7 +19415,7 @@ structs:
       name: length
   - signature: E8 ?? ?? ?? ?? C7 44 F5
     return_type: void
-    name: Dtor
+    name: dtor
     parameters:
     - type: Client::System::String::Utf8String*
       name: this
@@ -21194,6 +21563,121 @@ structs:
   - type: byte
     name: Sort
     offset: 22
+  member_functions: []
+- type: Client::UI::Agent::AgentFashion::FashionCheckDataStruct
+  name: FashionCheckDataStruct
+  namespace: Client.UI.Agent
+  union: False
+  size: 44
+  fields:
+  - type: unsigned __int16
+    name: WeeklyTheme
+    offset: 0
+  - type: byte
+    name: Remaining
+    offset: 2
+  - type: byte
+    name: HighScore
+    offset: 3
+  - type: unsigned __int16
+    name: ItemThemes
+    offset: 4
+    size: 11
+    is_string: False
+  - type: byte
+    name: Score
+    offset: 26
+  - type: byte
+    name: ItemEvaluations
+    offset: 27
+    size: 11
+    is_string: False
+  member_functions: []
+- type: Client::UI::Agent::AgentFashion::FashionCheckItemDataStruct
+  name: FashionCheckItemDataStruct
+  namespace: Client.UI.Agent
+  union: False
+  size: 70
+  fields:
+  - type: unsigned int
+    name: ItemIds
+    offset: 0
+    size: 11
+    is_string: False
+  - type: byte
+    name: Stain0Ids
+    offset: 44
+    size: 11
+    is_string: False
+  - type: byte
+    name: Stain1Ids
+    offset: 55
+    size: 11
+    is_string: False
+  - type: unsigned __int16
+    name: GlassesIds
+    offset: 66
+    size: 2
+    is_string: False
+  member_functions: []
+- type: Client::UI::Agent::AgentFashion::ItemData
+  name: ItemData
+  namespace: Client.UI.Agent
+  union: False
+  size: 28
+  fields:
+  - type: unsigned int
+    name: ItemId
+    offset: 0
+  - type: unsigned int
+    name: IconId
+    offset: 4
+  - type: unsigned int
+    name: SlotFlag
+    offset: 8
+  - type: unsigned int
+    name: Stain0Color
+    offset: 12
+  - type: unsigned int
+    name: Stain1Color
+    offset: 16
+  - type: byte
+    name: Stain0Id
+    offset: 20
+  - type: byte
+    name: Stain1Id
+    offset: 21
+  - type: char
+    name: HasStain0
+    offset: 22
+  - type: char
+    name: HasStain1
+    offset: 23
+  - type: char
+    name: IsStainUnlocked
+    offset: 24
+  member_functions: []
+- type: Client::UI::Agent::AgentFateReward::Reward::ItemReward
+  name: ItemReward
+  namespace: Client.UI.Agent
+  union: False
+  size: 24
+  fields:
+  - type: unsigned int
+    name: ItemId
+    offset: 0
+  - type: unsigned int
+    name: Amount
+    offset: 4
+  - type: Component::Exd::Sheets::Item*
+    name: ItemRow
+    offset: 8
+  - type: unsigned int
+    name: Flags
+    offset: 16
+  - type: unsigned int
+    name: Unk14
+    offset: 20
   member_functions: []
 - type: Client::UI::Agent::AgentFreeCompany::FreeCompanyActionTimer
   name: FreeCompanyActionTimer
@@ -27124,21 +27608,19 @@ structs:
       name: a3
     - type: char
       name: a4
-  - name: ShowGoldSaucerReward
+  - name: ShowFateReward
     offset: 1352
     return_type: void
     parameters:
     - type: Client::UI::UIModuleInterface*
       name: this
-    - type: byte
-      name: type
+    - type: Client::Game::Network::FateRewardPacket*
+      name: packet
+    - type: Client::Game::Network::FateRewardPacket::ItemReward*
+      name: items
     - type: unsigned int
-      name: mgp
-    - type: unsigned int
-      name: rewardItemId
-    - type: unsigned int
-      name: rewardItemCount
-  - name: HideGoldSaucerReward
+      name: itemCount
+  - name: HideFateReward
     offset: 1360
     return_type: void
     parameters:
@@ -27496,8 +27978,6 @@ structs:
     offset: 1320
   - name: HideHowTo
     offset: 1336
-  - name: HideGoldSaucerReward_2
-    offset: 1368
   - name: OpenMiniGame
     offset: 1424
   - name: HideHousingHarvest
@@ -30168,7 +30648,7 @@ structs:
   member_functions:
   - signature: E8 ?? ?? ?? ?? 45 0F B6 CE 89 74 24
     return_type: Component::GUI::AtkComponentListItemPopulator*
-    name: CtorWithRenderer
+    name: ctorWithRenderer
     parameters:
     - type: Component::GUI::AtkComponentListItemPopulator*
       name: this
@@ -30178,7 +30658,7 @@ structs:
       name: populateWithRenderer
   - signature: E8 ?? ?? ?? ?? 45 0F B6 CD
     return_type: Component::GUI::AtkComponentListItemPopulator*
-    name: Ctor
+    name: ctor
     parameters:
     - type: Component::GUI::AtkComponentListItemPopulator*
       name: this
@@ -30222,6 +30702,67 @@ structs:
     name: ComponentMap
     offset: 16
   virtual_functions: []
+  member_functions: []
+- type: Component::GUI::AtkComponentXBMContentStageEventMap::Entry
+  name: Entry
+  namespace: Component.GUI
+  union: False
+  size: 432
+  fields:
+  - type: unsigned int
+    name: TemplateNodeId
+    offset: 0
+  - type: byte
+    name: ComponentCount
+    offset: 4
+  - type: byte
+    name: EventMapEntryIndices
+    offset: 5
+    size: 30
+    is_string: False
+  - type: Component::GUI::AtkComponentBase*
+    name: Components
+    offset: 40
+    size: 30
+    is_string: False
+  - type: unsigned int
+    name: TimelineStates
+    offset: 280
+    size: 30
+    is_string: False
+  - type: char
+    name: IsCurrentEvent
+    offset: 400
+    size: 30
+    is_string: False
+  member_functions: []
+- type: Component::GUI::AtkComponentXBMContentStageEventMap::EventMapRowEntry
+  name: EventMapRowEntry
+  namespace: Component.GUI
+  union: False
+  size: 13
+  fields:
+  - type: byte
+    name: X
+    offset: 0
+  - type: byte
+    name: Y
+    offset: 1
+  - type: byte
+    name: Type
+    offset: 2
+  - type: byte
+    name: EventIndex
+    offset: 3
+  - type: byte
+    name: LinkedEventIndex
+    offset: 4
+  - type: unsigned int
+    name: State
+    offset: 8
+  - type: char
+    name: IsStateLoaded
+    offset: 12
   member_functions: []
 - type: Component::GUI::AtkCrestManager
   name: AtkCrestManager
@@ -32590,6 +33131,18 @@ structs:
     name: MyFirstIter
     offset: 8
   member_functions: []
+- type: ContainerInterface::ContainerProxy<Client::UI::Agent::AgentFateReward::Reward>
+  name: ContainerProxy`1
+  namespace: ContainerInterface
+  union: False
+  fields:
+  - type: StdDeque<Client::UI::Agent::AgentFateReward::Reward>*
+    name: MyCont
+    offset: 0
+  - type: ContainerInterface::IteratorBase12<Client::UI::Agent::AgentFateReward::Reward>*
+    name: MyFirstIter
+    offset: 8
+  member_functions: []
 - type: ContainerInterface::ContainerProxy<Client::UI::Agent::BalloonInfo>
   name: ContainerProxy`1
   namespace: ContainerInterface
@@ -32722,6 +33275,18 @@ structs:
     name: MyProxy
     offset: 0
   - type: ContainerInterface::IteratorBase12<Client::System::String::Utf8String>*
+    name: MyNextIter
+    offset: 8
+  member_functions: []
+- type: ContainerInterface::IteratorBase12<Client::UI::Agent::AgentFateReward::Reward>
+  name: IteratorBase12`1
+  namespace: ContainerInterface
+  union: False
+  fields:
+  - type: ContainerInterface::ContainerProxy<Client::UI::Agent::AgentFateReward::Reward>*
+    name: MyProxy
+    offset: 0
+  - type: ContainerInterface::IteratorBase12<Client::UI::Agent::AgentFateReward::Reward>*
     name: MyNextIter
     offset: 8
   member_functions: []
@@ -32861,6 +33426,27 @@ structs:
     name: ContainerBase
     offset: 0
   - type: Client::System::String::Utf8String**
+    name: Map
+    offset: 8
+  - type: unsigned __int64
+    name: MapSize
+    offset: 16
+  - type: unsigned __int64
+    name: MyOff
+    offset: 24
+  - type: unsigned __int64
+    name: MySize
+    offset: 32
+  member_functions: []
+- type: StdDeque<Client::UI::Agent::AgentFateReward::Reward>
+  name: StdDeque`1
+  namespace: ''
+  union: False
+  fields:
+  - type: ContainerInterface::ContainerProxy<Client::UI::Agent::AgentFateReward::Reward>*
+    name: ContainerBase
+    offset: 0
+  - type: Client::UI::Agent::AgentFateReward::Reward**
     name: Map
     offset: 8
   - type: unsigned __int64
@@ -35471,6 +36057,21 @@ structs:
     name: End
     offset: 16
   member_functions: []
+- type: StdVector<System::Numerics::Vector3>
+  name: StdVector`1
+  namespace: ''
+  union: False
+  fields:
+  - type: System::Numerics::Vector3*
+    name: First
+    offset: 0
+  - type: System::Numerics::Vector3*
+    name: Last
+    offset: 8
+  - type: System::Numerics::Vector3*
+    name: End
+    offset: 16
+  member_functions: []
 - type: StdVector<__int64>
   name: StdVector`1
   namespace: ''
@@ -36271,6 +36872,12 @@ structs:
     name: Battalion
     offset: 49
   - type: byte
+    name: Unk32
+    offset: 50
+  - type: byte
+    name: Unk33
+    offset: 51
+  - type: byte
     name: Flags
     offset: 52
     bits:
@@ -36476,37 +37083,6 @@ structs:
       name: companionId
     - type: unsigned int
       name: param
-- type: Client::Game::Character::DrawObjectData
-  name: DrawObjectData
-  namespace: Client.Game.Character
-  union: False
-  size: 112
-  fields:
-  - type: Client::Game::Character::WeaponModelId
-    name: ModelId
-    offset: 0
-  - type: Client::Graphics::Scene::DrawObject*
-    name: DrawObject
-    offset: 24
-  - type: byte
-    name: State
-    offset: 96
-    bits:
-    - type: byte
-      offset: 0
-      size: 1
-      name: UnkBits0
-    - type: byte
-      offset: 1
-      size: 1
-      name: IsHidden
-  - type: unsigned __int16
-    name: Flags1
-    offset: 98
-  - type: byte
-    name: Flags2
-    offset: 100
-  member_functions: []
 - type: Client::Game::Character::EffectContainer
   name: EffectContainer
   namespace: Client.Game.Character
@@ -36630,6 +37206,47 @@ structs:
     parameters:
     - type: Client::Game::Character::EffectContainer*
       name: this
+- type: Client::Game::Character::LifeSkillContainer
+  name: LifeSkillContainer
+  namespace: Client.Game.Character
+  union: False
+  size: 40
+  fields:
+  - type: Client::Game::Character::ContainerInterface
+    name: ContainerInterface
+    offset: 0
+    base: true
+  - type: int
+    name: UnkActionTimelineId1
+    offset: 16
+  - type: int
+    name: UnkActionTimelineId2
+    offset: 20
+  - type: int
+    name: UnkActionTimelineId3
+    offset: 24
+  - type: byte
+    name: VfxType1
+    offset: 28
+  - type: byte
+    name: VfxType2
+    offset: 29
+  - type: byte
+    name: VfxType3
+    offset: 30
+  - type: byte
+    name: Unk1F
+    offset: 31
+  - type: byte
+    name: WeaponFlags
+    offset: 32
+    bits:
+    - type: byte
+      offset: 0
+      size: 1
+      name: IsOffhandDrawn
+  virtual_functions: []
+  member_functions: []
 - type: Client::Game::Character::ModelContainer
   name: ModelContainer
   namespace: Client.Game.Character
@@ -37231,6 +37848,12 @@ structs:
       name: emoteId
     - type: Client::Game::Control::EmoteController::PlayEmoteOption*
       name: options
+  - signature: E8 ?? ?? ?? ?? FF C8 33 DB
+    return_type: Client::Game::Control::EmoteController::Posture
+    name: GetPosture
+    parameters:
+    - type: Client::Game::Control::EmoteController*
+      name: this
   - signature: E8 ?? ?? ?? ?? 8B F8 83 F8 FF 0F 84 ?? ?? ?? ?? 8B CF
     return_type: int
     name: GetPoseKind
@@ -37238,6 +37861,14 @@ structs:
     - type: Client::Game::Control::EmoteController*
       name: this
   static_member_functions:
+  - signature: E8 ?? ?? ?? ?? 44 0F B6 E8 41 B7
+    return_type: char
+    name: TryGetEmoteDetails
+    parameters:
+    - type: unsigned int
+      name: emoteId
+    - type: Client::Game::Control::EmoteController::EmoteDetails*
+      name: outEmoteDetails
   - signature: E8 ?? ?? ?? ?? FE C3 44 8B F0
     return_type: byte
     name: GetAvailablePoses
@@ -38643,6 +39274,28 @@ structs:
     name: Unknown3
     offset: 60
   member_functions: []
+- type: Client::Game::Network::ActorSetPosPacket
+  name: ActorSetPosPacket
+  namespace: Client.Game.Network
+  union: False
+  size: 24
+  fields:
+  - type: unsigned __int16
+    name: Rotation
+    offset: 0
+  - type: byte
+    name: WarpType
+    offset: 2
+  - type: byte
+    name: Arg
+    offset: 3
+  - type: unsigned int
+    name: TransitionTerritoryFilterKey
+    offset: 4
+  - type: System::Numerics::Vector3
+    name: Position
+    offset: 8
+  member_functions: []
 - type: Client::Game::Network::CrossRealmListingSegmentPacket
   name: CrossRealmListingSegmentPacket
   namespace: Client.Game.Network
@@ -38659,6 +39312,51 @@ structs:
     name: Entries
     offset: 16
     size: 4
+    is_string: False
+  member_functions: []
+- type: Client::Game::Network::FateRewardPacket
+  name: FateRewardPacket
+  namespace: Client.Game.Network
+  union: False
+  size: 72
+  fields:
+  - type: unsigned int
+    name: Experience
+    offset: 0
+  - type: unsigned int
+    name: BonusExperience
+    offset: 4
+  - type: unsigned int
+    name: GilAmount
+    offset: 8
+  - type: unsigned int
+    name: GCSealsAmount
+    offset: 12
+  - type: unsigned int
+    name: Unk10
+    offset: 16
+  - type: unsigned int
+    name: FateTokenTypeAmount
+    offset: 20
+  - type: unsigned __int16
+    name: FateId
+    offset: 24
+  - type: unsigned __int16
+    name: Unk1A
+    offset: 26
+  - type: byte
+    name: FateTokenTypeId
+    offset: 28
+  - type: byte
+    name: Unk1D
+    offset: 29
+  - type: byte
+    name: Unk1E
+    offset: 30
+  - type: Client::Game::Network::FateRewardPacket::ItemReward
+    name: ItemRewards
+    offset: 32
+    size: 5
     is_string: False
   member_functions: []
 - type: Client::Game::Network::QueueInfoStatePacket
@@ -39076,6 +39774,55 @@ structs:
     - 3
     is_pointer: False
     return_type: Client::Game::OrchestrionSampleState
+- type: Client::Game::PvPDuelManager
+  name: PvPDuelManager
+  namespace: Client.Game
+  union: False
+  size: 32
+  fields:
+  - type: Component::GUI::AtkModuleInterface::AtkEventInterface
+    name: AtkEventInterface
+    offset: 0
+    base: true
+  - type: unsigned int
+    name: EnemyEntityId
+    offset: 16
+  - type: unsigned int
+    name: AddonId
+    offset: 20
+  - type: byte
+    name: Flags
+    offset: 24
+  virtual_functions:
+  - name: ReceiveEvent
+    offset: 0
+    return_type: Component::GUI::AtkValue*
+    parameters:
+    - type: Client::Game::PvPDuelManager*
+      name: this
+    - type: Component::GUI::AtkValue*
+      name: returnValue
+    - type: Component::GUI::AtkValue*
+      name: values
+    - type: unsigned int
+      name: valueCount
+    - type: unsigned __int64
+      name: eventKind
+  - name: ReceiveEventWithResult
+    offset: 8
+    return_type: Component::GUI::AtkValue*
+    parameters:
+    - type: Client::Game::PvPDuelManager*
+      name: this
+    - type: Component::GUI::AtkValue*
+      name: returnValue
+    - type: Component::GUI::AtkValue*
+      name: values
+    - type: unsigned int
+      name: valueCount
+    - type: unsigned __int64
+      name: eventKind
+  member_functions: []
 - type: Client::Game::RaceChocoboManager
   name: RaceChocoboManager
   namespace: Client.Game
@@ -42342,7 +43089,7 @@ structs:
   member_functions:
   - signature: C7 41 ?? ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? 48 89 01 48 8B C1
     return_type: Client::Graphics::Physics::CollisionBase*
-    name: Ctor
+    name: ctor
     parameters:
     - type: Client::Graphics::Physics::CollisionBase*
       name: this
@@ -42358,11 +43105,25 @@ structs:
     name: ConstraintBase
     offset: 0
     base: true
-  virtual_functions: []
+  virtual_functions:
+  - name: dtor
+    offset: 0
+    return_type: Client::Graphics::Physics::ConstraintBase*
+    parameters:
+    - type: Client::Graphics::Physics::ConstraintAttract*
+      name: this
+    - type: byte
+      name: freeFlags
+  - name: ResetSkeleton
+    offset: 8
+    return_type: void
+    parameters:
+    - type: Client::Graphics::Physics::ConstraintAttract*
+      name: this
   member_functions:
   - signature: E8 ?? ?? ?? ?? 48 8B F0 EB ?? 33 F6 F3 0F 10 44 24
     return_type: Client::Graphics::Physics::ConstraintAttract*
-    name: Ctor
+    name: ctor
     parameters:
     - type: Client::Graphics::Physics::ConstraintAttract*
       name: this
@@ -42376,11 +43137,25 @@ structs:
     name: ConstraintBase
     offset: 0
     base: true
-  virtual_functions: []
+  virtual_functions:
+  - name: dtor
+    offset: 0
+    return_type: Client::Graphics::Physics::ConstraintBase*
+    parameters:
+    - type: Client::Graphics::Physics::ConstraintPin*
+      name: this
+    - type: byte
+      name: freeFlags
+  - name: ResetSkeleton
+    offset: 8
+    return_type: void
+    parameters:
+    - type: Client::Graphics::Physics::ConstraintPin*
+      name: this
   member_functions:
   - signature: E8 ?? ?? ?? ?? 48 8B F0 48 8B 57
     return_type: Client::Graphics::Physics::ConstraintPin*
-    name: Ctor
+    name: ctor
     parameters:
     - type: Client::Graphics::Physics::ConstraintPin*
       name: this
@@ -42394,11 +43169,25 @@ structs:
     name: ConstraintBase
     offset: 0
     base: true
-  virtual_functions: []
+  virtual_functions:
+  - name: dtor
+    offset: 0
+    return_type: Client::Graphics::Physics::ConstraintBase*
+    parameters:
+    - type: Client::Graphics::Physics::ConstraintSpring*
+      name: this
+    - type: byte
+      name: freeFlags
+  - name: ResetSkeleton
+    offset: 8
+    return_type: void
+    parameters:
+    - type: Client::Graphics::Physics::ConstraintSpring*
+      name: this
   member_functions:
   - signature: E8 ?? ?? ?? ?? 48 8B F0 EB ?? 33 F6 F3 0F 10 84 24
     return_type: Client::Graphics::Physics::ConstraintSpring*
-    name: Ctor
+    name: ctor
     parameters:
     - type: Client::Graphics::Physics::ConstraintSpring*
       name: this
@@ -42559,6 +43348,22 @@ structs:
       name: renderModelCallback
     - type: Client::Graphics::Render::ModelRenderer::Callback*
       name: renderMaterialCallback
+  - signature: E8 ?? ?? ?? ?? 66 41 3B C7 74 ?? 41 83 FE
+    return_type: __int16
+    name: GetAttributeIndex
+    parameters:
+    - type: Client::Graphics::Render::Model*
+      name: this
+    - type: char*
+      name: attributeName
+  - signature: E8 ?? ?? ?? ?? 66 41 3B C4 74 ?? 0F B6 C8 8B D7
+    return_type: __int16
+    name: GetShapeIndex
+    parameters:
+    - type: Client::Graphics::Render::Model*
+      name: this
+    - type: char*
+      name: shapeName
 - type: Client::Graphics::Render::RenderTargetManager
   name: RenderTargetManager
   namespace: Client.Graphics.Render
@@ -49396,7 +50201,7 @@ structs:
   member_functions:
   - signature: E8 ?? ?? ?? ?? 48 8B 85 ?? ?? ?? ?? 48 8B CE
     return_type: Client::UI::Agent::AgentModule*
-    name: Ctor
+    name: ctor
     parameters:
     - type: Client::UI::Agent::AgentModule*
       name: this
@@ -51670,7 +52475,7 @@ structs:
   member_functions:
   - signature: E8 ?? ?? ?? ?? 80 8F ?? ?? ?? ?? ?? 33 F6 80 8F ?? ?? ?? ?? ?? 41 B0 ?? 80 8F ?? ?? ?? ?? ?? BA
     return_type: Client::UI::ListPanel*
-    name: Ctor
+    name: ctor
     parameters:
     - type: Client::UI::ListPanel*
       name: this
@@ -52332,7 +53137,7 @@ structs:
   member_functions:
   - signature: E8 ?? ?? ?? ?? 4D 8D 4E 30 49 8B D6
     return_type: Client::UI::Misc::CharaViewCharacterData*
-    name: Ctor
+    name: ctor
     parameters:
     - type: Client::UI::Misc::CharaViewCharacterData*
       name: this
@@ -57423,7 +58228,7 @@ structs:
   member_functions:
   - signature: E8 ?? ?? ?? ?? 48 8B 87 ?? ?? ?? ?? 48 8D 0D ?? ?? ?? ?? 45 33 ED
     return_type: Component::GUI::AtkTexture*
-    name: Ctor
+    name: ctor
     parameters:
     - type: Component::GUI::AtkTexture*
       name: this
@@ -58080,6 +58885,45 @@ structs:
     name: ShowHeader
     offset: 55
   member_functions: []
+- type: Component::GUI::AtkUldComponentDataXBMContentStageEventMap
+  name: AtkUldComponentDataXBMContentStageEventMap
+  namespace: Component.GUI
+  union: False
+  size: 32
+  fields:
+  - type: Component::GUI::AtkUldComponentDataBase
+    name: AtkUldComponentDataBase
+    offset: 0
+    base: true
+  - type: unsigned int
+    name: TemplateNodeIds
+    offset: 12
+    size: 5
+    is_string: False
+  member_functions: []
+- type: Component::GUI::AtkUldComponentDataXBMItem
+  name: AtkUldComponentDataXBMItem
+  namespace: Component.GUI
+  union: False
+  size: 32
+  fields:
+  - type: Component::GUI::AtkUldComponentDataBase
+    name: AtkUldComponentDataBase
+    offset: 0
+    base: true
+  - type: unsigned int
+    name: IconComponentNodeId
+    offset: 12
+  - type: unsigned int
+    name: NameTextNodeId
+    offset: 16
+  - type: unsigned int
+    name: TypeTextNodeId
+    offset: 20
+  - type: unsigned int
+    name: DescriptionTextNodeId
+    offset: 24
+  member_functions: []
 - type: Component::GUI::AtkUldComponentInfo
   name: AtkUldComponentInfo
   namespace: Component.GUI
@@ -58385,7 +59229,7 @@ structs:
   member_functions:
   - signature: E8 ?? ?? ?? ?? EB ?? 83 CB ?? C7 45
     return_type: Component::GUI::AtkValue*
-    name: CtorCopy
+    name: ctorCopy
     parameters:
     - type: Component::GUI::AtkValue*
       name: this
@@ -58393,7 +59237,7 @@ structs:
       name: other
   - signature: E8 ?? ?? ?? ?? 83 FF FE
     return_type: void
-    name: Dtor
+    name: dtor
     parameters:
     - type: Component::GUI::AtkValue*
       name: this
@@ -60258,6 +61102,46 @@ structs:
     name: ResponseFlags
     offset: 345
   member_functions: []
+- type: Client::Game::Character::DrawObjectData
+  name: DrawObjectData
+  namespace: Client.Game.Character
+  union: False
+  size: 112
+  fields:
+  - type: Client::Game::Character::WeaponModelId
+    name: ModelId
+    offset: 0
+  - type: Client::Graphics::Scene::Weapon*
+    name: Weapon
+    offset: 8
+  - type: Client::Game::Character::DrawData
+    name: DrawData
+    offset: 16
+  - type: byte
+    name: State
+    offset: 96
+    bits:
+    - type: byte
+      offset: 0
+      size: 1
+      name: UnkBits0
+    - type: byte
+      offset: 1
+      size: 1
+      name: IsHidden
+  - type: unsigned __int16
+    name: Flags1
+    offset: 98
+  - type: byte
+    name: Flags2
+    offset: 100
+  - type: unsigned __int16
+    name: UnkWeaponTimelineId
+    offset: 102
+  - type: unsigned __int16
+    name: UnkTimelineId
+    offset: 104
+  member_functions: []
 - type: Client::Game::Control::CharacterLookAtTargetParam::Target
   name: Target
   namespace: Client::Game::Control::CharacterLookAtTargetParam
@@ -60374,8 +61258,8 @@ structs:
   - type: byte
     name: CurrentEvent
     offset: 24
-  - type: int
-    name: Unk1C
+  - type: unsigned int
+    name: CurrentEventParam
     offset: 28
   - type: byte
     name: Unk20
@@ -60392,6 +61276,65 @@ structs:
   virtual_functions:
   - name: dtor
     offset: 0
+  member_functions: []
+- type: Client::Game::Event::LuaAetheryte
+  name: LuaAetheryte
+  namespace: Client.Game.Event
+  union: False
+  size: 136
+  fields:
+  - type: Client::Game::Event::LuaActor
+    name: LuaActor
+    offset: 0
+    base: true
+  virtual_functions: []
+  member_functions: []
+- type: Client::Game::Event::LuaCharacter
+  name: LuaCharacter
+  namespace: Client.Game.Event
+  union: False
+  size: 136
+  fields:
+  - type: Client::Game::Event::LuaActor
+    name: LuaActor
+    offset: 0
+    base: true
+  member_functions: []
+- type: Client::Game::Event::LuaCompanion
+  name: LuaCompanion
+  namespace: Client.Game.Event
+  union: False
+  size: 144
+  fields:
+  - type: Client::Game::Event::LuaActor
+    name: LuaActor
+    offset: 0
+    base: true
+  virtual_functions: []
+  member_functions: []
+- type: Client::Game::Event::LuaEventObject
+  name: LuaEventObject
+  namespace: Client.Game.Event
+  union: False
+  size: 136
+  fields:
+  - type: Client::Game::Event::LuaActor
+    name: LuaActor
+    offset: 0
+    base: true
+  virtual_functions: []
+  member_functions: []
+- type: Client::Game::Event::LuaHousingEventObject
+  name: LuaHousingEventObject
+  namespace: Client.Game.Event
+  union: False
+  size: 136
+  fields:
+  - type: Client::Game::Event::LuaActor
+    name: LuaActor
+    offset: 0
+    base: true
+  virtual_functions: []
   member_functions: []
 - type: Client::Game::GcArmyData
   name: GcArmyData
@@ -63529,7 +64472,7 @@ structs:
   member_functions:
   - signature: E8 ?? ?? ?? ?? 48 8B 74 24 ?? 4C 8B E8
     return_type: Client::Graphics::Physics::BoneSimulator*
-    name: Ctor
+    name: ctor
     parameters:
     - type: Client::Graphics::Physics::BoneSimulator*
       name: this
@@ -63583,7 +64526,7 @@ structs:
   member_functions:
   - signature: E8 ?? ?? ?? ?? 48 8B D8 48 89 5C 24
     return_type: Client::Graphics::Physics::CollisionCapsule*
-    name: Ctor
+    name: ctor
     parameters:
     - type: Client::Graphics::Physics::CollisionCapsule*
       name: this
@@ -63601,7 +64544,7 @@ structs:
   member_functions:
   - signature: 40 53 48 83 EC ?? B2 ?? 48 8B D9 E8 ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? 48 89 03 B8 ?? ?? ?? ?? 0F 28 05
     return_type: Client::Graphics::Physics::CollisionEllipsoid*
-    name: Ctor
+    name: ctor
     parameters:
     - type: Client::Graphics::Physics::CollisionEllipsoid*
       name: this
@@ -63619,7 +64562,7 @@ structs:
   member_functions:
   - signature: E8 ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? 48 89 03 B8 ?? ?? ?? ?? 66 89 83 ?? ?? ?? ?? 33 C0
     return_type: Client::Graphics::Physics::CollisionPlane*
-    name: Ctor
+    name: ctor
     parameters:
     - type: Client::Graphics::Physics::CollisionPlane*
       name: this
@@ -63639,7 +64582,7 @@ structs:
   member_functions:
   - signature: 40 53 48 83 EC ?? B2 ?? 48 8B D9 E8 ?? ?? ?? ?? 33 C9
     return_type: Client::Graphics::Physics::CollisionSphere*
-    name: Ctor
+    name: ctor
     parameters:
     - type: Client::Graphics::Physics::CollisionSphere*
       name: this
@@ -63746,7 +64689,7 @@ structs:
   member_functions:
   - signature: 66 0F 6F 0D ?? ?? ?? ?? 0F 57 C0
     return_type: Client::Graphics::Scene::Human::DrawData*
-    name: Ctor
+    name: ctor
     parameters:
     - type: Client::Graphics::Scene::Human::DrawData*
       name: this
@@ -68538,6 +69481,157 @@ structs:
     - type: byte
       name: classJobId
   member_functions: []
+- type: Client::UI::Agent::AgentConfigPartyListRoleSort
+  name: AgentConfigPartyListRoleSort
+  namespace: Client.UI.Agent
+  union: False
+  size: 152
+  fields:
+  - type: Client::UI::Agent::AgentInterface
+    name: AgentInterface
+    offset: 0
+    base: true
+  - type: int
+    name: SelectedRole
+    offset: 40
+  - type: int
+    name: SelectedItemIndex
+    offset: 44
+  - type: char
+    name: HasChanges
+    offset: 48
+  - type: unsigned int
+    name: YesNoAddonId
+    offset: 52
+  - type: unsigned __int16
+    name: TankOrder
+    offset: 56
+    size: 16
+    is_string: False
+  - type: unsigned __int16
+    name: HealerOrder
+    offset: 88
+    size: 16
+    is_string: False
+  - type: unsigned __int16
+    name: DpsOrder
+    offset: 120
+    size: 16
+    is_string: False
+  virtual_functions:
+  - name: ReceiveEvent
+    offset: 0
+    return_type: Component::GUI::AtkValue*
+    parameters:
+    - type: Client::UI::Agent::AgentConfigPartyListRoleSort*
+      name: this
+    - type: Component::GUI::AtkValue*
+      name: returnValue
+    - type: Component::GUI::AtkValue*
+      name: values
+    - type: unsigned int
+      name: valueCount
+    - type: unsigned __int64
+      name: eventKind
+  - name: ReceiveEventWithResult
+    offset: 8
+    return_type: Component::GUI::AtkValue*
+    parameters:
+    - type: Client::UI::Agent::AgentConfigPartyListRoleSort*
+      name: this
+    - type: Component::GUI::AtkValue*
+      name: returnValue
+    - type: Component::GUI::AtkValue*
+      name: values
+    - type: unsigned int
+      name: valueCount
+    - type: unsigned __int64
+      name: eventKind
+  - name: dtor
+    offset: 16
+    return_type: Client::UI::Agent::AgentInterface*
+    parameters:
+    - type: Client::UI::Agent::AgentConfigPartyListRoleSort*
+      name: this
+    - type: byte
+      name: freeFlags
+  - name: Show
+    offset: 24
+    return_type: void
+    parameters:
+    - type: Client::UI::Agent::AgentConfigPartyListRoleSort*
+      name: this
+  - name: ShowFromLua
+    offset: 32
+    return_type: void
+    parameters:
+    - type: Client::UI::Agent::AgentConfigPartyListRoleSort*
+      name: this
+    - type: int
+      name: id
+    - type: int*
+      name: args
+    - type: __int64
+      name: argCount
+  - name: Hide
+    offset: 40
+    return_type: void
+    parameters:
+    - type: Client::UI::Agent::AgentConfigPartyListRoleSort*
+      name: this
+  - name: IsAgentActive
+    offset: 48
+    return_type: char
+    parameters:
+    - type: Client::UI::Agent::AgentConfigPartyListRoleSort*
+      name: this
+  - name: Update
+    offset: 56
+    return_type: void
+    parameters:
+    - type: Client::UI::Agent::AgentConfigPartyListRoleSort*
+      name: this
+    - type: unsigned int
+      name: frameCount
+  - name: IsActivatable
+    offset: 64
+    return_type: char
+    parameters:
+    - type: Client::UI::Agent::AgentConfigPartyListRoleSort*
+      name: this
+  - name: GetAddonId
+    offset: 72
+    return_type: unsigned int
+    parameters:
+    - type: Client::UI::Agent::AgentConfigPartyListRoleSort*
+      name: this
+  - name: OnGameEvent
+    offset: 80
+    return_type: void
+    parameters:
+    - type: Client::UI::Agent::AgentConfigPartyListRoleSort*
+      name: this
+    - type: Client::UI::Agent::AgentGameEvent
+      name: gameEvent
+  - name: OnLevelChange
+    offset: 88
+    return_type: void
+    parameters:
+    - type: Client::UI::Agent::AgentConfigPartyListRoleSort*
+      name: this
+    - type: byte
+      name: classJobId
+    - type: unsigned __int16
+      name: level
+  - name: OnClassJobChange
+    offset: 96
+    return_type: void
+    parameters:
+    - type: Client::UI::Agent::AgentConfigPartyListRoleSort*
+      name: this
+    - type: byte
+      name: classJobId
+  member_functions: []
 - type: Client::UI::Agent::AgentContentsTimer
   name: AgentContentsTimer
   namespace: Client.UI.Agent
@@ -70209,6 +71303,108 @@ structs:
       name: this
     - type: byte
       name: classJobId
+  member_functions: []
+- type: Client::UI::Agent::AgentFateReward::Reward
+  name: Reward
+  namespace: Client.UI.Agent
+  union: False
+  size: 360
+  fields:
+  - type: Client::UI::Agent::AgentFateReward::RewardType
+    name: Type
+    offset: 0
+  - type: char
+    name: Unk01
+    offset: 1
+  - type: Client::System::String::Utf8String
+    name: Name
+    offset: 8
+  - type: unsigned int
+    name: Icon
+    offset: 112
+  - type: unsigned int
+    name: Unk74
+    offset: 116
+  - type: unsigned int
+    name: Id
+    offset: 120
+  - type: byte
+    name: EurekaFate
+    offset: 124
+  - type: byte
+    name: Unk7D
+    offset: 125
+  - type: byte
+    name: Unk7E
+    offset: 126
+  - type: byte
+    name: Unk7F
+    offset: 127
+  - type: unsigned int
+    name: Experience
+    offset: 128
+  - type: byte
+    name: Unk84
+    offset: 132
+  - type: byte
+    name: Unk85
+    offset: 133
+  - type: byte
+    name: Unk86
+    offset: 134
+  - type: byte
+    name: Unk87
+    offset: 135
+  - type: unsigned int
+    name: CurrencyAmount
+    offset: 136
+  - type: unsigned int
+    name: Unk8C
+    offset: 140
+  - type: Client::UI::Agent::AgentFateReward::Reward::ItemReward
+    name: Items
+    offset: 144
+    size: 5
+    is_string: False
+  - type: byte
+    name: FateTokenTypeId
+    offset: 264
+  - type: byte
+    name: Unk109
+    offset: 265
+  - type: byte
+    name: Unk10A
+    offset: 266
+  - type: byte
+    name: Unk10B
+    offset: 267
+  - type: unsigned int
+    name: FateTokenTypeItemId
+    offset: 268
+  - type: unsigned int
+    name: FateTokenTypeAmount
+    offset: 272
+  - type: unsigned int
+    name: Unk114
+    offset: 276
+  - type: Component::Exd::Sheets::Item*
+    name: FateTokenTypeItemRow
+    offset: 280
+  - type: byte
+    name: Unk120
+    offset: 288
+  - type: byte
+    name: Unk121
+    offset: 289
+  - type: byte
+    name: Unk122
+    offset: 290
+  - type: byte
+    name: GrandCompany
+    offset: 296
+  - type: byte
+    name: GCSealsAmount
+    offset: 300
   member_functions: []
 - type: Client::UI::Agent::AgentFishGuide
   name: AgentFishGuide
@@ -80052,7 +81248,7 @@ structs:
   member_functions:
   - signature: E8 ?? ?? ?? ?? 80 A6 ?? ?? ?? ?? ?? B8
     return_type: Client::UI::PreviewController*
-    name: Ctor
+    name: ctor
     parameters:
     - type: Client::UI::PreviewController*
       name: this
@@ -81324,6 +82520,12 @@ structs:
   - type: Component::GUI::AtkResNode*
     name: FocusedNode
     offset: 6272
+  - type: __int16
+    name: FocusListIndex
+    offset: 6292
+  - type: char
+    name: IsTextInputActive
+    offset: 6294
   member_functions:
   - signature: E8 ?? ?? ?? ?? 33 C0 48 89 86 ?? ?? ?? ?? 88 86 ?? ?? ?? ?? 38 86
     return_type: void
@@ -81403,7 +82605,7 @@ structs:
   member_functions:
   - signature: E8 ?? ?? ?? ?? 48 8B C3 89 7B 58
     return_type: Component::GUI::AtkSimpleTween*
-    name: Ctor
+    name: ctor
     parameters:
     - type: Component::GUI::AtkSimpleTween*
       name: this
@@ -81585,13 +82787,13 @@ structs:
   member_functions:
   - signature: E8 ?? ?? ?? ?? 49 8D 46 78
     return_type: Component::GUI::AtkTimer*
-    name: Ctor
+    name: ctor
     parameters:
     - type: Component::GUI::AtkTimer*
       name: this
   - signature: 40 55 56 48 83 EC 28 8B EA 48 8B F1 F6 C2 02 0F 84 ?? ?? ?? ?? 48 89 5C 24 ?? 48 89 7C 24 ?? 48 8B 79 F8 4C 89 74 24
     return_type: Component::GUI::AtkTimer*
-    name: Dtor
+    name: dtor
     parameters:
     - type: Component::GUI::AtkTimer*
       name: this
@@ -82378,7 +83580,7 @@ structs:
   member_functions:
   - signature: 40 53 48 83 EC 20 4C 89 01 33 C0
     return_type: Animation::Rig::hkaPose*
-    name: Ctor1
+    name: ctor1
     parameters:
     - type: Animation::Rig::hkaPose*
       name: this
@@ -82390,7 +83592,7 @@ structs:
       name: pose
   - signature: 40 53 48 83 EC 30 4C 89 01
     return_type: Animation::Rig::hkaPose*
-    name: Ctor2
+    name: ctor2
     parameters:
     - type: Animation::Rig::hkaPose*
       name: this
@@ -82925,6 +84127,41 @@ structs:
     name: Callback
     offset: 32
   member_functions: []
+- type: Client::Game::Event::LuaNpc
+  name: LuaNpc
+  namespace: Client.Game.Event
+  union: False
+  size: 136
+  fields:
+  - type: Client::Game::Event::LuaCharacter
+    name: LuaCharacter
+    offset: 0
+    base: true
+  member_functions: []
+- type: Client::Game::Event::LuaPc
+  name: LuaPc
+  namespace: Client.Game.Event
+  union: False
+  size: 136
+  fields:
+  - type: Client::Game::Event::LuaCharacter
+    name: LuaCharacter
+    offset: 0
+    base: true
+  virtual_functions: []
+  member_functions: []
+- type: Client::Game::Event::LuaRetainer
+  name: LuaRetainer
+  namespace: Client.Game.Event
+  union: False
+  size: 144
+  fields:
+  - type: Client::Game::Event::LuaCharacter
+    name: LuaCharacter
+    offset: 0
+    base: true
+  virtual_functions: []
+  member_functions: []
 - type: Client::Game::Event::LuaScriptLoader<Client::Game::Event::LuaEventHandler>
   name: LuaScriptLoader`1
   namespace: Client.Game.Event
@@ -83006,6 +84243,14 @@ structs:
     name: FateJoined
     offset: 175
   member_functions:
+  - signature: 48 89 5C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 55 41 54 41 55 41 56 41 57 48 8D 6C 24 ?? 48 81 EC ?? ?? ?? ?? 48 8B 05 ?? ?? ?? ?? 48 33 C4 48 89 45 ?? 44 0F B6 25
+    return_type: void
+    name: HandleFateRewardPacket
+    parameters:
+    - type: Client::Game::Fate::FateManager*
+      name: this
+    - type: Client::Game::Network::FateRewardPacket*
+      name: packet
   - signature: 48 8B 81 ?? ?? ?? ?? 4C 8B D2 4C 8B 89
     return_type: char
     name: IsInFateRadius
@@ -83391,7 +84636,7 @@ structs:
   member_functions:
   - signature: E8 ?? ?? ?? ?? 33 C0 48 8D 4B 58
     return_type: Client::Game::InventoryItem*
-    name: Ctor
+    name: ctor
     parameters:
     - type: Client::Game::InventoryItem*
       name: this
@@ -84970,7 +86215,7 @@ structs:
   member_functions:
   - signature: 40 53 48 83 EC ?? B2 ?? 48 8B D9 E8 ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? 48 89 03 B8 ?? ?? ?? ?? 66 89 83
     return_type: Client::Graphics::Physics::CollisionNormalPlane*
-    name: Ctor
+    name: ctor
     parameters:
     - type: Client::Graphics::Physics::CollisionNormalPlane*
       name: this
@@ -84988,7 +86233,7 @@ structs:
   member_functions:
   - signature: 40 53 48 83 EC ?? B2 ?? 48 8B D9 E8 ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? BA
     return_type: Client::Graphics::Physics::CollisionThreePointPlane*
-    name: Ctor
+    name: ctor
     parameters:
     - type: Client::Graphics::Physics::CollisionThreePointPlane*
       name: this
@@ -87540,6 +88785,144 @@ structs:
     parameters:
     - type: Client::UI::Agent::AgentDawnStory*
       name: this
+- type: Client::UI::Agent::AgentFateReward
+  name: AgentFateReward
+  namespace: Client.UI.Agent
+  union: False
+  size: 88
+  fields:
+  - type: Client::UI::Agent::AgentInterface
+    name: AgentInterface
+    offset: 0
+    base: true
+  - type: StdDeque<Client::UI::Agent::AgentFateReward::Reward>
+    name: Rewards
+    offset: 40
+  - type: int
+    name: IsRewardPending
+    offset: 80
+  virtual_functions:
+  - name: ReceiveEvent
+    offset: 0
+    return_type: Component::GUI::AtkValue*
+    parameters:
+    - type: Client::UI::Agent::AgentFateReward*
+      name: this
+    - type: Component::GUI::AtkValue*
+      name: returnValue
+    - type: Component::GUI::AtkValue*
+      name: values
+    - type: unsigned int
+      name: valueCount
+    - type: unsigned __int64
+      name: eventKind
+  - name: ReceiveEventWithResult
+    offset: 8
+    return_type: Component::GUI::AtkValue*
+    parameters:
+    - type: Client::UI::Agent::AgentFateReward*
+      name: this
+    - type: Component::GUI::AtkValue*
+      name: returnValue
+    - type: Component::GUI::AtkValue*
+      name: values
+    - type: unsigned int
+      name: valueCount
+    - type: unsigned __int64
+      name: eventKind
+  - name: dtor
+    offset: 16
+    return_type: Client::UI::Agent::AgentInterface*
+    parameters:
+    - type: Client::UI::Agent::AgentFateReward*
+      name: this
+    - type: byte
+      name: freeFlags
+  - name: Show
+    offset: 24
+    return_type: void
+    parameters:
+    - type: Client::UI::Agent::AgentFateReward*
+      name: this
+  - name: ShowFromLua
+    offset: 32
+    return_type: void
+    parameters:
+    - type: Client::UI::Agent::AgentFateReward*
+      name: this
+    - type: int
+      name: id
+    - type: int*
+      name: args
+    - type: __int64
+      name: argCount
+  - name: Hide
+    offset: 40
+    return_type: void
+    parameters:
+    - type: Client::UI::Agent::AgentFateReward*
+      name: this
+  - name: IsAgentActive
+    offset: 48
+    return_type: char
+    parameters:
+    - type: Client::UI::Agent::AgentFateReward*
+      name: this
+  - name: Update
+    offset: 56
+    return_type: void
+    parameters:
+    - type: Client::UI::Agent::AgentFateReward*
+      name: this
+    - type: unsigned int
+      name: frameCount
+  - name: IsActivatable
+    offset: 64
+    return_type: char
+    parameters:
+    - type: Client::UI::Agent::AgentFateReward*
+      name: this
+  - name: GetAddonId
+    offset: 72
+    return_type: unsigned int
+    parameters:
+    - type: Client::UI::Agent::AgentFateReward*
+      name: this
+  - name: OnGameEvent
+    offset: 80
+    return_type: void
+    parameters:
+    - type: Client::UI::Agent::AgentFateReward*
+      name: this
+    - type: Client::UI::Agent::AgentGameEvent
+      name: gameEvent
+  - name: OnLevelChange
+    offset: 88
+    return_type: void
+    parameters:
+    - type: Client::UI::Agent::AgentFateReward*
+      name: this
+    - type: byte
+      name: classJobId
+    - type: unsigned __int16
+      name: level
+  - name: OnClassJobChange
+    offset: 96
+    return_type: void
+    parameters:
+    - type: Client::UI::Agent::AgentFateReward*
+      name: this
+    - type: byte
+      name: classJobId
+  member_functions:
+  - signature: E8 ?? ?? ?? ?? 48 8D 4C 24 ?? E8 ?? ?? ?? ?? 48 8B 8D ?? ?? ?? ?? 48 33 CC E8 ?? ?? ?? ?? 48 81 C4 ?? ?? ?? ?? 41 5E
+    return_type: void
+    name: EnqueueReward
+    parameters:
+    - type: Client::UI::Agent::AgentFateReward*
+      name: this
+    - type: Client::UI::Agent::AgentFateReward::Reward*
+      name: reward
 - type: Client::UI::Agent::AgentFieldMarker
   name: AgentFieldMarker
   namespace: Client.UI.Agent
@@ -94038,7 +95421,7 @@ structs:
   member_functions:
   - signature: E8 ?? ?? ?? ?? 33 FF 41 39 7C 24
     return_type: Common::Base::System::IO::IStream::hkIstream*
-    name: Ctor1
+    name: ctor1
     parameters:
     - type: Common::Base::System::IO::IStream::hkIstream*
       name: this
@@ -94046,7 +95429,7 @@ structs:
       name: sr
   - signature: E8 ?? ?? ?? ?? 4C 8B C3 48 8B D7 48 8B 48 10
     return_type: Common::Base::System::IO::IStream::hkIstream*
-    name: Ctor2
+    name: ctor2
     parameters:
     - type: Common::Base::System::IO::IStream::hkIstream*
       name: this
@@ -94054,7 +95437,7 @@ structs:
       name: filename
   - signature: E8 ?? ?? ?? ?? 4C 8D 44 24 ?? 48 8B D5 48 8B 48 10
     return_type: Common::Base::System::IO::IStream::hkIstream*
-    name: Ctor3
+    name: ctor3
     parameters:
     - type: Common::Base::System::IO::IStream::hkIstream*
       name: this
@@ -94064,7 +95447,7 @@ structs:
       name: memSize
   - signature: E8 ?? ?? ?? ?? E9 ?? ?? ?? ?? 48 8D 55 60
     return_type: void
-    name: Dtor
+    name: dtor
     parameters:
     - type: Common::Base::System::IO::IStream::hkIstream*
       name: this
@@ -94111,7 +95494,7 @@ structs:
   member_functions:
   - signature: 48 89 5C 24 ?? 57 48 83 EC 20 C7 41 ?? ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? 48 89 01 48 8B F9 48 C7 41 ?? ?? ?? ?? ?? 4C 8B C2 48 8B 0D ?? ?? ?? ?? 48 8D 54 24 ?? 41 B9 ?? ?? ?? ?? 48 8B 01 FF 50 28
     return_type: Common::Base::System::IO::OStream::hkOstream*
-    name: Ctor
+    name: ctor
     parameters:
     - type: Common::Base::System::IO::OStream::hkOstream*
       name: this
@@ -94119,7 +95502,7 @@ structs:
       name: filename
   - signature: E8 ?? ?? ?? ?? 44 8B 44 24 ?? 4C 8B 7C 24 ??
     return_type: void
-    name: Dtor
+    name: dtor
     parameters:
     - type: Common::Base::System::IO::OStream::hkOstream*
       name: this
@@ -95002,7 +96385,7 @@ structs:
   member_functions:
   - signature: 48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 48 8D 05 ?? ?? ?? ?? 48 8B F1 48 89 01 41 0F B6 F8
     return_type: Component::Completion::CategoryData*
-    name: Ctor
+    name: ctor
     parameters:
     - type: Component::Completion::CategoryData*
       name: this
@@ -95421,6 +96804,18 @@ structs:
   - type: __int16
     name: SelectionEnd
     offset: 256
+  - type: __int16
+    name: PreviousLineCursorDelta
+    offset: 472
+  - type: __int16
+    name: NextLineCursorDelta
+    offset: 474
+  - type: __int16
+    name: CurrentLineStart
+    offset: 476
+  - type: __int16
+    name: CurrentLineEnd
+    offset: 478
   - type: Client::System::Input::ClipBoard
     name: ClipboardData
     offset: 480
@@ -95431,8 +96826,26 @@ structs:
     name: CopyBufferFiltered
     offset: 808
   - type: Client::System::String::Utf8String
+    name: RawTextBeforeSelection
+    offset: 1848
+  - type: Client::System::String::Utf8String
+    name: RawSelectedText
+    offset: 1952
+  - type: Client::System::String::Utf8String
+    name: RawTextAfterSelection
+    offset: 2056
+  - type: Client::System::String::Utf8String
     name: RawInputString
     offset: 2160
+  - type: Client::System::String::Utf8String
+    name: EvaluatedTextBeforeSelection
+    offset: 2368
+  - type: Client::System::String::Utf8String
+    name: EvaluatedSelectedText
+    offset: 2472
+  - type: Client::System::String::Utf8String
+    name: EvaluatedTextAfterSelection
+    offset: 2576
   - type: Client::System::String::Utf8String
     name: EvaluatedInputString
     offset: 2680
@@ -96063,7 +97476,7 @@ structs:
   member_functions:
   - signature: E8 ?? ?? ?? ?? 48 8B F8 48 89 BB ?? ?? ?? ?? C7 43 ?? ?? ?? ?? ??
     return_type: Animation::Playback::hkaAnimatedSkeleton*
-    name: Ctor1
+    name: ctor1
     parameters:
     - type: Animation::Playback::hkaAnimatedSkeleton*
       name: this
@@ -96071,7 +97484,7 @@ structs:
       name: skeleton
   - signature: 48 89 5C 24 ?? 41 56 48 83 EC 20 48 8D 05
     return_type: void
-    name: Dtor
+    name: dtor
     parameters:
     - type: Animation::Playback::hkaAnimatedSkeleton*
       name: this
@@ -96984,6 +98397,30 @@ structs:
   - type: Client::Game::Control::CharacterLookAtTargetParam
     name: TargetParam
     offset: 16
+  virtual_functions: []
+  member_functions: []
+- type: Client::Game::Event::LuaBattleNpc
+  name: LuaBattleNpc
+  namespace: Client.Game.Event
+  union: False
+  size: 136
+  fields:
+  - type: Client::Game::Event::LuaNpc
+    name: LuaNpc
+    offset: 0
+    base: true
+  virtual_functions: []
+  member_functions: []
+- type: Client::Game::Event::LuaEventNpc
+  name: LuaEventNpc
+  namespace: Client.Game.Event
+  union: False
+  size: 136
+  fields:
+  - type: Client::Game::Event::LuaNpc
+    name: LuaNpc
+    offset: 0
+    base: true
   virtual_functions: []
   member_functions: []
 - type: Client::Game::Event::ModuleBase
@@ -104416,7 +105853,7 @@ structs:
   member_functions:
   - signature: 48 8D 05 ?? ?? ?? ?? C7 81 ?? ?? ?? ?? ?? ?? ?? ?? 48 89 01 33 C0 48 89 41 08
     return_type: Component::GUI::AtkComponentBase*
-    name: Ctor
+    name: ctor
     parameters:
     - type: Component::GUI::AtkComponentBase*
       name: this
@@ -104771,7 +106208,7 @@ structs:
   member_functions:
   - signature: E8 ?? ?? ?? ?? 48 8B D8 48 83 C4 ?? 5B C3 33 DB
     return_type: Component::GUI::AtkResNode*
-    name: Ctor
+    name: ctor
     parameters:
     - type: Component::GUI::AtkResNode*
       name: this
@@ -105474,7 +106911,7 @@ structs:
   member_functions:
   - signature: E8 ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? 48 8B CB 48 89 07
     return_type: Animation::Playback::Control::hkaAnimationControl*
-    name: Ctor1
+    name: ctor1
     parameters:
     - type: Animation::Playback::Control::hkaAnimationControl*
       name: this
@@ -105753,6 +107190,42 @@ structs:
     - 3
     is_pointer: False
     return_type: Client::Game::Control::TargetSystem
+- type: Client::Game::FashionCheckManager
+  name: FashionCheckManager
+  namespace: Client.Game
+  union: False
+  size: 168
+  fields:
+  - type: Client::Game::FashionCheckManager::PlayerInfoData
+    name: PlayerInfo
+    offset: 0
+  - type: Client::Game::FashionCheckManager::ThemeData
+    name: Theme
+    offset: 8
+  - type: Client::Game::FashionCheckManager::EquipEvaluationData
+    name: EquipEvaluations
+    offset: 32
+  - type: Client::Game::FashionCheckManager::HighScoreData
+    name: HighScore
+    offset: 48
+  - type: Client::Game::FashionCheckManager::PreviewData
+    name: Preview
+    offset: 128
+  - type: char
+    name: IsCommandSent
+    offset: 160
+  - type: char
+    name: IsInfoRequested
+    offset: 161
+  - type: char
+    name: IsCustomTalkActive
+    offset: 162
+  member_functions: []
+  static_member_functions:
+  - signature: E8 ?? ?? ?? ?? 48 8B D3 48 8B C8 E8 ?? ?? ?? ?? 48 8B D7
+    return_type: Client::Game::FashionCheckManager*
+    name: Instance
+    parameters: []
 - type: Client::Game::Fate::FateContext
   name: FateContext
   namespace: Client.Game.Fate
@@ -107038,6 +108511,44 @@ structs:
       name: this
     - type: Client::Graphics::Scene::EnvLocation*
       name: location
+- type: Client::Graphics::Scene::OffscreenCamera
+  name: OffscreenCamera
+  namespace: Client.Graphics.Scene
+  union: False
+  size: 272
+  fields:
+  - type: Client::Graphics::Scene::Camera
+    name: Camera
+    offset: 0
+    base: true
+  virtual_functions:
+  - name: dtor
+    offset: 0
+    return_type: Client::Graphics::Scene::Object*
+    parameters:
+    - type: Client::Graphics::Scene::OffscreenCamera*
+      name: this
+    - type: byte
+      name: freeFlags
+  - name: CleanupRender
+    offset: 8
+    return_type: void
+    parameters:
+    - type: Client::Graphics::Scene::OffscreenCamera*
+      name: this
+  - name: GetObjectType
+    offset: 16
+    return_type: Client::Graphics::Scene::ObjectType
+    parameters:
+    - type: Client::Graphics::Scene::OffscreenCamera*
+      name: this
+  - name: UpdateRender
+    offset: 32
+    return_type: void
+    parameters:
+    - type: Client::Graphics::Scene::OffscreenCamera*
+      name: this
+  member_functions: []
 - type: Client::Graphics::Scene::VfxObject
   name: VfxObject
   namespace: Client.Graphics.Scene
@@ -111823,7 +113334,7 @@ structs:
   member_functions:
   - signature: E8 ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? 88 9F ?? ?? ?? ??
     return_type: Component::GUI::AtkComponentButton*
-    name: Ctor
+    name: ctor
     parameters:
     - type: Component::GUI::AtkComponentButton*
       name: this
@@ -112128,7 +113639,7 @@ structs:
   member_functions:
   - signature: 33 D2 C7 81 ?? ?? ?? ?? ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? 48 89 51 08 48 89 01 48 8B C1 48 89 51 10 48 89 51 18 48 89 51 20 48 89 51 28 48 89 51 30 48 89 51 38 48 89 51 40 89 51 48 48 89 51 50 48 89 51 58 48 89 51 60 48 89 51 68 89 51 70 48 89 51 78 48 89 91 ?? ?? ?? ?? 48 89 91 ?? ?? ?? ?? 66 89 91 ?? ?? ?? ?? 89 91 ?? ?? ?? ?? 48 89 91 ?? ?? ?? ?? 48 89 91 ?? ?? ?? ?? 48 89 91 ?? ?? ?? ?? 88 91 ?? ?? ?? ?? 48 89 91 ?? ?? ?? ?? 48 89 91 ?? ?? ?? ?? 48 89 91 ?? ?? ?? ?? 48 89 91 ?? ?? ?? ?? 48 89 91 ?? ?? ?? ?? 48 89 91 ?? ?? ?? ?? C3
     return_type: Component::GUI::AtkComponentGuildLeveCard*
-    name: Ctor
+    name: ctor
     parameters:
     - type: Component::GUI::AtkComponentGuildLeveCard*
       name: this
@@ -112258,7 +113769,7 @@ structs:
   member_functions:
   - signature: 33 D2 C7 81 ?? ?? ?? ?? ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? 48 89 51 ?? ?? ?? ?? 48 8B C1 48 89 51 ?? 48 89 51 ?? 48 89 51 ?? 48 89 51 ?? 48 89 51 ?? 48 89 51 ?? 48 89 51 ?? 89 51 ?? 48 89 51 ?? 48 89 51 ?? 48 89 51 ?? 48 89 51 ?? 89 51 ?? 48 89 51 ?? 48 89 91 ?? ?? ?? ?? 48 89 91 ?? ?? ?? ?? 66 89 91 ?? ?? ?? ?? 89 91 ?? ?? ?? ?? 48 89 91 ?? ?? ?? ?? 48 89 91 ?? ?? ?? ?? 48 89 91 ?? ?? ?? ?? 88 91 ?? ?? ?? ?? 48 89 91 ?? ?? ?? ?? 48 89 91 ?? ?? ?? ?? 48 89 91 ?? ?? ?? ?? 48 C7 81 ?? ?? ?? ?? ?? ?? ?? ?? 66 C7 81
     return_type: Component::GUI::AtkComponentIconText*
-    name: Ctor
+    name: ctor
     parameters:
     - type: Component::GUI::AtkComponentIconText*
       name: this
@@ -112388,7 +113899,7 @@ structs:
   member_functions:
   - signature: 40 53 48 83 EC 20 48 8B D9 48 8D 05 ?? ?? ?? ?? 33 C9 33 D2 41 B8 ?? ?? ?? ?? 48 89 4B 08
     return_type: Component::GUI::AtkComponentJournalCanvas*
-    name: Ctor
+    name: ctor
     parameters:
     - type: Component::GUI::AtkComponentJournalCanvas*
       name: this
@@ -112767,6 +114278,12 @@ structs:
       name: selectedIndex
     - type: char
       name: handled
+  - name: GetSelectedItemAtkResNode
+    offset: 360
+    return_type: Component::GUI::AtkResNode*
+    parameters:
+    - type: Component::GUI::AtkComponentList*
+      name: this
   - name: dtor
     offset: 0
     return_type: Component::GUI::AtkEventListener*
@@ -112879,12 +114396,10 @@ structs:
       name: x
     - type: __int16
       name: y
-  - name: GetSelectedItemAtkResNode
-    offset: 360
   member_functions:
   - signature: E8 ?? ?? ?? ?? 48 89 9F ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? 48 89 07 0F 57 C0
     return_type: Component::GUI::AtkComponentList*
-    name: Ctor
+    name: ctor
     parameters:
     - type: Component::GUI::AtkComponentList*
       name: this
@@ -112910,6 +114425,32 @@ structs:
       name: this
     - type: __int16
       name: value
+  - signature: E8 ?? ?? ?? ?? 0F B7 8E ?? ?? ?? ?? B8
+    return_type: void
+    name: SetVisibleColumnCount
+    parameters:
+    - type: Component::GUI::AtkComponentList*
+      name: this
+    - type: __int16
+      name: columnCount
+  - signature: E8 ?? ?? ?? ?? 8B 8F ?? ?? ?? ?? 41 B1
+    return_type: void
+    name: SetVisibleRowCount
+    parameters:
+    - type: Component::GUI::AtkComponentList*
+      name: this
+    - type: __int16
+      name: rowCount
+  - signature: E8 ?? ?? ?? ?? 8B 4F ?? 41 8B DC
+    return_type: void
+    name: SetSize
+    parameters:
+    - type: Component::GUI::AtkComponentList*
+      name: this
+    - type: unsigned __int16
+      name: width
+    - type: unsigned __int16
+      name: height
   - signature: E8 ?? ?? ?? ?? 85 FF 79 ?? 44 39 75
     return_type: void
     name: SetItemLabel
@@ -112968,6 +114509,40 @@ structs:
       name: this
     - type: char
       name: enabled
+  - signature: 48 8B 81 C8 00 00 00 48 85 C0 74 08 0F B6 80 37 01 00 00 C3 C3
+    return_type: char
+    name: IsScrollBarBeingDragged
+    parameters:
+    - type: Component::GUI::AtkComponentList*
+      name: this
+  - signature: 48 8B 81 ?? ?? ?? ?? 88 91 ?? ?? ?? ?? 48 85 C0 74
+    return_type: void
+    name: ToggleScrollBarVisibility
+    parameters:
+    - type: Component::GUI::AtkComponentList*
+      name: this
+    - type: char
+      name: visible
+  - signature: E8 ?? ?? ?? ?? 40 84 FF 75 ?? 45 33 C9
+    return_type: void
+    name: SetItemRendererFlags
+    parameters:
+    - type: Component::GUI::AtkComponentList*
+      name: this
+    - type: unsigned int
+      name: flagType
+    - type: char
+      name: enabled
+    - type: unsigned int
+      name: rendererNodeId
+  - signature: E8 ?? ?? ?? ?? 48 8B 8B ?? ?? ?? ?? E8 ?? ?? ?? ?? 8B D5
+    return_type: void
+    name: ToggleDroppingDisabled
+    parameters:
+    - type: Component::GUI::AtkComponentList*
+      name: this
+    - type: char
+      name: disabled
   - signature: E8 ?? ?? ?? ?? 41 81 4C 24 ?? ?? ?? ?? ?? 41 C6 44 24 ?? ?? 33 D2
     return_type: void
     name: SetDragDropPayloadData
@@ -113371,7 +114946,7 @@ structs:
   member_functions:
   - signature: 33 D2 C7 81 ?? ?? ?? ?? ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? 48 89 51 08 48 89 01 48 8B C1 48 89 51 10 48 89 51 18 48 89 51 20 48 89 51 28 48 89 51 30 48 89 51 38 48 89 51 40 89 51 48 48 89 51 50 48 89 51 58 48 89 51 60 48 89 51 68 89 51 70 48 89 51 78 48 89 91 ?? ?? ?? ?? 48 89 91 ?? ?? ?? ?? 66 89 91 ?? ?? ?? ?? 89 91 ?? ?? ?? ?? 48 89 91 ?? ?? ?? ?? 48 89 91 ?? ?? ?? ?? 48 89 91 ?? ?? ?? ?? 88 91 ?? ?? ?? ?? 48 89 91 ?? ?? ?? ?? 48 89 91 ?? ?? ?? ?? 48 89 91 ?? ?? ?? ?? 48 89 91 ?? ?? ?? ?? 88 91 ?? ?? ?? ??
     return_type: Component::GUI::AtkComponentPortrait*
-    name: Ctor
+    name: ctor
     parameters:
     - type: Component::GUI::AtkComponentPortrait*
       name: this
@@ -113598,7 +115173,7 @@ structs:
   member_functions:
   - signature: 33 D2 C7 81 ?? ?? ?? ?? ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? 48 89 51 08 48 89 01 48 8B C1 48 89 51 10 48 89 51 18 48 89 51 20 48 89 51 28 48 89 51 30 48 89 51 38 48 89 51 40 89 51 48 48 89 51 50 48 89 51 58 48 89 51 60 48 89 51 68 89 51 70 48 89 51 78 48 89 91 ?? ?? ?? ?? 48 89 91 ?? ?? ?? ?? 66 89 91 ?? ?? ?? ?? 89 91 ?? ?? ?? ?? 48 89 91 ?? ?? ?? ?? 48 89 91 ?? ?? ?? ?? 48 89 91 ?? ?? ?? ?? 88 91 ?? ?? ?? ?? 48 89 91 ?? ?? ?? ?? 48 89 91 ?? ?? ?? ?? 48 89 91 ?? ?? ?? ?? 48 89 91 ?? ?? ?? ?? 48 89 91 ?? ?? ?? ?? 48 89 91 ?? ?? ?? ?? 48 89 91 ?? ?? ?? ?? 48 89 91 ?? ?? ?? ??
     return_type: Component::GUI::AtkComponentScrollBar*
-    name: Ctor
+    name: ctor
     parameters:
     - type: Component::GUI::AtkComponentScrollBar*
       name: this
@@ -113815,7 +115390,7 @@ structs:
       name: dispatchEvent29
   - signature: 33 D2 C7 81 ?? ?? ?? ?? ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? 48 89 51 08 48 89 01 48 8B C1 48 89 51 10 48 89 51 18 48 89 51 20 48 89 51 28 48 89 51 30 48 89 51 38 48 89 51 40 89 51 48 48 89 51 50 48 89 51 58 48 89 51 60 48 89 51 68 89 51 70 48 89 51 78 48 89 91 ?? ?? ?? ?? 48 89 91 ?? ?? ?? ?? 66 89 91 ?? ?? ?? ?? 89 91 ?? ?? ?? ?? 48 89 91 ?? ?? ?? ?? 48 89 91 ?? ?? ?? ?? 48 89 91 ?? ?? ?? ?? 88 91 ?? ?? ?? ?? 48 89 91 ?? ?? ?? ?? 48 89 91 ?? ?? ?? ?? 48 89 91 ?? ?? ?? ?? 48 89 91 ?? ?? ?? ?? 48 89 91 ?? ?? ?? ?? 89 91 ?? ?? ?? ??
     return_type: Component::GUI::AtkComponentSlider*
-    name: Ctor
+    name: ctor
     parameters:
     - type: Component::GUI::AtkComponentSlider*
       name: this
@@ -113957,7 +115532,7 @@ structs:
   member_functions:
   - signature: 33 D2 C7 81 ?? ?? ?? ?? ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? 48 89 51 ?? ?? ?? ?? 48 8B C1 48 89 51 ?? 48 89 51 ?? 48 89 51 ?? 48 89 51 ?? 48 89 51 ?? 48 89 51 ?? 48 89 51 ?? 89 51 ?? 48 89 51 ?? 48 89 51 ?? 48 89 51 ?? 48 89 51 ?? 89 51 ?? 48 89 51 ?? 48 89 91 ?? ?? ?? ?? 48 89 91 ?? ?? ?? ?? 66 89 91 ?? ?? ?? ?? 89 91 ?? ?? ?? ?? 48 89 91 ?? ?? ?? ?? 48 89 91 ?? ?? ?? ?? 48 89 91 ?? ?? ?? ?? 88 91 ?? ?? ?? ?? 48 89 91 ?? ?? ?? ?? 48 89 91 ?? ?? ?? ?? 48 89 91 ?? ?? ?? ?? 89 91
     return_type: Component::GUI::AtkComponentTextNineGrid*
-    name: Ctor
+    name: ctor
     parameters:
     - type: Component::GUI::AtkComponentTextNineGrid*
       name: this
@@ -114131,7 +115706,7 @@ structs:
   member_functions:
   - signature: 33 D2 C7 81 ?? ?? ?? ?? ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? 48 89 51 08 48 89 01 0F 57 C0
     return_type: Component::GUI::AtkComponentWindow*
-    name: Ctor
+    name: ctor
     parameters:
     - type: Component::GUI::AtkComponentWindow*
       name: this
@@ -114795,162 +116370,6 @@ structs:
     return_type: Client::Game::CameraInputSource
     name: GetCameraInputSource
     parameters: []
-- type: Client::Game::Character::DrawDataContainer
-  name: DrawDataContainer
-  namespace: Client.Game.Character
-  union: False
-  size: 616
-  fields:
-  - type: Client::Game::Character::ContainerInterface
-    name: ContainerInterface
-    offset: 0
-    base: true
-  - type: Client::Game::Character::DrawObjectData
-    name: WeaponData
-    offset: 16
-    size: 3
-    is_string: False
-  - type: Client::Game::Character::EquipmentModelId
-    name: EquipmentModelIds
-    offset: 464
-    size: 10
-    is_string: False
-  - type: Client::Game::Character::CustomizeData
-    name: CustomizeData
-    offset: 544
-  - type: byte
-    name: Flags1
-    offset: 574
-    bits:
-    - type: byte
-      offset: 0
-      size: 1
-      name: IsHatHidden
-  - type: byte
-    name: Flags2
-    offset: 575
-    bits:
-    - type: byte
-      offset: 0
-      size: 1
-      name: IsWeaponHidden
-    - type: byte
-      offset: 1
-      size: 3
-      name: UnkBits1
-    - type: byte
-      offset: 4
-      size: 1
-      name: IsVisorToggled
-    - type: byte
-      offset: 5
-      size: 1
-      name: VieraEarsHidden
-  - type: unsigned __int16
-    name: GlassesIds
-    offset: 576
-    size: 2
-    is_string: False
-  - type: Client::UI::Agent::CrestData
-    name: FreeCompanyCrestData
-    offset: 600
-  - type: byte
-    name: FreeCompanyCrestBitfield
-    offset: 608
-  virtual_functions: []
-  member_functions:
-  - signature: E8 ?? ?? ?? ?? B1 ?? 41 FF C6
-    return_type: void
-    name: LoadEquipment
-    parameters:
-    - type: Client::Game::Character::DrawDataContainer*
-      name: this
-    - type: Client::Game::Character::DrawDataContainer::EquipmentSlot
-      name: slot
-    - type: Client::Game::Character::EquipmentModelId*
-      name: modelId
-    - type: char
-      name: force
-  - signature: E8 ?? ?? ?? ?? 4C 8B 45 7F
-    return_type: void
-    name: LoadWeapon
-    parameters:
-    - type: Client::Game::Character::DrawDataContainer*
-      name: this
-    - type: Client::Game::Character::DrawDataContainer::WeaponSlot
-      name: slot
-    - type: Client::Game::Character::WeaponModelId
-      name: weaponData
-    - type: byte
-      name: redrawOnEquality
-    - type: byte
-      name: a5
-    - type: byte
-      name: skipGameObject
-    - type: byte
-      name: a7
-    - type: char
-      name: a8
-  - signature: E8 ?? ?? ?? ?? 8B 46 54 0F BA E0 08
-    return_type: void
-    name: HideWeapons
-    parameters:
-    - type: Client::Game::Character::DrawDataContainer*
-      name: this
-    - type: char
-      name: hide
-  - signature: E8 ?? ?? ?? ?? 0F B6 55 C9
-    return_type: void
-    name: HideHeadgear
-    parameters:
-    - type: Client::Game::Character::DrawDataContainer*
-      name: this
-    - type: unsigned int
-      name: unk
-    - type: char
-      name: hide
-  - signature: 44 0F B6 81 ?? ?? ?? ?? 41 0F B6 C0 41 80 E0 7F
-    return_type: void
-    name: HideLegacyTattoo
-    parameters:
-    - type: Client::Game::Character::DrawDataContainer*
-      name: this
-    - type: char
-      name: hide
-  - signature: E8 ?? ?? ?? ?? 41 0F B6 D6 48 8B CB
-    return_type: void
-    name: SetVisor
-    parameters:
-    - type: Client::Game::Character::DrawDataContainer*
-      name: this
-    - type: char
-      name: state
-  - signature: E8 ?? ?? ?? ?? EB 50 44 8B 03
-    return_type: void
-    name: SetGlasses
-    parameters:
-    - type: Client::Game::Character::DrawDataContainer*
-      name: this
-    - type: int
-      name: index
-    - type: unsigned __int16
-      name: id
-  - signature: E8 ?? ?? ?? ?? 80 BF ?? ?? ?? ?? ?? 41 BD
-    return_type: void
-    name: HideVieraEars
-    parameters:
-    - type: Client::Game::Character::DrawDataContainer*
-      name: this
-    - type: char
-      name: hide
-  - signature: 48 89 5C 24 ?? 55 56 57 41 54 41 55 41 56 41 57 48 81 EC ?? ?? ?? ?? 48 8B 05 ?? ?? ?? ?? 48 33 C4 48 89 84 24 ?? ?? ?? ?? 44 0F B6 B9
-    return_type: void
-    name: HandleGearsetDrawDataPacket
-    parameters:
-    - type: Client::Game::Character::DrawDataContainer*
-      name: this
-    - type: Client::Game::Network::GearsetDrawDataPacket*
-      name: packet
 - type: Client::Game::CharamakeAvatarSaveDataContainer
   name: CharamakeAvatarSaveDataContainer
   namespace: Client.Game
@@ -120378,7 +121797,7 @@ structs:
   member_functions:
   - signature: E8 ?? ?? ?? ?? 33 ED C6 86 ?? ?? ?? ?? ?? 48 8D 05
     return_type: Client::UI::Misc::CharaView*
-    name: Ctor
+    name: ctor
     parameters:
     - type: Client::UI::Misc::CharaView*
       name: this
@@ -120735,7 +122154,7 @@ structs:
   member_functions:
   - signature: 33 D2 C7 81 ?? ?? ?? ?? ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? 48 89 51 08 48 89 01 48 8D 05 ?? ?? ?? ??
     return_type: Component::GUI::AtkComponentDragDrop*
-    name: Ctor
+    name: ctor
     parameters:
     - type: Component::GUI::AtkComponentDragDrop*
       name: this
@@ -120949,7 +122368,7 @@ structs:
   member_functions:
   - signature: 40 53 48 83 EC 20 48 8B D9 E8 ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? 48 89 03 33 C0 89 83 ?? ?? ?? ?? 48 8B C3
     return_type: Component::GUI::AtkComponentRadioButton*
-    name: Ctor
+    name: ctor
     parameters:
     - type: Component::GUI::AtkComponentRadioButton*
       name: this
@@ -120959,6 +122378,337 @@ structs:
     parameters:
     - type: Component::GUI::AtkComponentRadioButton*
       name: this
+- type: Component::GUI::AtkComponentXBMContentStageEventMap
+  name: AtkComponentXBMContentStageEventMap
+  namespace: Component.GUI
+  union: False
+  size: 2408
+  fields:
+  - type: Component::GUI::AtkComponentBase
+    name: AtkComponentBase
+    offset: 0
+    base: true
+  - type: Component::GUI::AtkComponentXBMContentStageEventMap::Entry
+    name: Entries
+    offset: 192
+    size: 5
+    is_string: False
+  - type: unsigned __int16
+    name: GridSize
+    offset: 2352
+  - type: unsigned __int16
+    name: GridHalfSize
+    offset: 2354
+  - type: unsigned int
+    name: XBMContentStageEventMapRowId
+    offset: 2356
+  - type: byte
+    name: LoadState
+    offset: 2360
+  - type: Component::GUI::AtkComponentBase*
+    name: CurrentEventMarkerComponent
+    offset: 2368
+  - type: Component::GUI::AtkComponentXBMContentStageEventMap::EventMapRowEntry*
+    name: EventMapEntries
+    offset: 2376
+  - type: unsigned __int64
+    name: EventMapEntryCapacity
+    offset: 2384
+  - type: byte
+    name: EventMapEntryCount
+    offset: 2392
+  - type: byte
+    name: CurrentEventIndex
+    offset: 2393
+  - type: char
+    name: IsEventMapLoaded
+    offset: 2394
+  - type: char
+    name: ShouldReloadEventMap
+    offset: 2395
+  - type: char
+    name: IsEventMapLoading
+    offset: 2396
+  - type: char
+    name: UseEventHandlerState
+    offset: 2397
+  - type: Common::Component::Excel::ExcelSheetWaiter*
+    name: SheetWaiter
+    offset: 2400
+  virtual_functions:
+  - name: dtor
+    offset: 0
+    return_type: Component::GUI::AtkEventListener*
+    parameters:
+    - type: Component::GUI::AtkComponentXBMContentStageEventMap*
+      name: this
+    - type: byte
+      name: freeFlags
+  - name: ReceiveGlobalEvent
+    offset: 8
+    return_type: void
+    parameters:
+    - type: Component::GUI::AtkComponentXBMContentStageEventMap*
+      name: this
+    - type: Component::GUI::AtkEventType
+      name: eventType
+    - type: int
+      name: eventParam
+    - type: Component::GUI::AtkEvent*
+      name: atkEvent
+    - type: Component::GUI::AtkEventData*
+      name: atkEventData
+  - name: ReceiveEvent
+    offset: 16
+    return_type: void
+    parameters:
+    - type: Component::GUI::AtkComponentXBMContentStageEventMap*
+      name: this
+    - type: Component::GUI::AtkEventType
+      name: eventType
+    - type: int
+      name: eventParam
+    - type: Component::GUI::AtkEvent*
+      name: atkEvent
+    - type: Component::GUI::AtkEventData*
+      name: atkEventData
+  - name: Initialize
+    offset: 24
+    return_type: void
+    parameters:
+    - type: Component::GUI::AtkComponentXBMContentStageEventMap*
+      name: this
+  - name: Deinitialize
+    offset: 32
+    return_type: void
+    parameters:
+    - type: Component::GUI::AtkComponentXBMContentStageEventMap*
+      name: this
+  - name: Update
+    offset: 40
+    return_type: void
+    parameters:
+    - type: Component::GUI::AtkComponentXBMContentStageEventMap*
+      name: this
+    - type: float
+      name: delta
+  - name: Draw
+    offset: 56
+    return_type: void
+    parameters:
+    - type: Component::GUI::AtkComponentXBMContentStageEventMap*
+      name: this
+  - name: Setup
+    offset: 64
+    return_type: void
+    parameters:
+    - type: Component::GUI::AtkComponentXBMContentStageEventMap*
+      name: this
+  - name: SetEnabledState
+    offset: 80
+    return_type: void
+    parameters:
+    - type: Component::GUI::AtkComponentXBMContentStageEventMap*
+      name: this
+    - type: char
+      name: enabled
+  - name: PlaySoundEffect
+    offset: 104
+    return_type: void
+    parameters:
+    - type: Component::GUI::AtkComponentXBMContentStageEventMap*
+      name: this
+  - name: GetAtkResNode
+    offset: 112
+    return_type: Component::GUI::AtkResNode*
+    parameters:
+    - type: Component::GUI::AtkComponentXBMContentStageEventMap*
+      name: this
+  - name: GetFocusNode
+    offset: 120
+    return_type: Component::GUI::AtkResNode*
+    parameters:
+    - type: Component::GUI::AtkComponentXBMContentStageEventMap*
+      name: this
+  - name: InitializeFromComponentData
+    offset: 136
+    return_type: void
+    parameters:
+    - type: Component::GUI::AtkComponentXBMContentStageEventMap*
+      name: this
+    - type: __int64
+      name: data
+  - name: GetCollisionNodeAtCoords
+    offset: 144
+    return_type: Component::GUI::AtkResNode*
+    parameters:
+    - type: Component::GUI::AtkComponentXBMContentStageEventMap*
+      name: this
+    - type: __int16
+      name: x
+    - type: __int16
+      name: y
+  member_functions: []
+- type: Component::GUI::AtkComponentXBMItem
+  name: AtkComponentXBMItem
+  namespace: Component.GUI
+  union: False
+  size: 552
+  fields:
+  - type: Component::GUI::AtkComponentBase
+    name: AtkComponentBase
+    offset: 0
+    base: true
+  - type: Component::GUI::AtkComponentIcon*
+    name: IconComponent
+    offset: 192
+  - type: Component::GUI::AtkTextNode*
+    name: NameTextNode
+    offset: 200
+  - type: Component::GUI::AtkTextNode*
+    name: TypeTextNode
+    offset: 208
+  - type: Component::GUI::AtkTextNode*
+    name: DescriptionTextNode
+    offset: 216
+  - type: Client::System::String::Utf8String
+    name: NameText
+    offset: 224
+  - type: Client::System::String::Utf8String
+    name: TypeText
+    offset: 328
+  - type: Client::System::String::Utf8String
+    name: DescriptionText
+    offset: 432
+  - type: unsigned int
+    name: XBMItemId
+    offset: 536
+  - type: unsigned __int16
+    name: OriginalDescriptionHeight
+    offset: 540
+  - type: char
+    name: ShowPossessionCount
+    offset: 542
+  - type: char
+    name: ResizeDescriptionToText
+    offset: 543
+  - type: char
+    name: IsItemLoaded
+    offset: 544
+  virtual_functions:
+  - name: dtor
+    offset: 0
+    return_type: Component::GUI::AtkEventListener*
+    parameters:
+    - type: Component::GUI::AtkComponentXBMItem*
+      name: this
+    - type: byte
+      name: freeFlags
+  - name: ReceiveGlobalEvent
+    offset: 8
+    return_type: void
+    parameters:
+    - type: Component::GUI::AtkComponentXBMItem*
+      name: this
+    - type: Component::GUI::AtkEventType
+      name: eventType
+    - type: int
+      name: eventParam
+    - type: Component::GUI::AtkEvent*
+      name: atkEvent
+    - type: Component::GUI::AtkEventData*
+      name: atkEventData
+  - name: ReceiveEvent
+    offset: 16
+    return_type: void
+    parameters:
+    - type: Component::GUI::AtkComponentXBMItem*
+      name: this
+    - type: Component::GUI::AtkEventType
+      name: eventType
+    - type: int
+      name: eventParam
+    - type: Component::GUI::AtkEvent*
+      name: atkEvent
+    - type: Component::GUI::AtkEventData*
+      name: atkEventData
+  - name: Initialize
+    offset: 24
+    return_type: void
+    parameters:
+    - type: Component::GUI::AtkComponentXBMItem*
+      name: this
+  - name: Deinitialize
+    offset: 32
+    return_type: void
+    parameters:
+    - type: Component::GUI::AtkComponentXBMItem*
+      name: this
+  - name: Update
+    offset: 40
+    return_type: void
+    parameters:
+    - type: Component::GUI::AtkComponentXBMItem*
+      name: this
+    - type: float
+      name: delta
+  - name: Draw
+    offset: 56
+    return_type: void
+    parameters:
+    - type: Component::GUI::AtkComponentXBMItem*
+      name: this
+  - name: Setup
+    offset: 64
+    return_type: void
+    parameters:
+    - type: Component::GUI::AtkComponentXBMItem*
+      name: this
+  - name: SetEnabledState
+    offset: 80
+    return_type: void
+    parameters:
+    - type: Component::GUI::AtkComponentXBMItem*
+      name: this
+    - type: char
+      name: enabled
+  - name: PlaySoundEffect
+    offset: 104
+    return_type: void
+    parameters:
+    - type: Component::GUI::AtkComponentXBMItem*
+      name: this
+  - name: GetAtkResNode
+    offset: 112
+    return_type: Component::GUI::AtkResNode*
+    parameters:
+    - type: Component::GUI::AtkComponentXBMItem*
+      name: this
+  - name: GetFocusNode
+    offset: 120
+    return_type: Component::GUI::AtkResNode*
+    parameters:
+    - type: Component::GUI::AtkComponentXBMItem*
+      name: this
+  - name: InitializeFromComponentData
+    offset: 136
+    return_type: void
+    parameters:
+    - type: Component::GUI::AtkComponentXBMItem*
+      name: this
+    - type: __int64
+      name: data
+  - name: GetCollisionNodeAtCoords
+    offset: 144
+    return_type: Component::GUI::AtkResNode*
+    parameters:
+    - type: Component::GUI::AtkComponentXBMItem*
+      name: this
+    - type: __int16
+      name: x
+    - type: __int16
+      name: y
+  member_functions: []
 - type: Component::GUI::AtkCounterNode
   name: AtkCounterNode
   namespace: Component.GUI
@@ -121300,6 +123050,173 @@ structs:
     - type: byte
       name: freeFlags
   member_functions: []
+- type: Client::Game::Character::DrawDataContainer
+  name: DrawDataContainer
+  namespace: Client.Game.Character
+  union: False
+  size: 616
+  fields:
+  - type: Client::Game::Character::ContainerInterface
+    name: ContainerInterface
+    offset: 0
+    base: true
+  - type: Client::Game::Character::DrawObjectData
+    name: WeaponData
+    offset: 16
+    size: 3
+    is_string: False
+  - type: Client::Game::Character::DrawObjectData
+    name: UnkWeaponData
+    offset: 352
+    size: 1
+    is_string: False
+  - type: Client::Game::Character::EquipmentModelId
+    name: EquipmentModelIds
+    offset: 464
+    size: 10
+    is_string: False
+  - type: Client::Game::Character::CustomizeData
+    name: CustomizeData
+    offset: 544
+  - type: __int16
+    name: ArrowAttributeId
+    offset: 570
+  - type: __int16
+    name: AttachAttributeId
+    offset: 572
+  - type: byte
+    name: Flags1
+    offset: 574
+    bits:
+    - type: byte
+      offset: 0
+      size: 1
+      name: IsHatHidden
+  - type: byte
+    name: Flags2
+    offset: 575
+    bits:
+    - type: byte
+      offset: 0
+      size: 1
+      name: IsWeaponHidden
+    - type: byte
+      offset: 1
+      size: 3
+      name: UnkBits1
+    - type: byte
+      offset: 4
+      size: 1
+      name: IsVisorToggled
+    - type: byte
+      offset: 5
+      size: 1
+      name: VieraEarsHidden
+  - type: unsigned __int16
+    name: GlassesIds
+    offset: 576
+    size: 2
+    is_string: False
+  - type: Client::UI::Agent::CrestData
+    name: FreeCompanyCrestData
+    offset: 600
+  - type: byte
+    name: FreeCompanyCrestBitfield
+    offset: 608
+  virtual_functions: []
+  member_functions:
+  - signature: E8 ?? ?? ?? ?? B1 ?? 41 FF C6
+    return_type: void
+    name: LoadEquipment
+    parameters:
+    - type: Client::Game::Character::DrawDataContainer*
+      name: this
+    - type: Client::Game::Character::DrawDataContainer::EquipmentSlot
+      name: slot
+    - type: Client::Game::Character::EquipmentModelId*
+      name: modelId
+    - type: char
+      name: force
+  - signature: E8 ?? ?? ?? ?? 4C 8B 45 7F
+    return_type: void
+    name: LoadWeapon
+    parameters:
+    - type: Client::Game::Character::DrawDataContainer*
+      name: this
+    - type: Client::Game::Character::DrawDataContainer::WeaponSlot
+      name: slot
+    - type: Client::Game::Character::WeaponModelId
+      name: weaponData
+    - type: byte
+      name: redrawOnEquality
+    - type: byte
+      name: a5
+    - type: byte
+      name: skipGameObject
+    - type: byte
+      name: a7
+    - type: char
+      name: a8
+  - signature: E8 ?? ?? ?? ?? 8B 46 54 0F BA E0 08
+    return_type: void
+    name: HideWeapons
+    parameters:
+    - type: Client::Game::Character::DrawDataContainer*
+      name: this
+    - type: char
+      name: hide
+  - signature: E8 ?? ?? ?? ?? 0F B6 55 C9
+    return_type: void
+    name: HideHeadgear
+    parameters:
+    - type: Client::Game::Character::DrawDataContainer*
+      name: this
+    - type: unsigned int
+      name: unk
+    - type: char
+      name: hide
+  - signature: 44 0F B6 81 ?? ?? ?? ?? 41 0F B6 C0 41 80 E0 7F
+    return_type: void
+    name: HideLegacyTattoo
+    parameters:
+    - type: Client::Game::Character::DrawDataContainer*
+      name: this
+    - type: char
+      name: hide
+  - signature: E8 ?? ?? ?? ?? 41 0F B6 D6 48 8B CB
+    return_type: void
+    name: SetVisor
+    parameters:
+    - type: Client::Game::Character::DrawDataContainer*
+      name: this
+    - type: char
+      name: state
+  - signature: E8 ?? ?? ?? ?? EB 50 44 8B 03
+    return_type: void
+    name: SetGlasses
+    parameters:
+    - type: Client::Game::Character::DrawDataContainer*
+      name: this
+    - type: int
+      name: index
+    - type: unsigned __int16
+      name: id
+  - signature: E8 ?? ?? ?? ?? 80 BF ?? ?? ?? ?? ?? 41 BD
+    return_type: void
+    name: HideVieraEars
+    parameters:
+    - type: Client::Game::Character::DrawDataContainer*
+      name: this
+    - type: char
+      name: hide
+  - signature: 48 89 5C 24 ?? 55 56 57 41 54 41 55 41 56 41 57 48 81 EC ?? ?? ?? ?? 48 8B 05 ?? ?? ?? ?? 48 33 C4 48 89 84 24 ?? ?? ?? ?? 44 0F B6 B9
+    return_type: void
+    name: HandleGearsetDrawDataPacket
+    parameters:
+    - type: Client::Game::Character::DrawDataContainer*
+      name: this
+    - type: Client::Game::Network::GearsetDrawDataPacket*
+      name: packet
 - type: Client::Game::Event::DirectorModule
   name: DirectorModule
   namespace: Client.Game.Event
@@ -122191,6 +124108,270 @@ structs:
     - type: char*
       name: outModelChecked
   member_functions: []
+- type: Client::Game::Object::HousingFlowerPotObject
+  name: HousingFlowerPotObject
+  namespace: Client.Game.Object
+  union: False
+  size: 464
+  fields:
+  - type: Client::Game::Object::HousingObject
+    name: HousingObject
+    offset: 0
+    base: true
+  virtual_functions:
+  - name: GetGameObjectId
+    offset: 8
+    return_type: Client::Game::Object::GameObjectId
+    parameters:
+    - type: Client::Game::Object::HousingFlowerPotObject*
+      name: this
+  - name: GetObjectKind
+    offset: 16
+    return_type: Client::Game::Object::ObjectKind
+    parameters:
+    - type: Client::Game::Object::HousingFlowerPotObject*
+      name: this
+  - name: GetObjectType
+    offset: 24
+    return_type: Client::Game::Object::ObjectType
+    parameters:
+    - type: Client::Game::Object::HousingFlowerPotObject*
+      name: this
+  - name: GetIsTargetable
+    offset: 32
+    return_type: char
+    parameters:
+    - type: Client::Game::Object::HousingFlowerPotObject*
+      name: this
+  - name: GetName
+    offset: 48
+    return_type: char*
+    parameters:
+    - type: Client::Game::Object::HousingFlowerPotObject*
+      name: this
+  - name: GetRadius
+    offset: 56
+    return_type: float
+    parameters:
+    - type: Client::Game::Object::HousingFlowerPotObject*
+      name: this
+    - type: char
+      name: adjustByTransformation
+  - name: GetHeight
+    offset: 64
+    return_type: float
+    parameters:
+    - type: Client::Game::Object::HousingFlowerPotObject*
+      name: this
+  - name: GetSex
+    offset: 88
+    return_type: byte
+    parameters:
+    - type: Client::Game::Object::HousingFlowerPotObject*
+      name: this
+  - name: EnableDraw
+    offset: 96
+    return_type: void
+    parameters:
+    - type: Client::Game::Object::HousingFlowerPotObject*
+      name: this
+  - name: DisableDraw
+    offset: 104
+    return_type: void
+    parameters:
+    - type: Client::Game::Object::HousingFlowerPotObject*
+      name: this
+  - name: UpdateNextDistanceAndTargetStatus
+    offset: 112
+    return_type: void
+    parameters:
+    - type: Client::Game::Object::HousingFlowerPotObject*
+      name: this
+  - name: SetTargetStatus
+    offset: 120
+    return_type: void
+    parameters:
+    - type: Client::Game::Object::HousingFlowerPotObject*
+      name: this
+    - type: byte
+      name: targetStatus
+  - name: SetDistance
+    offset: 128
+    return_type: void
+    parameters:
+    - type: Client::Game::Object::HousingFlowerPotObject*
+      name: this
+    - type: byte
+      name: distance
+  - name: SetDrawObject
+    offset: 136
+    return_type: void
+    parameters:
+    - type: Client::Game::Object::HousingFlowerPotObject*
+      name: this
+    - type: Client::Graphics::Scene::DrawObject*
+      name: drawObject
+  - name: PlayTimeline
+    offset: 160
+    return_type: char
+    parameters:
+    - type: Client::Game::Object::HousingFlowerPotObject*
+      name: this
+    - type: unsigned int
+      name: index
+    - type: unsigned int
+      name: a2
+  - name: StopTimeline
+    offset: 168
+    return_type: char
+    parameters:
+    - type: Client::Game::Object::HousingFlowerPotObject*
+      name: this
+    - type: unsigned int
+      name: index
+  - name: IsTimelinePlaying
+    offset: 176
+    return_type: char
+    parameters:
+    - type: Client::Game::Object::HousingFlowerPotObject*
+      name: this
+    - type: unsigned int
+      name: index
+  - name: GetDrawObject
+    offset: 184
+    return_type: Client::Graphics::Scene::DrawObject*
+    parameters:
+    - type: Client::Game::Object::HousingFlowerPotObject*
+      name: this
+  - name: GetCharacterBase
+    offset: 192
+    return_type: Client::Graphics::Scene::CharacterBase*
+    parameters:
+    - type: Client::Game::Object::HousingFlowerPotObject*
+      name: this
+  - name: Highlight
+    offset: 208
+    return_type: void
+    parameters:
+    - type: Client::Game::Object::HousingFlowerPotObject*
+      name: this
+    - type: Client::Game::Object::ObjectHighlightColor
+      name: color
+    - type: char
+      name: includeMount
+  - name: GetEventHandlersImpl
+    offset: 240
+    return_type: int
+    parameters:
+    - type: Client::Game::Object::HousingFlowerPotObject*
+      name: this
+    - type: Client::Game::Event::EventHandler**
+      name: outHandlers
+  - name: SetReadyToDraw
+    offset: 272
+    return_type: void
+    parameters:
+    - type: Client::Game::Object::HousingFlowerPotObject*
+      name: this
+  - name: Update
+    offset: 288
+    return_type: void
+    parameters:
+    - type: Client::Game::Object::HousingFlowerPotObject*
+      name: this
+  - name: GetCenterPosition
+    offset: 376
+    return_type: void
+    parameters:
+    - type: Client::Game::Object::HousingFlowerPotObject*
+      name: this
+    - type: Common::Math::Vector3*
+      name: outCenter
+  - name: GetNameId
+    offset: 384
+    return_type: unsigned int
+    parameters:
+    - type: Client::Game::Object::HousingFlowerPotObject*
+      name: this
+  - name: UpdateSharedTimelineState
+    offset: 392
+    return_type: void
+    parameters:
+    - type: Client::Game::Object::HousingFlowerPotObject*
+      name: this
+    - type: unsigned __int16
+      name: oldSharedTimelineState
+    - type: unsigned __int16
+      name: newSharedTimelineState
+  - name: GetTargetType
+    offset: 432
+    return_type: Client::Game::Object::TargetType
+    parameters:
+    - type: Client::Game::Object::HousingFlowerPotObject*
+      name: this
+  - name: PositionModified
+    offset: 440
+    return_type: void
+    parameters:
+    - type: Client::Game::Object::HousingFlowerPotObject*
+      name: this
+  - name: RotationModified
+    offset: 448
+    return_type: void
+    parameters:
+    - type: Client::Game::Object::HousingFlowerPotObject*
+      name: this
+  - name: IsDead
+    offset: 464
+    return_type: char
+    parameters:
+    - type: Client::Game::Object::HousingFlowerPotObject*
+      name: this
+  - name: IsNotMounted
+    offset: 472
+    return_type: char
+    parameters:
+    - type: Client::Game::Object::HousingFlowerPotObject*
+      name: this
+  - name: Terminate
+    offset: 480
+    return_type: void
+    parameters:
+    - type: Client::Game::Object::HousingFlowerPotObject*
+      name: this
+  - name: dtor
+    offset: 488
+    return_type: Client::Game::Object::GameObject*
+    parameters:
+    - type: Client::Game::Object::HousingFlowerPotObject*
+      name: this
+    - type: byte
+      name: freeFlags
+  - name: IsCharacter
+    offset: 496
+    return_type: char
+    parameters:
+    - type: Client::Game::Object::HousingFlowerPotObject*
+      name: this
+  - name: OnInitialize
+    offset: 552
+    return_type: void
+    parameters:
+    - type: Client::Game::Object::HousingFlowerPotObject*
+      name: this
+  - name: IntersectsRay
+    offset: 560
+    return_type: char
+    parameters:
+    - type: Client::Game::Object::HousingFlowerPotObject*
+      name: this
+    - type: Client::Graphics::Ray*
+      name: ray
+    - type: Common::Math::Vector3*
+      name: outHitPosition
+    - type: char*
+      name: outModelChecked
+  member_functions: []
 - type: Client::Game::SpectatorCamera
   name: SpectatorCamera
   namespace: Client.Game
@@ -122399,6 +124580,320 @@ structs:
       name: this
     - type: byte*
       name: data
+- type: Client::LayoutEngine::Layer::PopRangeLayoutInstance
+  name: PopRangeLayoutInstance
+  namespace: Client.LayoutEngine.Layer
+  union: False
+  size: 160
+  fields:
+  - type: Client::LayoutEngine::Layer::RangeLayoutInstance
+    name: RangeLayoutInstance
+    offset: 0
+    base: true
+  - type: unsigned int
+    name: PopType
+    offset: 112
+  - type: unsigned int
+    name: PositionCount
+    offset: 116
+  - type: float
+    name: InnerRadiusRatio
+    offset: 120
+  - type: StdVector<System::Numerics::Vector3>
+    name: Positions
+    offset: 128
+  virtual_functions:
+  - name: dtor
+    offset: 0
+    return_type: Client::LayoutEngine::ILayoutInstance*
+    parameters:
+    - type: Client::LayoutEngine::Layer::PopRangeLayoutInstance*
+      name: this
+    - type: byte
+      name: freeFlags
+  - name: Init
+    offset: 8
+    return_type: void
+    parameters:
+    - type: Client::LayoutEngine::Layer::PopRangeLayoutInstance*
+      name: this
+    - type: __int64
+      name: creator
+    - type: byte*
+      name: primaryPath
+  - name: Deinit
+    offset: 16
+    return_type: void
+    parameters:
+    - type: Client::LayoutEngine::Layer::PopRangeLayoutInstance*
+      name: this
+  - name: SetProperties
+    offset: 32
+    return_type: void
+    parameters:
+    - type: Client::LayoutEngine::Layer::PopRangeLayoutInstance*
+      name: this
+    - type: Client::LayoutEngine::FileLayerGroupInstance*
+      name: data
+  - name: SetLayer
+    offset: 40
+    return_type: void
+    parameters:
+    - type: Client::LayoutEngine::Layer::PopRangeLayoutInstance*
+      name: this
+    - type: Client::LayoutEngine::Layer::LayerManager*
+      name: layer
+  - name: GetSizeOf
+    offset: 48
+    return_type: int
+    parameters:
+    - type: Client::LayoutEngine::Layer::PopRangeLayoutInstance*
+      name: this
+  - name: GetPrimaryPath
+    offset: 56
+    return_type: char*
+    parameters:
+    - type: Client::LayoutEngine::Layer::PopRangeLayoutInstance*
+      name: this
+  - name: GetTranslation
+    offset: 112
+    return_type: System::Numerics::Vector3*
+    parameters:
+    - type: Client::LayoutEngine::Layer::PopRangeLayoutInstance*
+      name: this
+    - type: System::Numerics::Vector3*
+      name: result
+  - name: GetRotation
+    offset: 120
+    return_type: System::Numerics::Quaternion*
+    parameters:
+    - type: Client::LayoutEngine::Layer::PopRangeLayoutInstance*
+      name: this
+    - type: System::Numerics::Quaternion*
+      name: result
+  - name: GetScale
+    offset: 128
+    return_type: System::Numerics::Vector3*
+    parameters:
+    - type: Client::LayoutEngine::Layer::PopRangeLayoutInstance*
+      name: this
+    - type: System::Numerics::Vector3*
+      name: result
+  - name: GetTransform
+    offset: 136
+    return_type: Client::LayoutEngine::Transform*
+    parameters:
+    - type: Client::LayoutEngine::Layer::PopRangeLayoutInstance*
+      name: this
+    - type: Client::LayoutEngine::Transform*
+      name: result
+  - name: SetTransform
+    offset: 144
+    return_type: void
+    parameters:
+    - type: Client::LayoutEngine::Layer::PopRangeLayoutInstance*
+      name: this
+    - type: Client::LayoutEngine::Transform*
+      name: transform
+  - name: HavePrimary
+    offset: 168
+    return_type: char
+    parameters:
+    - type: Client::LayoutEngine::Layer::PopRangeLayoutInstance*
+      name: this
+  - name: IsPrimaryLoaded
+    offset: 176
+    return_type: char
+    parameters:
+    - type: Client::LayoutEngine::Layer::PopRangeLayoutInstance*
+      name: this
+  - name: GetGraphics
+    offset: 184
+    return_type: Client::Graphics::Scene::Object*
+    parameters:
+    - type: Client::LayoutEngine::Layer::PopRangeLayoutInstance*
+      name: this
+  - name: GetGraphics2
+    offset: 192
+    return_type: Client::Graphics::Scene::Object*
+    parameters:
+    - type: Client::LayoutEngine::Layer::PopRangeLayoutInstance*
+      name: this
+  - name: SetGraphics
+    offset: 200
+    return_type: void
+    parameters:
+    - type: Client::LayoutEngine::Layer::PopRangeLayoutInstance*
+      name: this
+    - type: Client::Graphics::Scene::Object*
+      name: obj
+    - type: Client::LayoutEngine::Transform*
+      name: transform
+  - name: CreatePrimary
+    offset: 216
+    return_type: void
+    parameters:
+    - type: Client::LayoutEngine::Layer::PopRangeLayoutInstance*
+      name: this
+    - type: Client::LayoutEngine::Transform*
+      name: transform
+    - type: __int64
+      name: pathOrType
+  - name: DestroyPrimary
+    offset: 224
+    return_type: void
+    parameters:
+    - type: Client::LayoutEngine::Layer::PopRangeLayoutInstance*
+      name: this
+  - name: HaveSecondary
+    offset: 232
+    return_type: char
+    parameters:
+    - type: Client::LayoutEngine::Layer::PopRangeLayoutInstance*
+      name: this
+  - name: IsColliderLoaded
+    offset: 240
+    return_type: char
+    parameters:
+    - type: Client::LayoutEngine::Layer::PopRangeLayoutInstance*
+      name: this
+  - name: GetSecondaryPath
+    offset: 248
+    return_type: char*
+    parameters:
+    - type: Client::LayoutEngine::Layer::PopRangeLayoutInstance*
+      name: this
+  - name: CreateSecondary
+    offset: 256
+    return_type: void
+    parameters:
+    - type: Client::LayoutEngine::Layer::PopRangeLayoutInstance*
+      name: this
+  - name: DestroySecondary
+    offset: 264
+    return_type: void
+    parameters:
+    - type: Client::LayoutEngine::Layer::PopRangeLayoutInstance*
+      name: this
+  - name: GetCollider
+    offset: 272
+    return_type: Common::Component::BGCollision::Collider*
+    parameters:
+    - type: Client::LayoutEngine::Layer::PopRangeLayoutInstance*
+      name: this
+  - name: GetCollider2
+    offset: 280
+    return_type: Common::Component::BGCollision::Collider*
+    parameters:
+    - type: Client::LayoutEngine::Layer::PopRangeLayoutInstance*
+      name: this
+  - name: IsColliderActive
+    offset: 288
+    return_type: char
+    parameters:
+    - type: Client::LayoutEngine::Layer::PopRangeLayoutInstance*
+      name: this
+  - name: SetColliderActive
+    offset: 296
+    return_type: void
+    parameters:
+    - type: Client::LayoutEngine::Layer::PopRangeLayoutInstance*
+      name: this
+    - type: char
+      name: active
+  - name: UpdateCollider
+    offset: 304
+    return_type: void
+    parameters:
+    - type: Client::LayoutEngine::Layer::PopRangeLayoutInstance*
+      name: this
+  - name: WantToBeActive
+    offset: 440
+    return_type: char
+    parameters:
+    - type: Client::LayoutEngine::Layer::PopRangeLayoutInstance*
+      name: this
+  - name: ApplyStain
+    offset: 464
+    return_type: void
+    parameters:
+    - type: Client::LayoutEngine::Layer::PopRangeLayoutInstance*
+      name: this
+    - type: Client::Graphics::ByteColor*
+      name: stainColorSrgb
+  - name: SetActive
+    offset: 504
+    return_type: void
+    parameters:
+    - type: Client::LayoutEngine::Layer::PopRangeLayoutInstance*
+      name: this
+    - type: char
+      name: active
+  - name: GetTranslationImpl
+    offset: 512
+    return_type: System::Numerics::Vector3*
+    parameters:
+    - type: Client::LayoutEngine::Layer::PopRangeLayoutInstance*
+      name: this
+  - name: SetTranslationImpl
+    offset: 520
+    return_type: void
+    parameters:
+    - type: Client::LayoutEngine::Layer::PopRangeLayoutInstance*
+      name: this
+    - type: System::Numerics::Vector3*
+      name: value
+  - name: GetRotationImpl
+    offset: 528
+    return_type: System::Numerics::Quaternion*
+    parameters:
+    - type: Client::LayoutEngine::Layer::PopRangeLayoutInstance*
+      name: this
+  - name: SetRotationImpl
+    offset: 536
+    return_type: void
+    parameters:
+    - type: Client::LayoutEngine::Layer::PopRangeLayoutInstance*
+      name: this
+    - type: System::Numerics::Quaternion*
+      name: value
+  - name: GetScaleImpl
+    offset: 544
+    return_type: System::Numerics::Vector3*
+    parameters:
+    - type: Client::LayoutEngine::Layer::PopRangeLayoutInstance*
+      name: this
+  - name: SetScaleImpl
+    offset: 552
+    return_type: void
+    parameters:
+    - type: Client::LayoutEngine::Layer::PopRangeLayoutInstance*
+      name: this
+    - type: System::Numerics::Vector3*
+      name: value
+  - name: GetTransformImpl
+    offset: 560
+    return_type: Client::LayoutEngine::Transform*
+    parameters:
+    - type: Client::LayoutEngine::Layer::PopRangeLayoutInstance*
+      name: this
+  - name: SetTransformImpl
+    offset: 568
+    return_type: void
+    parameters:
+    - type: Client::LayoutEngine::Layer::PopRangeLayoutInstance*
+      name: this
+    - type: Client::LayoutEngine::Transform*
+      name: value
+  - name: GetBoundingSphereImpl
+    offset: 576
+    return_type: System::Numerics::Vector4*
+    parameters:
+    - type: Client::LayoutEngine::Layer::PopRangeLayoutInstance*
+      name: this
+    - type: System::Numerics::Vector4*
+      name: result
+  member_functions: []
 - type: Client::LayoutEngine::Layer::SoundLayoutInstance
   name: SoundLayoutInstance
   namespace: Client.LayoutEngine.Layer
@@ -129679,6 +132174,94 @@ structs:
     name: ItemRewardCount
     offset: 5568
   member_functions: []
+- type: Client::UI::Agent::AgentFashion::FashionCharaView
+  name: FashionCharaView
+  namespace: Client.UI.Agent
+  union: False
+  size: 808
+  fields:
+  - type: Client::UI::Misc::CharaView
+    name: CharaView
+    offset: 0
+    base: true
+  virtual_functions:
+  - name: dtor
+    offset: 0
+    return_type: Client::UI::Misc::CharaView*
+    parameters:
+    - type: Client::UI::Agent::AgentFashion::FashionCharaView*
+      name: this
+    - type: byte
+      name: freeFlags
+  - name: Initialize
+    offset: 8
+    return_type: void
+    parameters:
+    - type: Client::UI::Agent::AgentFashion::FashionCharaView*
+      name: this
+    - type: Client::UI::Agent::AgentInterface*
+      name: agent
+    - type: unsigned int
+      name: clientObjectId
+    - type: __int64
+      name: agentCallbackReady
+  - name: Release
+    offset: 16
+    return_type: void
+    parameters:
+    - type: Client::UI::Agent::AgentFashion::FashionCharaView*
+      name: this
+  - name: ResetPositions
+    offset: 24
+    return_type: void
+    parameters:
+    - type: Client::UI::Agent::AgentFashion::FashionCharaView*
+      name: this
+  - name: SetCameraDistance
+    offset: 32
+    return_type: void
+    parameters:
+    - type: Client::UI::Agent::AgentFashion::FashionCharaView*
+      name: this
+    - type: float
+      name: deltaDistance
+  - name: SetCameraYawAndPitch
+    offset: 40
+    return_type: void
+    parameters:
+    - type: Client::UI::Agent::AgentFashion::FashionCharaView*
+      name: this
+    - type: float
+      name: deltaRotation
+    - type: float
+      name: deltaPitch
+  - name: SetCameraXAndY
+    offset: 48
+    return_type: void
+    parameters:
+    - type: Client::UI::Agent::AgentFashion::FashionCharaView*
+      name: this
+    - type: float
+      name: deltaX
+    - type: float
+      name: deltaY
+  - name: OnReady
+    offset: 64
+    return_type: void
+    parameters:
+    - type: Client::UI::Agent::AgentFashion::FashionCharaView*
+      name: this
+  - name: Update
+    offset: 80
+    return_type: void
+    parameters:
+    - type: Client::UI::Agent::AgentFashion::FashionCharaView*
+      name: this
+    - type: unsigned int
+      name: frameIndex
+    - type: Client::Game::Character::Character*
+      name: character
+  member_functions: []
 - type: Client::UI::Agent::AgentGearSet::GearsetCharaView
   name: GearsetCharaView
   namespace: Client.UI.Agent
@@ -132106,7 +134689,7 @@ structs:
   member_functions:
   - signature: 40 53 48 83 EC 20 48 8B D9 E8 ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? C7 83 ?? ?? ?? ?? ?? ?? ?? ?? 48 89 03 33 C0 48 89 83 ?? ?? ?? ?? 48 89 83 ?? ?? ?? ?? 66 89 83 ?? ?? ?? ?? 48 89 83 ?? ?? ?? ??
     return_type: Component::GUI::AtkComponentHoldButton*
-    name: Ctor
+    name: ctor
     parameters:
     - type: Component::GUI::AtkComponentHoldButton*
       name: this
@@ -132279,7 +134862,7 @@ structs:
   member_functions:
   - signature: 45 33 C0 C7 81 ?? ?? ?? ?? ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? 4C 89 41 ?? ?? ?? ?? BA
     return_type: Component::GUI::AtkComponentIcon*
-    name: Ctor
+    name: ctor
     parameters:
     - type: Component::GUI::AtkComponentIcon*
       name: this
@@ -132866,10 +135449,16 @@ structs:
       name: selectedIndex
     - type: char
       name: handled
+  - name: GetSelectedItemAtkResNode
+    offset: 360
+    return_type: Component::GUI::AtkResNode*
+    parameters:
+    - type: Component::GUI::AtkComponentTreeList*
+      name: this
   member_functions:
   - signature: 40 53 48 83 EC 20 48 8B D9 E8 ?? ?? ?? ?? 33 C9 C7 83 ?? ?? ?? ?? ?? ?? ?? ?? 48 89 8B ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? 48 89 03 0F 57 C0
     return_type: Component::GUI::AtkComponentTreeList*
-    name: Ctor
+    name: ctor
     parameters:
     - type: Component::GUI::AtkComponentTreeList*
       name: this
@@ -132957,7 +135546,7 @@ structs:
   member_functions:
   - signature: E8 ?? ?? ?? ?? C1 FB 04
     return_type: Component::GUI::AtkTooltipManager::AtkTooltipArgs*
-    name: Ctor
+    name: ctor
     parameters:
     - type: Component::GUI::AtkTooltipManager::AtkTooltipArgs*
       name: this
@@ -133006,13 +135595,13 @@ structs:
   member_functions:
   - signature: E8 ?? ?? ?? ?? 48 8B D8 48 8B CB 48 89 9F
     return_type: Component::SteamApi::SteamApi*
-    name: Ctor
+    name: ctor
     parameters:
     - type: Component::SteamApi::SteamApi*
       name: this
   - signature: 48 89 5C 24 ?? 57 48 83 EC 20 48 8B D9 FF 15 ?? ?? ?? ?? 48 8D 8B
     return_type: void
-    name: Dtor
+    name: dtor
     parameters:
     - type: Component::SteamApi::SteamApi*
       name: this
@@ -133114,7 +135703,7 @@ structs:
   member_functions:
   - signature: 48 89 5C 24 ?? 57 48 83 EC 20 48 8B DA 48 8B F9 48 8B 52 38
     return_type: Animation::Playback::Control::Default::hkaDefaultAnimationControl*
-    name: Ctor1
+    name: ctor1
     parameters:
     - type: Animation::Playback::Control::Default::hkaDefaultAnimationControl*
       name: this
@@ -133664,7 +136253,7 @@ structs:
   member_functions:
   - signature: 45 33 C0 C6 41 08 00
     return_type: Client::Game::UI::InstanceContent::ContentUI*
-    name: Ctor
+    name: ctor
     parameters:
     - type: Client::Game::UI::InstanceContent::ContentUI*
       name: this
@@ -134793,7 +137382,7 @@ structs:
   member_functions:
   - signature: 48 89 5C 24 ?? 57 48 83 EC 20 48 8B D9 E8 ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? 33 FF 48 8D 8B ?? ?? ?? ?? 48 89 03 89 BB ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 8B C3
     return_type: Component::GUI::AtkComponentTab*
-    name: Ctor
+    name: ctor
     parameters:
     - type: Component::GUI::AtkComponentTab*
       name: this
@@ -136351,7 +138940,7 @@ structs:
   member_functions:
   - signature: E8 ?? ?? ?? ?? 48 8B D8 E9 ?? ?? ?? ?? 45 33 C9 33 D2 B9 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 85 C0 0F 84 ?? ?? ?? ?? 48 8D 0D ?? ?? ?? ?? 48 89 58 ?? 48 89 58 ?? 48 89 58 ?? 48 89 58 ?? 48 89 58 ?? 48 89 58 ?? 48 89 58 ?? 48 89 58 ?? 89 58 ?? 48 89 58 ?? 48 89 58 ?? 48 89 58 ?? 48 89 58 ?? 89 58 ?? 48 89 58 ?? 48 89 98 ?? ?? ?? ?? 48 89 98 ?? ?? ?? ?? 66 89 98 ?? ?? ?? ?? 89 98 ?? ?? ?? ?? 48 89 98 ?? ?? ?? ?? 48 89 98 ?? ?? ?? ?? 48 89 98 ?? ?? ?? ?? 88 98 ?? ?? ?? ?? 48 89 98 ?? ?? ?? ?? 48 89 98 ?? ?? ?? ?? 48 89 98 ?? ?? ?? ?? 48 89 98 ?? ?? ?? ?? 48 89 98 ?? ?? ?? ?? 89 98
     return_type: Component::GUI::AtkComponentGaugeBar*
-    name: Ctor
+    name: ctor
     parameters:
     - type: Component::GUI::AtkComponentGaugeBar*
       name: this
@@ -136591,9 +139180,15 @@ structs:
   - type: __int16
     name: Unk1A2DragDropOwnerNodeScreenY
     offset: 418
-  - type: int
-    name: RowTemplateNodeCount
+  - type: byte
+    name: RowTemplateNodeCountByte
     offset: 420
+  - type: byte
+    name: Unk1A5
+    offset: 421
+  - type: unsigned __int16
+    name: Unk1A6
+    offset: 422
   virtual_functions:
   - name: dtor
     offset: 0
@@ -136710,7 +139305,7 @@ structs:
   member_functions:
   - signature: 40 53 48 83 EC 20 48 8B D9 E8 ?? ?? ?? ?? 33 C9 48 C7 83 ?? ?? ?? ?? ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ??
     return_type: Component::GUI::AtkComponentListItemRenderer*
-    name: Ctor
+    name: ctor
     parameters:
     - type: Component::GUI::AtkComponentListItemRenderer*
       name: this
@@ -136942,7 +139537,7 @@ structs:
   member_functions:
   - signature: E8 ?? ?? ?? ?? 48 8B D8 E9 ?? ?? ?? ?? 45 33 C9 33 D2 B9 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 85 C0 0F 84 ?? ?? ?? ?? 48 8D 0D ?? ?? ?? ?? 88 98
     return_type: Component::GUI::AtkComponentMap*
-    name: Ctor
+    name: ctor
     parameters:
     - type: Component::GUI::AtkComponentMap*
       name: this
@@ -137726,7 +140321,7 @@ structs:
   member_functions:
   - signature: E8 ?? ?? ?? ?? 33 D2 48 8D 9F
     return_type: Component::GUI::AtkUnitBase*
-    name: Ctor
+    name: ctor
     parameters:
     - type: Component::GUI::AtkUnitBase*
       name: this
@@ -138438,6 +141033,18 @@ structs:
   - type: unsigned int
     name: IconId
     offset: 92
+  - type: Client::Game::Event::EventType
+    name: EventType
+    offset: 100
+  - type: unsigned int
+    name: EventParam
+    offset: 104
+  - type: byte
+    name: EventUnk20
+    offset: 108
+  - type: Client::Game::Object::GameObject*
+    name: EventGameObject
+    offset: 112
   - type: __int16
     name: Scene
     offset: 120
@@ -138487,6 +141094,22 @@ structs:
       name: this
     - type: byte
       name: freeFlags
+  - name: ProcessEnterTerritory
+    offset: 160
+    return_type: void
+    parameters:
+    - type: Client::Game::Event::EventHandler*
+      name: this
+    - type: unsigned __int16
+      name: territoryTypeId
+  - name: ProcessUIEvent
+    offset: 200
+    return_type: void
+    parameters:
+    - type: Client::Game::Event::EventHandler*
+      name: this
+    - type: Client::Game::Event::UIEventType
+      name: type
   - name: ProcessYield
     offset: 320
     return_type: void
@@ -138651,6 +141274,8 @@ structs:
     offset: 48
   - name: IsUnlocked
     offset: 56
+  - name: ProcessUIEvent
+    offset: 208
   - name: ProcessDirectorUpdate
     offset: 488
   - name: ProcessListenItemCallback
@@ -138670,6 +141295,18 @@ structs:
   - name: Initialize
     offset: 2192
   member_functions:
+  - signature: 48 89 5C 24 ?? 57 48 83 EC ?? 41 0F B6 C0 41 8B F9
+    return_type: void
+    name: DispatchEvent
+    parameters:
+    - type: Client::Game::Event::EventHandler*
+      name: this
+    - type: Client::Game::Object::GameObject*
+      name: gameObject
+    - type: Client::Game::Event::EventType
+      name: eventType
+    - type: unsigned int
+      name: eventParam
   - signature: E8 ?? ?? ?? ?? 49 FF 87
     return_type: char
     name: QueueFormatStringCallback
@@ -143248,6 +145885,457 @@ structs:
     return_type: char
     parameters:
     - type: Client::UI::AddonChocoboBreedTraining*
+      name: this
+    - type: int
+      name: inputId
+    - type: char
+      name: a3
+  member_functions: []
+- type: Client::UI::AddonConfigPartyListRoleSort
+  name: AddonConfigPartyListRoleSort
+  namespace: Client.UI
+  union: False
+  size: 656
+  fields:
+  - type: Component::GUI::AtkUnitBase
+    name: AtkUnitBase
+    offset: 0
+    base: true
+  - type: Component::GUI::AtkComponentRadioButton*
+    name: TankRadioButton
+    offset: 568
+  - type: Component::GUI::AtkComponentRadioButton*
+    name: HealerRadioButton
+    offset: 576
+  - type: Component::GUI::AtkComponentRadioButton*
+    name: DpsRadioButton
+    offset: 584
+  - type: Component::GUI::AtkComponentList*
+    name: RoleList
+    offset: 592
+  - type: Component::GUI::AtkComponentButton*
+    name: MoveUpButton
+    offset: 600
+  - type: Component::GUI::AtkComponentButton*
+    name: MoveDownButton
+    offset: 608
+  - type: Component::GUI::AtkComponentButton*
+    name: DefaultButton
+    offset: 616
+  - type: Component::GUI::AtkComponentButton*
+    name: ApplyButton
+    offset: 624
+  - type: Component::GUI::AtkComponentButton*
+    name: CloseButton
+    offset: 632
+  - type: int
+    name: SelectedRole
+    offset: 640
+  - type: int
+    name: SelectedItemIndex
+    offset: 644
+  virtual_functions:
+  - name: dtor
+    offset: 0
+    return_type: Component::GUI::AtkEventListener*
+    parameters:
+    - type: Client::UI::AddonConfigPartyListRoleSort*
+      name: this
+    - type: byte
+      name: freeFlags
+  - name: ReceiveGlobalEvent
+    offset: 8
+    return_type: void
+    parameters:
+    - type: Client::UI::AddonConfigPartyListRoleSort*
+      name: this
+    - type: Component::GUI::AtkEventType
+      name: eventType
+    - type: int
+      name: eventParam
+    - type: Component::GUI::AtkEvent*
+      name: atkEvent
+    - type: Component::GUI::AtkEventData*
+      name: atkEventData
+  - name: ReceiveEvent
+    offset: 16
+    return_type: void
+    parameters:
+    - type: Client::UI::AddonConfigPartyListRoleSort*
+      name: this
+    - type: Component::GUI::AtkEventType
+      name: eventType
+    - type: int
+      name: eventParam
+    - type: Component::GUI::AtkEvent*
+      name: atkEvent
+    - type: Component::GUI::AtkEventData*
+      name: atkEventData
+  - name: Open
+    offset: 24
+    return_type: char
+    parameters:
+    - type: Client::UI::AddonConfigPartyListRoleSort*
+      name: this
+    - type: unsigned int
+      name: depthLayer
+  - name: Close
+    offset: 32
+    return_type: char
+    parameters:
+    - type: Client::UI::AddonConfigPartyListRoleSort*
+      name: this
+    - type: char
+      name: fireCallback
+  - name: Show
+    offset: 40
+    return_type: void
+    parameters:
+    - type: Client::UI::AddonConfigPartyListRoleSort*
+      name: this
+    - type: char
+      name: disableShowTransition
+    - type: unsigned int
+      name: unsetShowHideFlags
+  - name: Hide
+    offset: 48
+    return_type: void
+    parameters:
+    - type: Client::UI::AddonConfigPartyListRoleSort*
+      name: this
+    - type: char
+      name: disableHideTransition
+    - type: char
+      name: callCloseCallback
+    - type: unsigned int
+      name: setShowHideFlags
+  - name: SetPosition
+    offset: 56
+    return_type: void
+    parameters:
+    - type: Client::UI::AddonConfigPartyListRoleSort*
+      name: this
+    - type: __int16
+      name: x
+    - type: __int16
+      name: y
+  - name: SetX
+    offset: 64
+    return_type: void
+    parameters:
+    - type: Client::UI::AddonConfigPartyListRoleSort*
+      name: this
+    - type: __int16
+      name: value
+  - name: SetY
+    offset: 72
+    return_type: void
+    parameters:
+    - type: Client::UI::AddonConfigPartyListRoleSort*
+      name: this
+    - type: __int16
+      name: value
+  - name: GetX
+    offset: 80
+    return_type: __int16
+    parameters:
+    - type: Client::UI::AddonConfigPartyListRoleSort*
+      name: this
+  - name: GetY
+    offset: 88
+    return_type: __int16
+    parameters:
+    - type: Client::UI::AddonConfigPartyListRoleSort*
+      name: this
+  - name: GetPosition
+    offset: 96
+    return_type: void
+    parameters:
+    - type: Client::UI::AddonConfigPartyListRoleSort*
+      name: this
+    - type: __int16*
+      name: outX
+    - type: __int16*
+      name: outY
+  - name: SetAlpha
+    offset: 104
+    return_type: void
+    parameters:
+    - type: Client::UI::AddonConfigPartyListRoleSort*
+      name: this
+    - type: byte
+      name: alpha
+  - name: SetScale
+    offset: 112
+    return_type: void
+    parameters:
+    - type: Client::UI::AddonConfigPartyListRoleSort*
+      name: this
+    - type: float
+      name: scale
+    - type: char
+      name: a3
+  - name: GetSize
+    offset: 120
+    return_type: void
+    parameters:
+    - type: Client::UI::AddonConfigPartyListRoleSort*
+      name: this
+    - type: unsigned __int16*
+      name: outWidth
+    - type: unsigned __int16*
+      name: outHeight
+    - type: char
+      name: scaled
+  - name: Hide2
+    offset: 128
+    return_type: void
+    parameters:
+    - type: Client::UI::AddonConfigPartyListRoleSort*
+      name: this
+  - name: SetScaleToHudLayoutScale
+    offset: 136
+    return_type: __int8
+    parameters:
+    - type: Client::UI::AddonConfigPartyListRoleSort*
+      name: this
+  - name: ShouldCollideWithWindow
+    offset: 144
+    return_type: char
+    parameters:
+    - type: Client::UI::AddonConfigPartyListRoleSort*
+      name: this
+    - type: Component::GUI::AtkCollisionNode*
+      name: collisionNode
+  - name: OnMove
+    offset: 160
+    return_type: void
+    parameters:
+    - type: Client::UI::AddonConfigPartyListRoleSort*
+      name: this
+  - name: HandleCursorTypeChange
+    offset: 176
+    return_type: char
+    parameters:
+    - type: Client::UI::AddonConfigPartyListRoleSort*
+      name: this
+  - name: ShouldIgnoreInputs
+    offset: 184
+    return_type: char
+    parameters:
+    - type: Client::UI::AddonConfigPartyListRoleSort*
+      name: this
+  - name: GetRootNode
+    offset: 192
+    return_type: Component::GUI::AtkResNode*
+    parameters:
+    - type: Client::UI::AddonConfigPartyListRoleSort*
+      name: this
+  - name: GetWindowBounds
+    offset: 216
+    return_type: void
+    parameters:
+    - type: Client::UI::AddonConfigPartyListRoleSort*
+      name: this
+    - type: Common::Math::Bounds*
+      name: outBounds
+  - name: GetRootBounds
+    offset: 240
+    return_type: void
+    parameters:
+    - type: Client::UI::AddonConfigPartyListRoleSort*
+      name: this
+    - type: Common::Math::Bounds*
+      name: outBounds
+  - name: SetDepthLayer
+    offset: 248
+    return_type: char
+    parameters:
+    - type: Client::UI::AddonConfigPartyListRoleSort*
+      name: this
+    - type: unsigned int
+      name: depthLayerIndex
+  - name: ShouldAllowCursorFocus
+    offset: 256
+    return_type: char
+    parameters:
+    - type: Client::UI::AddonConfigPartyListRoleSort*
+      name: this
+  - name: GetUnitBaseForFocus
+    offset: 280
+    return_type: Component::GUI::AtkUnitBase*
+    parameters:
+    - type: Client::UI::AddonConfigPartyListRoleSort*
+      name: this
+  - name: Focus
+    offset: 296
+    return_type: void
+    parameters:
+    - type: Client::UI::AddonConfigPartyListRoleSort*
+      name: this
+  - name: Initialize
+    offset: 328
+    return_type: void
+    parameters:
+    - type: Client::UI::AddonConfigPartyListRoleSort*
+      name: this
+  - name: Finalizer
+    offset: 336
+    return_type: void
+    parameters:
+    - type: Client::UI::AddonConfigPartyListRoleSort*
+      name: this
+  - name: Update
+    offset: 344
+    return_type: void
+    parameters:
+    - type: Client::UI::AddonConfigPartyListRoleSort*
+      name: this
+    - type: float
+      name: delta
+  - name: Draw
+    offset: 352
+    return_type: void
+    parameters:
+    - type: Client::UI::AddonConfigPartyListRoleSort*
+      name: this
+  - name: LoadUldResourceHandle
+    offset: 368
+    return_type: char
+    parameters:
+    - type: Client::UI::AddonConfigPartyListRoleSort*
+      name: this
+  - name: CheckWindowCollisionAtCoords
+    offset: 376
+    return_type: char
+    parameters:
+    - type: Client::UI::AddonConfigPartyListRoleSort*
+      name: this
+    - type: __int16
+      name: x
+    - type: __int16
+      name: y
+  - name: OnSetup
+    offset: 392
+    return_type: void
+    parameters:
+    - type: Client::UI::AddonConfigPartyListRoleSort*
+      name: this
+    - type: unsigned int
+      name: valueCount
+    - type: Component::GUI::AtkValue*
+      name: values
+  - name: OnRefresh
+    offset: 408
+    return_type: char
+    parameters:
+    - type: Client::UI::AddonConfigPartyListRoleSort*
+      name: this
+    - type: unsigned int
+      name: valueCount
+    - type: Component::GUI::AtkValue*
+      name: values
+  - name: OnRequestedUpdate
+    offset: 416
+    return_type: void
+    parameters:
+    - type: Client::UI::AddonConfigPartyListRoleSort*
+      name: this
+    - type: Component::GUI::NumberArrayData**
+      name: numberArrayData
+    - type: Component::GUI::StringArrayData**
+      name: stringArrayData
+  - name: FireCloseCallback
+    offset: 432
+    return_type: void
+    parameters:
+    - type: Client::UI::AddonConfigPartyListRoleSort*
+      name: this
+  - name: SetSizeFromConfig
+    offset: 448
+    return_type: void
+    parameters:
+    - type: Client::UI::AddonConfigPartyListRoleSort*
+      name: this
+    - type: float
+      name: width
+    - type: float
+      name: height
+  - name: HandleCustomInput
+    offset: 456
+    return_type: char
+    parameters:
+    - type: Client::UI::AddonConfigPartyListRoleSort*
+      name: this
+    - type: Component::GUI::AtkEventData::AtkInputData*
+      name: inputData
+  - name: OnFocusChange
+    offset: 472
+    return_type: void
+    parameters:
+    - type: Client::UI::AddonConfigPartyListRoleSort*
+      name: this
+    - type: char
+      name: isFocused
+  - name: OnScreenSizeChange
+    offset: 480
+    return_type: void
+    parameters:
+    - type: Client::UI::AddonConfigPartyListRoleSort*
+      name: this
+    - type: int
+      name: width
+    - type: int
+      name: height
+  - name: OnConfigLoaded
+    offset: 488
+    return_type: void
+    parameters:
+    - type: Client::UI::AddonConfigPartyListRoleSort*
+      name: this
+    - type: char
+      name: isInitialLoad
+  - name: OnMouseOver
+    offset: 496
+    return_type: void
+    parameters:
+    - type: Client::UI::AddonConfigPartyListRoleSort*
+      name: this
+  - name: OnMouseOut
+    offset: 504
+    return_type: void
+    parameters:
+    - type: Client::UI::AddonConfigPartyListRoleSort*
+      name: this
+  - name: IsFullyLoaded
+    offset: 528
+    return_type: char
+    parameters:
+    - type: Client::UI::AddonConfigPartyListRoleSort*
+      name: this
+  - name: PlaySoundEffect
+    offset: 536
+    return_type: void
+    parameters:
+    - type: Client::UI::AddonConfigPartyListRoleSort*
+      name: this
+    - type: int
+      name: soundEffectId
+  - name: HandleDPadInput
+    offset: 552
+    return_type: char
+    parameters:
+    - type: Client::UI::AddonConfigPartyListRoleSort*
+      name: this
+    - type: int
+      name: inputId
+    - type: char
+      name: a3
+  - name: HandleBackButtonInput
+    offset: 568
+    return_type: char
+    parameters:
+    - type: Client::UI::AddonConfigPartyListRoleSort*
       name: this
     - type: int
       name: inputId
@@ -172647,6 +175735,22 @@ structs:
       name: this
     - type: byte
       name: freeFlags
+  - name: ProcessEnterTerritory
+    offset: 160
+    return_type: void
+    parameters:
+    - type: Client::Game::Event::CraftEventHandler*
+      name: this
+    - type: unsigned __int16
+      name: territoryTypeId
+  - name: ProcessUIEvent
+    offset: 200
+    return_type: void
+    parameters:
+    - type: Client::Game::Event::CraftEventHandler*
+      name: this
+    - type: Client::Game::Event::UIEventType
+      name: type
   - name: ProcessYield
     offset: 320
     return_type: void
@@ -172875,6 +175979,22 @@ structs:
       name: this
     - type: byte
       name: freeFlags
+  - name: ProcessEnterTerritory
+    offset: 160
+    return_type: void
+    parameters:
+    - type: Client::Game::Event::GatheringEventHandler*
+      name: this
+    - type: unsigned __int16
+      name: territoryTypeId
+  - name: ProcessUIEvent
+    offset: 200
+    return_type: void
+    parameters:
+    - type: Client::Game::Event::GatheringEventHandler*
+      name: this
+    - type: Client::Game::Event::UIEventType
+      name: type
   - name: ProcessYield
     offset: 320
     return_type: void
@@ -173067,6 +176187,22 @@ structs:
       name: this
     - type: byte
       name: freeFlags
+  - name: ProcessEnterTerritory
+    offset: 160
+    return_type: void
+    parameters:
+    - type: Client::Game::Event::TripleTriadEventHandler*
+      name: this
+    - type: unsigned __int16
+      name: territoryTypeId
+  - name: ProcessUIEvent
+    offset: 200
+    return_type: void
+    parameters:
+    - type: Client::Game::Event::TripleTriadEventHandler*
+      name: this
+    - type: Client::Game::Event::UIEventType
+      name: type
   - name: ProcessYield
     offset: 320
     return_type: void
@@ -174291,6 +177427,9 @@ structs:
   - type: Client::Graphics::Scene::Weapon::ChangedWeaponData*
     name: ChangedData
     offset: 2640
+  - type: Client::Graphics::Scene::CharacterBase*
+    name: AttachTarget
+    offset: 2648
   virtual_functions:
   - name: dtor
     offset: 0
@@ -191437,7 +194576,7 @@ structs:
   member_functions:
   - signature: E8 ?? ?? ?? ?? 48 8B 7C 24 ?? EB ?? 33 F6
     return_type: Client::UI::Misc::CharaViewPortrait*
-    name: Ctor
+    name: ctor
     parameters:
     - type: Client::UI::Misc::CharaViewPortrait*
       name: this
@@ -192075,180 +195214,6 @@ structs:
     parameters:
     - type: Client::UI::Shell::RaptureShellModule*
       name: this
-- type: Component::GUI::AtkComponentNumericInput
-  name: AtkComponentNumericInput
-  namespace: Component.GUI
-  union: False
-  size: 824
-  fields:
-  - type: Component::GUI::AtkComponentInputBase
-    name: AtkComponentInputBase
-    offset: 0
-    base: true
-  - type: Component::GUI::AtkComponentButton*
-    name: PlusButtonComponent
-    offset: 488
-  - type: Component::GUI::AtkComponentButton*
-    name: MinusButtonComponent
-    offset: 496
-  - type: int
-    name: Value
-    offset: 504
-  - type: int
-    name: Digits
-    offset: 512
-  - type: char
-    name: AddZeroPadding
-    offset: 530
-  - type: Component::GUI::AtkUldComponentDataNumericInput
-    name: Data
-    offset: 760
-  virtual_functions:
-  - name: dtor
-    offset: 0
-    return_type: Component::GUI::AtkEventListener*
-    parameters:
-    - type: Component::GUI::AtkComponentNumericInput*
-      name: this
-    - type: byte
-      name: freeFlags
-  - name: ReceiveGlobalEvent
-    offset: 8
-    return_type: void
-    parameters:
-    - type: Component::GUI::AtkComponentNumericInput*
-      name: this
-    - type: Component::GUI::AtkEventType
-      name: eventType
-    - type: int
-      name: eventParam
-    - type: Component::GUI::AtkEvent*
-      name: atkEvent
-    - type: Component::GUI::AtkEventData*
-      name: atkEventData
-  - name: ReceiveEvent
-    offset: 16
-    return_type: void
-    parameters:
-    - type: Component::GUI::AtkComponentNumericInput*
-      name: this
-    - type: Component::GUI::AtkEventType
-      name: eventType
-    - type: int
-      name: eventParam
-    - type: Component::GUI::AtkEvent*
-      name: atkEvent
-    - type: Component::GUI::AtkEventData*
-      name: atkEventData
-  - name: Initialize
-    offset: 24
-    return_type: void
-    parameters:
-    - type: Component::GUI::AtkComponentNumericInput*
-      name: this
-  - name: Deinitialize
-    offset: 32
-    return_type: void
-    parameters:
-    - type: Component::GUI::AtkComponentNumericInput*
-      name: this
-  - name: Update
-    offset: 40
-    return_type: void
-    parameters:
-    - type: Component::GUI::AtkComponentNumericInput*
-      name: this
-    - type: float
-      name: delta
-  - name: Draw
-    offset: 56
-    return_type: void
-    parameters:
-    - type: Component::GUI::AtkComponentNumericInput*
-      name: this
-  - name: Setup
-    offset: 64
-    return_type: void
-    parameters:
-    - type: Component::GUI::AtkComponentNumericInput*
-      name: this
-  - name: SetEnabledState
-    offset: 80
-    return_type: void
-    parameters:
-    - type: Component::GUI::AtkComponentNumericInput*
-      name: this
-    - type: char
-      name: enabled
-  - name: PlaySoundEffect
-    offset: 104
-    return_type: void
-    parameters:
-    - type: Component::GUI::AtkComponentNumericInput*
-      name: this
-  - name: GetAtkResNode
-    offset: 112
-    return_type: Component::GUI::AtkResNode*
-    parameters:
-    - type: Component::GUI::AtkComponentNumericInput*
-      name: this
-  - name: GetFocusNode
-    offset: 120
-    return_type: Component::GUI::AtkResNode*
-    parameters:
-    - type: Component::GUI::AtkComponentNumericInput*
-      name: this
-  - name: InitializeFromComponentData
-    offset: 136
-    return_type: void
-    parameters:
-    - type: Component::GUI::AtkComponentNumericInput*
-      name: this
-    - type: __int64
-      name: data
-  - name: GetCollisionNodeAtCoords
-    offset: 144
-    return_type: Component::GUI::AtkResNode*
-    parameters:
-    - type: Component::GUI::AtkComponentNumericInput*
-      name: this
-    - type: __int16
-      name: x
-    - type: __int16
-      name: y
-  member_functions:
-  - signature: 48 89 5C 24 ?? 48 89 74 24 ?? 57 48 81 EC ?? ?? ?? ?? 48 8B 05 ?? ?? ?? ?? 48 33 C4 48 89 84 24 ?? ?? ?? ?? 48 8B F1 E8 ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? 48 C7 86 ?? ?? ?? ?? ?? ?? ?? ??
-    return_type: Component::GUI::AtkComponentNumericInput*
-    name: Ctor
-    parameters:
-    - type: Component::GUI::AtkComponentNumericInput*
-      name: this
-  - signature: E8 ?? ?? ?? ?? 81 4F ?? ?? ?? ?? ?? EB 07
-    return_type: void
-    name: SetValue
-    parameters:
-    - type: Component::GUI::AtkComponentNumericInput*
-      name: this
-    - type: int
-      name: value
-  - signature: E8 ?? ?? ?? ?? 40 80 FE ?? 74
-    return_type: void
-    name: InnerSetValue
-    parameters:
-    - type: Component::GUI::AtkComponentNumericInput*
-      name: this
-    - type: int
-      name: value
-    - type: char
-      name: triggerCallback
-    - type: char
-      name: playSoundEffect
-  - signature: E8 ?? ?? ?? ?? EB 20 48 8B CF
-    return_type: void
-    name: UpdateTextNode
-    parameters:
-    - type: Component::GUI::AtkComponentNumericInput*
-      name: this
 - type: Component::GUI::AtkFontAnalyzer
   name: AtkFontAnalyzer
   namespace: Component.GUI
@@ -192523,6 +195488,22 @@ structs:
       name: this
     - type: byte
       name: freeFlags
+  - name: ProcessEnterTerritory
+    offset: 160
+    return_type: void
+    parameters:
+    - type: Client::Game::Event::FishingEventHandler*
+      name: this
+    - type: unsigned __int16
+      name: territoryTypeId
+  - name: ProcessUIEvent
+    offset: 200
+    return_type: void
+    parameters:
+    - type: Client::Game::Event::FishingEventHandler*
+      name: this
+    - type: Client::Game::Event::UIEventType
+      name: type
   - name: ProcessYield
     offset: 320
     return_type: void
@@ -192706,6 +195687,22 @@ structs:
       name: this
     - type: byte
       name: freeFlags
+  - name: ProcessEnterTerritory
+    offset: 160
+    return_type: void
+    parameters:
+    - type: Client::Game::Event::GatheringPointEventHandler*
+      name: this
+    - type: unsigned __int16
+      name: territoryTypeId
+  - name: ProcessUIEvent
+    offset: 200
+    return_type: void
+    parameters:
+    - type: Client::Game::Event::GatheringPointEventHandler*
+      name: this
+    - type: Client::Game::Event::UIEventType
+      name: type
   - name: ProcessYield
     offset: 320
     return_type: void
@@ -192907,6 +195904,22 @@ structs:
       name: this
     - type: byte
       name: freeFlags
+  - name: ProcessEnterTerritory
+    offset: 160
+    return_type: void
+    parameters:
+    - type: Client::Game::Event::HwdDevEventHandler*
+      name: this
+    - type: unsigned __int16
+      name: territoryTypeId
+  - name: ProcessUIEvent
+    offset: 200
+    return_type: void
+    parameters:
+    - type: Client::Game::Event::HwdDevEventHandler*
+      name: this
+    - type: Client::Game::Event::UIEventType
+      name: type
   - name: ProcessYield
     offset: 320
     return_type: void
@@ -202408,6 +205421,214 @@ structs:
     - type: char
       name: a3
   member_functions: []
+- type: Component::GUI::AtkComponentNumericInput
+  name: AtkComponentNumericInput
+  namespace: Component.GUI
+  union: False
+  size: 824
+  fields:
+  - type: Component::GUI::AtkComponentInputBase
+    name: AtkComponentInputBase
+    offset: 0
+    base: true
+  - type: Component::GUI::AtkTextInput::AtkTextInputEventInterface
+    name: AtkTextInputEventInterface
+    offset: 480
+    base: true
+  - type: Component::GUI::AtkComponentButton*
+    name: PlusButtonComponent
+    offset: 488
+  - type: Component::GUI::AtkComponentButton*
+    name: MinusButtonComponent
+    offset: 496
+  - type: int
+    name: Value
+    offset: 504
+  - type: int
+    name: ValueBeforeInput
+    offset: 508
+  - type: int
+    name: Digits
+    offset: 512
+  - type: char
+    name: WrapValue
+    offset: 516
+  - type: char
+    name: EnableTextInput
+    offset: 517
+  - type: Client::Graphics::ByteColor
+    name: DefaultTextColor
+    offset: 520
+  - type: int
+    name: CurrentDigitMultiplier
+    offset: 524
+  - type: char
+    name: EnableOperationGuide
+    offset: 528
+  - type: char
+    name: AddZeroPadding
+    offset: 530
+  - type: char*
+    name: Suffix
+    offset: 536
+  - type: Client::Graphics::ByteColor
+    name: FocusColor
+    offset: 544
+  - type: Client::System::String::Utf8String
+    name: HighlightedDigitColorPrefix
+    offset: 552
+  - type: Client::System::String::Utf8String
+    name: HighlightedDigitColorSuffix
+    offset: 656
+  - type: Component::GUI::AtkUldComponentDataNumericInput
+    name: Data
+    offset: 760
+  virtual_functions:
+  - name: dtor
+    offset: 0
+    return_type: Component::GUI::AtkEventListener*
+    parameters:
+    - type: Component::GUI::AtkComponentNumericInput*
+      name: this
+    - type: byte
+      name: freeFlags
+  - name: ReceiveGlobalEvent
+    offset: 8
+    return_type: void
+    parameters:
+    - type: Component::GUI::AtkComponentNumericInput*
+      name: this
+    - type: Component::GUI::AtkEventType
+      name: eventType
+    - type: int
+      name: eventParam
+    - type: Component::GUI::AtkEvent*
+      name: atkEvent
+    - type: Component::GUI::AtkEventData*
+      name: atkEventData
+  - name: ReceiveEvent
+    offset: 16
+    return_type: void
+    parameters:
+    - type: Component::GUI::AtkComponentNumericInput*
+      name: this
+    - type: Component::GUI::AtkEventType
+      name: eventType
+    - type: int
+      name: eventParam
+    - type: Component::GUI::AtkEvent*
+      name: atkEvent
+    - type: Component::GUI::AtkEventData*
+      name: atkEventData
+  - name: Initialize
+    offset: 24
+    return_type: void
+    parameters:
+    - type: Component::GUI::AtkComponentNumericInput*
+      name: this
+  - name: Deinitialize
+    offset: 32
+    return_type: void
+    parameters:
+    - type: Component::GUI::AtkComponentNumericInput*
+      name: this
+  - name: Update
+    offset: 40
+    return_type: void
+    parameters:
+    - type: Component::GUI::AtkComponentNumericInput*
+      name: this
+    - type: float
+      name: delta
+  - name: Draw
+    offset: 56
+    return_type: void
+    parameters:
+    - type: Component::GUI::AtkComponentNumericInput*
+      name: this
+  - name: Setup
+    offset: 64
+    return_type: void
+    parameters:
+    - type: Component::GUI::AtkComponentNumericInput*
+      name: this
+  - name: SetEnabledState
+    offset: 80
+    return_type: void
+    parameters:
+    - type: Component::GUI::AtkComponentNumericInput*
+      name: this
+    - type: char
+      name: enabled
+  - name: PlaySoundEffect
+    offset: 104
+    return_type: void
+    parameters:
+    - type: Component::GUI::AtkComponentNumericInput*
+      name: this
+  - name: GetAtkResNode
+    offset: 112
+    return_type: Component::GUI::AtkResNode*
+    parameters:
+    - type: Component::GUI::AtkComponentNumericInput*
+      name: this
+  - name: GetFocusNode
+    offset: 120
+    return_type: Component::GUI::AtkResNode*
+    parameters:
+    - type: Component::GUI::AtkComponentNumericInput*
+      name: this
+  - name: InitializeFromComponentData
+    offset: 136
+    return_type: void
+    parameters:
+    - type: Component::GUI::AtkComponentNumericInput*
+      name: this
+    - type: __int64
+      name: data
+  - name: GetCollisionNodeAtCoords
+    offset: 144
+    return_type: Component::GUI::AtkResNode*
+    parameters:
+    - type: Component::GUI::AtkComponentNumericInput*
+      name: this
+    - type: __int16
+      name: x
+    - type: __int16
+      name: y
+  member_functions:
+  - signature: 48 89 5C 24 ?? 48 89 74 24 ?? 57 48 81 EC ?? ?? ?? ?? 48 8B 05 ?? ?? ?? ?? 48 33 C4 48 89 84 24 ?? ?? ?? ?? 48 8B F1 E8 ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? 48 C7 86 ?? ?? ?? ?? ?? ?? ?? ??
+    return_type: Component::GUI::AtkComponentNumericInput*
+    name: ctor
+    parameters:
+    - type: Component::GUI::AtkComponentNumericInput*
+      name: this
+  - signature: E8 ?? ?? ?? ?? 81 4F ?? ?? ?? ?? ?? EB 07
+    return_type: void
+    name: SetValue
+    parameters:
+    - type: Component::GUI::AtkComponentNumericInput*
+      name: this
+    - type: int
+      name: value
+  - signature: E8 ?? ?? ?? ?? 40 80 FE ?? 74
+    return_type: void
+    name: InnerSetValue
+    parameters:
+    - type: Component::GUI::AtkComponentNumericInput*
+      name: this
+    - type: int
+      name: value
+    - type: char
+      name: triggerCallback
+    - type: char
+      name: playSoundEffect
+  - signature: E8 ?? ?? ?? ?? EB 20 48 8B CF
+    return_type: void
+    name: UpdateTextNode
+    parameters:
+    - type: Component::GUI::AtkComponentNumericInput*
+      name: this
 - type: Client::Game::Control::Control
   name: Control
   namespace: Client.Game.Control
@@ -209738,6 +212959,163 @@ structs:
     offset: 1984
   virtual_functions: []
   member_functions: []
+- type: Client::UI::Agent::AgentFashion
+  name: AgentFashion
+  namespace: Client.UI.Agent
+  union: False
+  size: 2528
+  fields:
+  - type: Client::UI::Agent::AgentInterface
+    name: AgentInterface
+    offset: 0
+    base: true
+  - type: unsigned int
+    name: ScoreGaugeAddonId
+    offset: 92
+  - type: Client::UI::Agent::AgentFashionOpenType
+    name: OpenType
+    offset: 96
+  - type: Client::UI::Agent::AgentFashion::FashionCheckDataStruct
+    name: FashionCheckData
+    offset: 100
+  - type: Client::System::String::Utf8String
+    name: WeeklyThemeString
+    offset: 144
+  - type: Client::System::String::Utf8String
+    name: ItemThemeStrings
+    offset: 248
+    size: 11
+    is_string: False
+  - type: Client::UI::Agent::AgentFashion::ItemData
+    name: Items
+    offset: 1392
+    size: 11
+    is_string: False
+  - type: unsigned __int16
+    name: GlassesIds
+    offset: 1700
+    size: 2
+    is_string: False
+  - type: Client::UI::Agent::AgentFashion::FashionCharaView
+    name: CharaView
+    offset: 1704
+  - type: __int64
+    name: Callback
+    offset: 2520
+  virtual_functions:
+  - name: ReceiveEvent
+    offset: 0
+    return_type: Component::GUI::AtkValue*
+    parameters:
+    - type: Client::UI::Agent::AgentFashion*
+      name: this
+    - type: Component::GUI::AtkValue*
+      name: returnValue
+    - type: Component::GUI::AtkValue*
+      name: values
+    - type: unsigned int
+      name: valueCount
+    - type: unsigned __int64
+      name: eventKind
+  - name: ReceiveEventWithResult
+    offset: 8
+    return_type: Component::GUI::AtkValue*
+    parameters:
+    - type: Client::UI::Agent::AgentFashion*
+      name: this
+    - type: Component::GUI::AtkValue*
+      name: returnValue
+    - type: Component::GUI::AtkValue*
+      name: values
+    - type: unsigned int
+      name: valueCount
+    - type: unsigned __int64
+      name: eventKind
+  - name: dtor
+    offset: 16
+    return_type: Client::UI::Agent::AgentInterface*
+    parameters:
+    - type: Client::UI::Agent::AgentFashion*
+      name: this
+    - type: byte
+      name: freeFlags
+  - name: Show
+    offset: 24
+    return_type: void
+    parameters:
+    - type: Client::UI::Agent::AgentFashion*
+      name: this
+  - name: ShowFromLua
+    offset: 32
+    return_type: void
+    parameters:
+    - type: Client::UI::Agent::AgentFashion*
+      name: this
+    - type: int
+      name: id
+    - type: int*
+      name: args
+    - type: __int64
+      name: argCount
+  - name: Hide
+    offset: 40
+    return_type: void
+    parameters:
+    - type: Client::UI::Agent::AgentFashion*
+      name: this
+  - name: IsAgentActive
+    offset: 48
+    return_type: char
+    parameters:
+    - type: Client::UI::Agent::AgentFashion*
+      name: this
+  - name: Update
+    offset: 56
+    return_type: void
+    parameters:
+    - type: Client::UI::Agent::AgentFashion*
+      name: this
+    - type: unsigned int
+      name: frameCount
+  - name: IsActivatable
+    offset: 64
+    return_type: char
+    parameters:
+    - type: Client::UI::Agent::AgentFashion*
+      name: this
+  - name: GetAddonId
+    offset: 72
+    return_type: unsigned int
+    parameters:
+    - type: Client::UI::Agent::AgentFashion*
+      name: this
+  - name: OnGameEvent
+    offset: 80
+    return_type: void
+    parameters:
+    - type: Client::UI::Agent::AgentFashion*
+      name: this
+    - type: Client::UI::Agent::AgentGameEvent
+      name: gameEvent
+  - name: OnLevelChange
+    offset: 88
+    return_type: void
+    parameters:
+    - type: Client::UI::Agent::AgentFashion*
+      name: this
+    - type: byte
+      name: classJobId
+    - type: unsigned __int16
+      name: level
+  - name: OnClassJobChange
+    offset: 96
+    return_type: void
+    parameters:
+    - type: Client::UI::Agent::AgentFashion*
+      name: this
+    - type: byte
+      name: classJobId
+  member_functions: []
 - type: Client::UI::AddonActionBar
   name: AddonActionBar
   namespace: Client.UI
@@ -215391,6 +218769,22 @@ structs:
       name: this
     - type: byte
       name: freeFlags
+  - name: ProcessEnterTerritory
+    offset: 160
+    return_type: void
+    parameters:
+    - type: Client::Game::Event::ShopEventHandler*
+      name: this
+    - type: unsigned __int16
+      name: territoryTypeId
+  - name: ProcessUIEvent
+    offset: 200
+    return_type: void
+    parameters:
+    - type: Client::Game::Event::ShopEventHandler*
+      name: this
+    - type: Client::Game::Event::UIEventType
+      name: type
   - name: ProcessYield
     offset: 320
     return_type: void
@@ -215600,6 +218994,22 @@ structs:
       name: this
     - type: byte
       name: freeFlags
+  - name: ProcessEnterTerritory
+    offset: 160
+    return_type: void
+    parameters:
+    - type: Client::Game::MJI::MJIPastureHandler*
+      name: this
+    - type: unsigned __int16
+      name: territoryTypeId
+  - name: ProcessUIEvent
+    offset: 200
+    return_type: void
+    parameters:
+    - type: Client::Game::MJI::MJIPastureHandler*
+      name: this
+    - type: Client::Game::Event::UIEventType
+      name: type
   - name: ProcessYield
     offset: 320
     return_type: void
@@ -219752,6 +223162,22 @@ structs:
       name: this
     - type: byte
       name: freeFlags
+  - name: ProcessEnterTerritory
+    offset: 160
+    return_type: void
+    parameters:
+    - type: Client::Game::Event::LuaEventHandler*
+      name: this
+    - type: unsigned __int16
+      name: territoryTypeId
+  - name: ProcessUIEvent
+    offset: 200
+    return_type: void
+    parameters:
+    - type: Client::Game::Event::LuaEventHandler*
+      name: this
+    - type: Client::Game::Event::UIEventType
+      name: type
   - name: ProcessYield
     offset: 320
     return_type: void
@@ -231236,7 +234662,7 @@ structs:
   member_functions:
   - signature: 48 89 5C 24 ?? 57 48 83 EC ?? 48 8B D9 E8 ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? 48 C7 83
     return_type: Component::GUI::AtkComponentTextInput*
-    name: Ctor
+    name: ctor
     parameters:
     - type: Component::GUI::AtkComponentTextInput*
       name: this
@@ -231258,6 +234684,126 @@ structs:
       name: text
     - type: char
       name: unique
+  - signature: 48 8B 81 E0 00 00 00 80 38 00 0F 95 C0 C3
+    return_type: char
+    name: HasEvaluatedText
+    parameters:
+    - type: Component::GUI::AtkComponentTextInput*
+      name: this
+  - signature: 44 0F B7 81 6C 02 00 00 0F B6 C2 80 A1 5A 02 00 00 BF
+    return_type: void
+    name: ToggleUpperCase
+    parameters:
+    - type: Component::GUI::AtkComponentTextInput*
+      name: this
+    - type: char
+      name: enabled
+  - signature: 44 0F B7 81 6C 02 00 00 0F B6 C2 80 A1 5A 02 00 00 7F
+    return_type: void
+    name: ToggleLowerCase
+    parameters:
+    - type: Component::GUI::AtkComponentTextInput*
+      name: this
+    - type: char
+      name: enabled
+  - signature: 44 0F B7 81 6C 02 00 00 41 B9 FB FF 00 00 80 A1 5B 02 00 00 FE
+    return_type: void
+    name: ToggleNumberInput
+    parameters:
+    - type: Component::GUI::AtkComponentTextInput*
+      name: this
+    - type: char
+      name: enabled
+  - signature: 44 0F B7 81 6C 02 00 00 0F B6 C2 80 A1 5B 02 00 00 FD
+    return_type: void
+    name: ToggleSymbolInput
+    parameters:
+    - type: Component::GUI::AtkComponentTextInput*
+      name: this
+    - type: char
+      name: enabled
+  - signature: 44 0F B7 81 6C 02 00 00 0F B6 C2 80 A1 5A 02 00 00 EF
+    return_type: void
+    name: ToggleIME
+    parameters:
+    - type: Component::GUI::AtkComponentTextInput*
+      name: this
+    - type: char
+      name: enabled
+  - signature: 44 0F B7 81 6C 02 00 00 0F B6 C2 80 A1 5A 02 00 00 FB
+    return_type: void
+    name: ToggleDictionary
+    parameters:
+    - type: Component::GUI::AtkComponentTextInput*
+      name: this
+    - type: char
+      name: enabled
+  - signature: 44 0F B7 81 6C 02 00 00 41 B9 7F FF 00 00 80 A1 5A 02 00 00 FE
+    return_type: void
+    name: ToggleCapitalize
+    parameters:
+    - type: Component::GUI::AtkComponentTextInput*
+      name: this
+    - type: char
+      name: enabled
+  - signature: E8 ?? ?? ?? ?? 48 8B 8F ?? ?? ?? ?? 8D 53 ?? E8 ?? ?? ?? ?? 48 8B 8F ?? ?? ?? ?? 33 D2
+    return_type: void
+    name: ToggleEscapeClears
+    parameters:
+    - type: Component::GUI::AtkComponentTextInput*
+      name: this
+    - type: char
+      name: enabled
+  - signature: E8 ?? ?? ?? ?? 48 8B 4E ?? B8 ?? ?? ?? ?? F7 E3
+    return_type: void
+    name: SetMaxByte
+    parameters:
+    - type: Component::GUI::AtkComponentTextInput*
+      name: this
+    - type: int
+      name: maxByte
+  - signature: E8 ?? ?? ?? ?? 48 8B 9F ?? ?? ?? ?? 48 8D 6E
+    return_type: void
+    name: SetMaxChar
+    parameters:
+    - type: Component::GUI::AtkComponentTextInput*
+      name: this
+    - type: int
+      name: maxChar
+  - signature: E8 ?? ?? ?? ?? 48 8B 56 ?? 45 33 C9
+    return_type: void
+    name: SetMaxLine
+    parameters:
+    - type: Component::GUI::AtkComponentTextInput*
+      name: this
+    - type: unsigned int
+      name: maxLine
+  - signature: E8 ?? ?? ?? ?? 8D 57 ?? 49 8B CF
+    return_type: void
+    name: SetAtkHistoryIndex
+    parameters:
+    - type: Component::GUI::AtkComponentTextInput*
+      name: this
+    - type: __int16
+      name: index
+  - signature: E8 ?? ?? ?? ?? 0F B7 8D ?? ?? ?? ?? 33 D2
+    return_type: void
+    name: SetFontSize
+    parameters:
+    - type: Component::GUI::AtkComponentTextInput*
+      name: this
+    - type: byte
+      name: fontSize
+  - signature: E8 ?? ?? ?? ?? 44 38 BE ?? ?? ?? ?? 0F 84
+    return_type: void
+    name: UpdateCharacterCount
+    parameters:
+    - type: Component::GUI::AtkComponentTextInput*
+      name: this
+    - type: int
+      name: currentCharCount
+    - type: int
+      name: currentByteCount
 - type: Client::Game::Event::AetheryteEventHandler
   name: AetheryteEventHandler
   namespace: Client.Game.Event
@@ -231277,6 +234823,22 @@ structs:
       name: this
     - type: byte
       name: freeFlags
+  - name: ProcessEnterTerritory
+    offset: 160
+    return_type: void
+    parameters:
+    - type: Client::Game::Event::AetheryteEventHandler*
+      name: this
+    - type: unsigned __int16
+      name: territoryTypeId
+  - name: ProcessUIEvent
+    offset: 200
+    return_type: void
+    parameters:
+    - type: Client::Game::Event::AetheryteEventHandler*
+      name: this
+    - type: Client::Game::Event::UIEventType
+      name: type
   - name: ProcessYield
     offset: 320
     return_type: void
@@ -231457,6 +235019,22 @@ structs:
       name: this
     - type: byte
       name: freeFlags
+  - name: ProcessEnterTerritory
+    offset: 160
+    return_type: void
+    parameters:
+    - type: Client::Game::Event::CraftLeveClientEventHandler*
+      name: this
+    - type: unsigned __int16
+      name: territoryTypeId
+  - name: ProcessUIEvent
+    offset: 200
+    return_type: void
+    parameters:
+    - type: Client::Game::Event::CraftLeveClientEventHandler*
+      name: this
+    - type: Client::Game::Event::UIEventType
+      name: type
   - name: ProcessYield
     offset: 320
     return_type: void
@@ -231638,6 +235216,22 @@ structs:
       name: this
     - type: byte
       name: freeFlags
+  - name: ProcessEnterTerritory
+    offset: 160
+    return_type: void
+    parameters:
+    - type: Client::Game::Event::CustomTalkEventHandler*
+      name: this
+    - type: unsigned __int16
+      name: territoryTypeId
+  - name: ProcessUIEvent
+    offset: 200
+    return_type: void
+    parameters:
+    - type: Client::Game::Event::CustomTalkEventHandler*
+      name: this
+    - type: Client::Game::Event::UIEventType
+      name: type
   - name: ProcessYield
     offset: 320
     return_type: void
@@ -231818,6 +235412,22 @@ structs:
       name: this
     - type: byte
       name: freeFlags
+  - name: ProcessEnterTerritory
+    offset: 160
+    return_type: void
+    parameters:
+    - type: Client::Game::Event::CustomTalkResidentEventHandler*
+      name: this
+    - type: unsigned __int16
+      name: territoryTypeId
+  - name: ProcessUIEvent
+    offset: 200
+    return_type: void
+    parameters:
+    - type: Client::Game::Event::CustomTalkResidentEventHandler*
+      name: this
+    - type: Client::Game::Event::UIEventType
+      name: type
   - name: ProcessYield
     offset: 320
     return_type: void
@@ -231998,6 +235608,22 @@ structs:
       name: this
     - type: byte
       name: freeFlags
+  - name: ProcessEnterTerritory
+    offset: 160
+    return_type: void
+    parameters:
+    - type: Client::Game::Event::ExitRangeEventHandler*
+      name: this
+    - type: unsigned __int16
+      name: territoryTypeId
+  - name: ProcessUIEvent
+    offset: 200
+    return_type: void
+    parameters:
+    - type: Client::Game::Event::ExitRangeEventHandler*
+      name: this
+    - type: Client::Game::Event::UIEventType
+      name: type
   - name: ProcessYield
     offset: 320
     return_type: void
@@ -232268,6 +235894,22 @@ structs:
       name: this
     - type: byte
       name: freeFlags
+  - name: ProcessEnterTerritory
+    offset: 160
+    return_type: void
+    parameters:
+    - type: Client::Game::Event::QuestEventHandler*
+      name: this
+    - type: unsigned __int16
+      name: territoryTypeId
+  - name: ProcessUIEvent
+    offset: 200
+    return_type: void
+    parameters:
+    - type: Client::Game::Event::QuestEventHandler*
+      name: this
+    - type: Client::Game::Event::UIEventType
+      name: type
   - name: ProcessYield
     offset: 320
     return_type: void
@@ -234409,6 +238051,22 @@ structs:
       name: this
     - type: byte
       name: freeFlags
+  - name: ProcessEnterTerritory
+    offset: 160
+    return_type: void
+    parameters:
+    - type: Client::Game::Event::Director*
+      name: this
+    - type: unsigned __int16
+      name: territoryTypeId
+  - name: ProcessUIEvent
+    offset: 200
+    return_type: void
+    parameters:
+    - type: Client::Game::Event::Director*
+      name: this
+    - type: Client::Game::Event::UIEventType
+      name: type
   - name: ProcessYield
     offset: 320
     return_type: void
@@ -234597,6 +238255,22 @@ structs:
       name: this
     - type: byte
       name: freeFlags
+  - name: ProcessEnterTerritory
+    offset: 160
+    return_type: void
+    parameters:
+    - type: Client::Game::Event::GroupPoseEventHandler*
+      name: this
+    - type: unsigned __int16
+      name: territoryTypeId
+  - name: ProcessUIEvent
+    offset: 200
+    return_type: void
+    parameters:
+    - type: Client::Game::Event::GroupPoseEventHandler*
+      name: this
+    - type: Client::Game::Event::UIEventType
+      name: type
   - name: ProcessYield
     offset: 320
     return_type: void
@@ -234777,6 +238451,22 @@ structs:
       name: this
     - type: byte
       name: freeFlags
+  - name: ProcessEnterTerritory
+    offset: 160
+    return_type: void
+    parameters:
+    - type: Client::Game::Event::IdleCameraEventHandler*
+      name: this
+    - type: unsigned __int16
+      name: territoryTypeId
+  - name: ProcessUIEvent
+    offset: 200
+    return_type: void
+    parameters:
+    - type: Client::Game::Event::IdleCameraEventHandler*
+      name: this
+    - type: Client::Game::Event::UIEventType
+      name: type
   - name: ProcessYield
     offset: 320
     return_type: void
@@ -237806,6 +241496,22 @@ structs:
       name: this
     - type: byte
       name: freeFlags
+  - name: ProcessEnterTerritory
+    offset: 160
+    return_type: void
+    parameters:
+    - type: Client::Game::Event::GoldSaucerDirector*
+      name: this
+    - type: unsigned __int16
+      name: territoryTypeId
+  - name: ProcessUIEvent
+    offset: 200
+    return_type: void
+    parameters:
+    - type: Client::Game::Event::GoldSaucerDirector*
+      name: this
+    - type: Client::Game::Event::UIEventType
+      name: type
   - name: ProcessYield
     offset: 320
     return_type: void
@@ -238020,6 +241726,22 @@ structs:
       name: this
     - type: byte
       name: freeFlags
+  - name: ProcessEnterTerritory
+    offset: 160
+    return_type: void
+    parameters:
+    - type: Client::Game::Event::LeveDirector*
+      name: this
+    - type: unsigned __int16
+      name: territoryTypeId
+  - name: ProcessUIEvent
+    offset: 200
+    return_type: void
+    parameters:
+    - type: Client::Game::Event::LeveDirector*
+      name: this
+    - type: Client::Game::Event::UIEventType
+      name: type
   - name: ProcessYield
     offset: 320
     return_type: void
@@ -238220,6 +241942,22 @@ structs:
       name: this
     - type: byte
       name: freeFlags
+  - name: ProcessEnterTerritory
+    offset: 160
+    return_type: void
+    parameters:
+    - type: Client::Game::Fate::FateDirector*
+      name: this
+    - type: unsigned __int16
+      name: territoryTypeId
+  - name: ProcessUIEvent
+    offset: 200
+    return_type: void
+    parameters:
+    - type: Client::Game::Fate::FateDirector*
+      name: this
+    - type: Client::Game::Event::UIEventType
+      name: type
   - name: ProcessYield
     offset: 320
     return_type: void
@@ -238602,6 +242340,22 @@ structs:
       name: this
     - type: byte
       name: freeFlags
+  - name: ProcessEnterTerritory
+    offset: 160
+    return_type: void
+    parameters:
+    - type: Client::Game::Event::BattleLeveDirector*
+      name: this
+    - type: unsigned __int16
+      name: territoryTypeId
+  - name: ProcessUIEvent
+    offset: 200
+    return_type: void
+    parameters:
+    - type: Client::Game::Event::BattleLeveDirector*
+      name: this
+    - type: Client::Game::Event::UIEventType
+      name: type
   - name: ProcessYield
     offset: 320
     return_type: void
@@ -238830,6 +242584,22 @@ structs:
       name: this
     - type: byte
       name: freeFlags
+  - name: ProcessEnterTerritory
+    offset: 160
+    return_type: void
+    parameters:
+    - type: Client::Game::GoldSaucer::GFateDirector*
+      name: this
+    - type: unsigned __int16
+      name: territoryTypeId
+  - name: ProcessUIEvent
+    offset: 200
+    return_type: void
+    parameters:
+    - type: Client::Game::GoldSaucer::GFateDirector*
+      name: this
+    - type: Client::Game::Event::UIEventType
+      name: type
   - name: ProcessYield
     offset: 320
     return_type: void
@@ -239025,6 +242795,22 @@ structs:
       name: this
     - type: byte
       name: freeFlags
+  - name: ProcessEnterTerritory
+    offset: 160
+    return_type: void
+    parameters:
+    - type: Client::Game::MassivePcContent::MassivePcContentDirector*
+      name: this
+    - type: unsigned __int16
+      name: territoryTypeId
+  - name: ProcessUIEvent
+    offset: 200
+    return_type: void
+    parameters:
+    - type: Client::Game::MassivePcContent::MassivePcContentDirector*
+      name: this
+    - type: Client::Game::Event::UIEventType
+      name: type
   - name: ProcessYield
     offset: 320
     return_type: void
@@ -239770,6 +243556,22 @@ structs:
       name: this
     - type: byte
       name: freeFlags
+  - name: ProcessEnterTerritory
+    offset: 160
+    return_type: void
+    parameters:
+    - type: Client::Game::InstanceContent::ContentDirector*
+      name: this
+    - type: unsigned __int16
+      name: territoryTypeId
+  - name: ProcessUIEvent
+    offset: 200
+    return_type: void
+    parameters:
+    - type: Client::Game::InstanceContent::ContentDirector*
+      name: this
+    - type: Client::Game::Event::UIEventType
+      name: type
   - name: ProcessYield
     offset: 320
     return_type: void
@@ -240547,6 +244349,22 @@ structs:
       name: this
     - type: byte
       name: freeFlags
+  - name: ProcessEnterTerritory
+    offset: 160
+    return_type: void
+    parameters:
+    - type: Client::Game::InstanceContent::InstanceContentDirector*
+      name: this
+    - type: unsigned __int16
+      name: territoryTypeId
+  - name: ProcessUIEvent
+    offset: 200
+    return_type: void
+    parameters:
+    - type: Client::Game::InstanceContent::InstanceContentDirector*
+      name: this
+    - type: Client::Game::Event::UIEventType
+      name: type
   - name: ProcessYield
     offset: 320
     return_type: void
@@ -240764,6 +244582,22 @@ structs:
       name: this
     - type: byte
       name: freeFlags
+  - name: ProcessEnterTerritory
+    offset: 160
+    return_type: void
+    parameters:
+    - type: Client::Game::InstanceContent::PublicContentDirector*
+      name: this
+    - type: unsigned __int16
+      name: territoryTypeId
+  - name: ProcessUIEvent
+    offset: 200
+    return_type: void
+    parameters:
+    - type: Client::Game::InstanceContent::PublicContentDirector*
+      name: this
+    - type: Client::Game::Event::UIEventType
+      name: type
   - name: ProcessYield
     offset: 320
     return_type: void
@@ -240992,6 +244826,22 @@ structs:
       name: this
     - type: byte
       name: freeFlags
+  - name: ProcessEnterTerritory
+    offset: 160
+    return_type: void
+    parameters:
+    - type: Client::Game::InstanceContent::PublicContentEureka*
+      name: this
+    - type: unsigned __int16
+      name: territoryTypeId
+  - name: ProcessUIEvent
+    offset: 200
+    return_type: void
+    parameters:
+    - type: Client::Game::InstanceContent::PublicContentEureka*
+      name: this
+    - type: Client::Game::Event::UIEventType
+      name: type
   - name: ProcessYield
     offset: 320
     return_type: void
@@ -241357,6 +245207,22 @@ structs:
       name: this
     - type: byte
       name: freeFlags
+  - name: ProcessEnterTerritory
+    offset: 160
+    return_type: void
+    parameters:
+    - type: Client::Game::InstanceContent::InstanceContentDeepDungeon*
+      name: this
+    - type: unsigned __int16
+      name: territoryTypeId
+  - name: ProcessUIEvent
+    offset: 200
+    return_type: void
+    parameters:
+    - type: Client::Game::InstanceContent::InstanceContentDeepDungeon*
+      name: this
+    - type: Client::Game::Event::UIEventType
+      name: type
   - name: ProcessYield
     offset: 320
     return_type: void
@@ -241642,6 +245508,22 @@ structs:
       name: this
     - type: byte
       name: freeFlags
+  - name: ProcessEnterTerritory
+    offset: 160
+    return_type: void
+    parameters:
+    - type: Client::Game::InstanceContent::InstanceContentOceanFishing*
+      name: this
+    - type: unsigned __int16
+      name: territoryTypeId
+  - name: ProcessUIEvent
+    offset: 200
+    return_type: void
+    parameters:
+    - type: Client::Game::InstanceContent::InstanceContentOceanFishing*
+      name: this
+    - type: Client::Game::Event::UIEventType
+      name: type
   - name: ProcessYield
     offset: 320
     return_type: void
@@ -242156,6 +246038,22 @@ structs:
       name: this
     - type: byte
       name: freeFlags
+  - name: ProcessEnterTerritory
+    offset: 160
+    return_type: void
+    parameters:
+    - type: Client::Game::InstanceContent::PublicContentBozja*
+      name: this
+    - type: unsigned __int16
+      name: territoryTypeId
+  - name: ProcessUIEvent
+    offset: 200
+    return_type: void
+    parameters:
+    - type: Client::Game::InstanceContent::PublicContentBozja*
+      name: this
+    - type: Client::Game::Event::UIEventType
+      name: type
   - name: ProcessYield
     offset: 320
     return_type: void
@@ -242761,6 +246659,22 @@ structs:
       name: this
     - type: byte
       name: freeFlags
+  - name: ProcessEnterTerritory
+    offset: 160
+    return_type: void
+    parameters:
+    - type: Client::Game::InstanceContent::PublicContentOccultCrescent*
+      name: this
+    - type: unsigned __int16
+      name: territoryTypeId
+  - name: ProcessUIEvent
+    offset: 200
+    return_type: void
+    parameters:
+    - type: Client::Game::InstanceContent::PublicContentOccultCrescent*
+      name: this
+    - type: Client::Game::Event::UIEventType
+      name: type
   - name: ProcessYield
     offset: 320
     return_type: void
@@ -242994,6 +246908,9 @@ structs:
   - type: Client::Game::ZoneSharedGroupManager
     name: ZoneSharedGroupManager
     offset: 608
+  - type: Client::Game::PvPDuelManager
+    name: PvPDuelManager
+    offset: 2824
   - type: Client::Game::JobGaugeManager
     name: JobGaugeManager
     offset: 2856
@@ -243211,14 +247128,9 @@ structs:
   - type: Client::Game::Character::LookAtContainer
     name: LookAt
     offset: 3456
-  - type: byte
-    name: WeaponFlags
-    offset: 6528
-    bits:
-    - type: byte
-      offset: 0
-      size: 1
-      name: IsOffhandDrawn
+  - type: Client::Game::Character::LifeSkillContainer
+    name: LifeSkillContainer
+    offset: 6496
   - type: Client::Game::Character::VfxContainer
     name: Vfx
     offset: 6536
@@ -247018,21 +250930,19 @@ structs:
       name: a3
     - type: char
       name: a4
-  - name: ShowGoldSaucerReward
+  - name: ShowFateReward
     offset: 1352
     return_type: void
     parameters:
     - type: Client::UI::UIModule*
       name: this
-    - type: byte
-      name: type
+    - type: Client::Game::Network::FateRewardPacket*
+      name: packet
+    - type: Client::Game::Network::FateRewardPacket::ItemReward*
+      name: items
     - type: unsigned int
-      name: mgp
-    - type: unsigned int
-      name: rewardItemId
-    - type: unsigned int
-      name: rewardItemCount
-  - name: HideGoldSaucerReward
+      name: itemCount
+  - name: HideFateReward
     offset: 1360
     return_type: void
     parameters:
