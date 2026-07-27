@@ -27,19 +27,15 @@ This project would not be possible without significant work from many members of
 
 [Too many](https://github.com/aers/FFXIVClientStructs/graphs/contributors) to list.
 
-> [!IMPORTANT]
-> The following information will have slight inaccuracies due to generator changes introduced to the project with Dawntrail
-> 
-> This is in the process of being updated
+## CN-specific layouts
 
-## For CN
-### RaptureAtkModule.cs
-> ```
-> public AgentUpdateFlags AgentUpdateFlag;
-> ……
-> internal FixedSizeArray50<NamePlateInfo> _namePlateInfoEntries;
-> ```
-均需要-0x10
+The CN client has a persistent 0x10-byte layout shift relative to the global client in these ranges:
+
+- `AtkModule`: `TextInput` through `IsHudInitialized`
+- `RaptureAtkModule`: `UIScene` through `ShellCommands`
+- `UIModule`: `UI3DModule` through `UIInputModule`
+
+The explicit `- 0x10` offsets in those ranges are intentional. Validate them against the CN executable before normalizing them during an upstream sync.
 
 ## For Library Users
 
