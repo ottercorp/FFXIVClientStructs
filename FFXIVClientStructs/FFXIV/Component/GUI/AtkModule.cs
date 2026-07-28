@@ -13,7 +13,7 @@ namespace FFXIVClientStructs.FFXIV.Component.GUI;
 //   Client::System::Input::TextServiceInterface::TextServiceEvent
 [GenerateInterop(isInherited: true)]
 [Inherits<AtkModuleInterface>, Inherits<AtkExternalInterface>, Inherits<TextServiceEvent>]
-[StructLayout(LayoutKind.Explicit, Size = 0x82E0)]
+[StructLayout(LayoutKind.Explicit, Size = 0x82F0)]
 public unsafe partial struct AtkModule {
     public delegate AtkValue* CallbackHandlerDelegate(AtkModule* thisPtr, AtkValue* returnValue, AtkValue* values, uint valueCount);
 
@@ -39,36 +39,42 @@ public unsafe partial struct AtkModule {
     [FieldOffset(0x72C8)] public AtkMessageBoxManager* AtkMessageBoxManager;
     [FieldOffset(0x72D0)] public TextService TextService;
     [FieldOffset(0x7300 - 0x10)] public AtkTextInput TextInput;
-    [FieldOffset(0x7FE8 - 0x10)] internal Utf8String Unk7FE8;
-    [FieldOffset(0x8050 - 0x10)] internal Utf8String Unk8050;
-    [FieldOffset(0x80B8 - 0x10)] internal Utf8String Unk80B8;
-    [FieldOffset(0x8120 - 0x10)] internal Utf8String Unk8120;
+    [FieldOffset(0x7FF0 - 0x10)] internal Utf8String Unk7FE8;
+    [FieldOffset(0x8058 - 0x10)] internal Utf8String Unk8050;
+    [FieldOffset(0x80C0 - 0x10)] internal Utf8String Unk80B8;
+    [FieldOffset(0x8128 - 0x10)] internal Utf8String Unk8120;
 
     // probably an #IFDEF WINDOWS here or something specifically creating a Steam keyboard.
     // hope they don't add more soft keyboards later!
-    [FieldOffset(0x8190 - 0x10)] public SteamGamepadSoftKeyboard SoftKeyboardDevice;
+    [FieldOffset(0x8198 - 0x10)] public SteamGamepadSoftKeyboard SoftKeyboardDevice;
 
-    [FieldOffset(0x82A8 - 0x10), FixedSizeArray(isString: true)] internal FixedSizeArray16<byte> _currentUIScene;
-    [FieldOffset(0x82B8 - 0x10), FixedSizeArray(isString: true)] internal FixedSizeArray16<byte> _loadingUIScene;
+    [FieldOffset(0x82B0 - 0x10), FixedSizeArray(isString: true)] internal FixedSizeArray16<byte> _currentUIScene;
+    [FieldOffset(0x82C0 - 0x10), FixedSizeArray(isString: true)] internal FixedSizeArray16<byte> _loadingUIScene;
 
-    [FieldOffset(0x82D0 - 0x10)] internal ushort ScreenWidth; // maybe UI dimensions?
-    [FieldOffset(0x82D2 - 0x10)] internal ushort ScreenHeight;
-    [FieldOffset(0x82D4 - 0x10)] public bool EnableUiDraw;
+    [FieldOffset(0x82D8 - 0x10)] internal ushort ScreenWidth; // maybe UI dimensions?
+    [FieldOffset(0x82DA - 0x10)] internal ushort ScreenHeight;
+    [FieldOffset(0x82DC - 0x10)] public bool EnableUiDraw;
 
-    [FieldOffset(0x82D8 - 0x10)] public bool EnableUiInput;
-    [FieldOffset(0x82D9 - 0x10)] public bool IsHudInitialized;
+    [FieldOffset(0x82E0 - 0x10)] public bool EnableUiInput;
+    [FieldOffset(0x82E1 - 0x10)] public bool IsHudInitialized;
 
     [VirtualFunction(44)]
     public partial AddonStatus GetAddonStatus(uint addonId);
 
     [VirtualFunction(45)]
+    public partial bool IsAddonFocused(uint addonId);
+
+    [VirtualFunction(47)]
     public partial bool SetAddonDepthLayer(uint addonId, uint depthLayerIndex);
 
-    [VirtualFunction(60)]
+    [VirtualFunction(61)]
     public partial void Update(float delta);
 
-    [VirtualFunction(65), GenerateStringOverloads]
+    [VirtualFunction(66), GenerateStringOverloads]
     public partial bool OpenMapWithMapLink(CStringPointer mapLink);
+
+    [VirtualFunction(67)]
+    public partial void OnCursorTypeChange(AtkCursor.CursorType cursorType);
 
     [MemberFunction("E8 ?? ?? ?? ?? 44 0F B6 44 24 ?? 8B D3")]
     public partial bool IsTextInputActive();
