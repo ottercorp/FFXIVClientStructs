@@ -35,7 +35,7 @@ public unsafe partial struct ItemOrderModule {
     [FieldOffset(0xD0)] public ItemOrderModuleSorter* SaddleBagSorter;
     [FieldOffset(0xD8)] public ItemOrderModuleSorter* PremiumSaddleBagSorter;
 
-    [MemberFunction("E9 ?? ?? ?? ?? 48 8B 41 ?? C3")]
+    [MemberFunction("4C 8B 81 ?? ?? ?? ?? 4D 85 C0 74 ?? 48 8B 91 ?? ?? ?? ?? 4C 8B D2")]
     public partial ItemOrderModuleSorter* GetActiveRetainerSorter();
 }
 
