@@ -18,7 +18,8 @@ public unsafe partial struct Character {
     [FieldOffset(0x6D8)] public CompanionContainer CompanionData;
     [FieldOffset(0x6F8)] public DrawDataContainer DrawData;
     [FieldOffset(0x960)] public OrnamentContainer OrnamentData;
-    [FieldOffset(0x9D8)] public ReaperShroudContainer ReaperShroud;
+    [FieldOffset(0x9D8)] public TransformationContainer Transformation;
+    [FieldOffset(0x9D8), Obsolete("Use Transformation")] public ReaperShroudContainer ReaperShroud;
     [FieldOffset(0xA30)] public TimelineContainer Timeline;
     [FieldOffset(0xD80)] public LookAtContainer LookAt;
     [FieldOffset(0x1960)] public LifeSkillContainer LifeSkillContainer;
@@ -73,7 +74,8 @@ public unsafe partial struct Character {
     [FieldOffset(0x231C)] public float CastRotation;
 
     [FieldOffset(0x2338)] public uint NameId;
-
+    [FieldOffset(0x233C)] public uint EventHandlerNameId; // coming from (Quest)EventHandler.vf242 (lua function "GetBattleNpcNameId"), set in the Character.Update function
+    [FieldOffset(0x2340)] public uint TransformationNameId; // set/unset via statuses
     [FieldOffset(0x2344)] public uint CompanionOwnerId; // TODO: Find a better name as it is used to index into FurnitureMemory for IndoorHousing
     [FieldOffset(0x2348)] public ObjectType ObjectType;
 
