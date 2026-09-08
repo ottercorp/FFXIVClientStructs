@@ -83,6 +83,9 @@ public unsafe partial struct InstanceContentDirector {
 
     [FieldOffset(0xDE0)] public ContentDirector.MapEffectList ManagedSharedGroups;
 
+    /// <remarks> InstanceContentTextData Row 0 - 11 </remarks>
+    [FieldOffset(0x1A60), FixedSizeArray] internal FixedSizeArray12<Utf8String> _commonInstanceContentTexts;
+
     /// <summary>Dispatches updates specific to the content. This ends up calling ProcessContentSpecificDirectorUpdate and unrolls the parameters array.</summary>
     [VirtualFunction(380)]
     public partial void DispatchContentSpecificDirectorUpdate(uint category, uint* parameters);
@@ -114,6 +117,6 @@ public enum InstanceContentType : byte {
     VariantDungeon = 19,
     CriterionDungeon = 20,
     AdvancedVariantDungeon = 21,
-    Unk22 = 22, // related to XBM
-    Unk23 = 23,
+    CrucibleOfTheUnbroken = 22,
+    KeyboundBrawler = 23,
 }

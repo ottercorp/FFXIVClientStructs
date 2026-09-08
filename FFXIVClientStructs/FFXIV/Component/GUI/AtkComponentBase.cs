@@ -30,7 +30,7 @@ public unsafe partial struct AtkComponentBase : ICreatable<AtkComponentBase> {
     [MemberFunction("E8 ?? ?? ?? ?? 49 8B D7 48 89 87")]
     public partial AtkComponentBase* GetComponentById(uint id);
 
-    [MemberFunction("E8 ?? ?? ?? ?? 8B 94 9E")]
+    [MemberFunction("E8 ?? ?? ?? ?? 45 8B 3E")]
     public partial AtkImageNode* GetImageNodeById(uint id);
 
     [MemberFunction("E8 ?? ?? ?? ?? 49 63 D7")]
@@ -138,7 +138,8 @@ public struct AtkCursorNavigationInfo {
     [FieldOffset(0x05)] public byte CursorType; // 0 = east, 1 = south-east (seen in Emj addon)
     [FieldOffset(0x06)] public byte OffsetX;
     [FieldOffset(0x07)] public byte OffsetY;
-    [FieldOffset(0x08)] private byte Unk08;
+    /// <inheritdoc cref="AtkUldComponentDataBase.NavigationMode"/>
+    [FieldOffset(0x08)] public byte NavigationMode;
 }
 
 public enum AtkCursorNavigationDirection {
