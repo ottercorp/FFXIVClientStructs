@@ -146,7 +146,7 @@ public unsafe partial struct RaptureHotbarModule {
 
     [FieldOffset(0x2B3F0)] public bool PhantomActionsPresent;
 
-    [MemberFunction("E9 ?? ?? ?? ?? 73 25")]
+    [MemberFunction("E9 ?? ?? ?? ?? 73 25 8B CA 49 8D 91 A0 00 00 00")]
     public partial byte ExecuteSlot(HotbarSlot* hotbarSlot);
 
     [MemberFunction("4C 8B C9 41 83 F8 10 73 45")]
