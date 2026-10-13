@@ -152,6 +152,9 @@ public unsafe partial struct Framework {
     [MemberFunction("E8 ?? ?? ?? ?? 4B 8B 8C F4")]
     public partial ClientPlatform GetClientPlatform();
 
+    [MemberFunction("E8 ?? ?? ?? ?? 4C 8B C3 48 8D 4C 24 ?? 48 8B D0 E8 ?? ?? ?? ?? 33 D2")]
+    public partial CStringPointer GetBuildRevision();
+
     [MemberFunction("89 51 ?? C6 41 ?? ?? 48 8B 0D")]
     public partial void Exit(int exitCode);
 
@@ -187,6 +190,13 @@ public unsafe partial struct Framework {
     /// <returns>Returns <c>true</c> if the API was initialized successfully, false otherwise.</returns>
     [MemberFunction("48 89 5C 24 ?? 57 48 81 EC ?? ?? ?? ?? 48 8B 05 ?? ?? ?? ?? 48 33 C4 48 89 84 24 ?? ?? ?? ?? 48 8B F9 C6 81")]
     public partial bool SetupSteamApi();
+
+    /// <summary>
+    /// Marks the game client as (in)active in response to windows events. Note that this function may be called multiple times in a row,
+    /// but the final call state should always be valid.
+    /// </summary>
+    [MemberFunction("E8 ?? ?? ?? ?? E9 ?? ?? ?? ?? 66 83 FF 02")]
+    public partial void SetInactive(bool isInactive);
 
     [GenerateInterop]
     [StructLayout(LayoutKind.Explicit, Size = 32)]

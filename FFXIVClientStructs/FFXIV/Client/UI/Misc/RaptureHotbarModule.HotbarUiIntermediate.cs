@@ -1,3 +1,5 @@
+using FFXIVClientStructs.FFXIV.Client.System.Memory;
+
 namespace FFXIVClientStructs.FFXIV.Client.UI.Misc;
 
 public partial struct RaptureHotbarModule {
@@ -6,7 +8,7 @@ public partial struct RaptureHotbarModule {
     /// </summary>
     [GenerateInterop]
     [StructLayout(LayoutKind.Explicit, Size = 0x43)]
-    public unsafe partial struct HotbarUIIntermediate {
+    public unsafe partial struct HotbarUIIntermediate : ICreatable<HotbarUIIntermediate> {
         [FieldOffset(0x00)] public CStringPointer PopUpHelpText; // ref to Client::UI::Misc::RaptureHotbarModule::HotbarSlot.PopUpHelp.StringPtr
         [FieldOffset(0x08)] public CStringPointer CostText; // ref to Client::UI::Misc::RaptureHotbarModule::HotbarSlot.CostText
         [FieldOffset(0x10), Obsolete($"Use {nameof(Type)}")] public uint IntermediateActionType; // to NumberArray idx slotBase + 0
@@ -19,7 +21,8 @@ public partial struct RaptureHotbarModule {
         [FieldOffset(0x28)] public uint LastCooldownPercent;
         [FieldOffset(0x2C)] public uint ChargePercent; // to NumberArray idx slotBase + 9
         [FieldOffset(0x30)] public uint LastChargePercent;
-        [FieldOffset(0x34)] public uint CurrentCharges; // to NumberArray idx slotBase + 13
+        [FieldOffset(0x34), Obsolete("Field is -1 when unused, use CurrentChargeCount")] public uint CurrentCharges; // to NumberArray idx slotBase + 13
+        [FieldOffset(0x34)] public int CurrentChargeCount; // to NumberArray idx slotBase + 13
         [FieldOffset(0x38)] public uint CostValue; // to NumberArray idx slotBase + 10
         [FieldOffset(0x3C)] public byte CostType; // to NumberArray idx slotBase + 1
         [FieldOffset(0x3D)] public byte CostDisplayMode; // to NumberArray idx slotBase + 2

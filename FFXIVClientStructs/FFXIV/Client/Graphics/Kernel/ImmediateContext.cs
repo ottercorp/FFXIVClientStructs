@@ -49,6 +49,12 @@ public unsafe partial struct ImmediateContext {
     //[FieldOffset(0x1D70)] public InputLayout* CurrentInputLayout;
     [FieldOffset(0x17D8), CExporterTypeForce("D3D11_PRIMITIVE_TOPOLOGY", true)] public int CurrentPrimitiveTopology;
 
+    [FieldOffset(0x1808)] public VertexShader* CopyVertexShader; // CopyVS.shcd
+    [FieldOffset(0x1810)] public PixelShader* CopyPixelShader; // CopyPS.shcd
+    [FieldOffset(0x1818)] public PixelShader* CopyValidColorPixelShader; // CopyValidColorPS.shcd
+    [FieldOffset(0x1820)] public VertexShader* DepthCopyVertexShader; // DepthCopyVS.shcd
+    [FieldOffset(0x1828)] public PixelShader* DepthCopyPixelShader; // DepthCopyPS.shcd
+
     [MemberFunction("E8 ?? ?? ?? ?? 49 8D 47 58")]
     public partial void SetBlendState(PackedBlendStateDesc blendState);
 
@@ -75,7 +81,7 @@ public unsafe partial struct ImmediateContext {
     [MemberFunction("E8 ?? ?? ?? ?? E9 ?? ?? ?? ?? 48 8B D7 48 8B CB E8 ?? ?? ?? ?? E9 ?? ?? ?? ?? 48 83 7F")]
     public partial void SetMultiViewports(uint viewportCount, IntRectangle* viewports, float* minDepths, float* maxDepths);
 
-    [MemberFunction("E9 ?? ?? ?? ?? 48 8B 4A 10")]
+    [MemberFunction("E8 ?? ?? ?? ?? 48 8B 4F ?? FF 57")]
     public partial void SetDefaultState();
 
     [MemberFunction("E8 ?? ?? ?? ?? E9 ?? ?? ?? ?? 48 83 7F ?? ?? 0F 84 ?? ?? ?? ?? 48 83 7F")]

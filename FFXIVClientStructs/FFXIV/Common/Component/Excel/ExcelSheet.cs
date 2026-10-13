@@ -47,7 +47,7 @@ public unsafe partial struct ExcelSheet {
     [MemberFunction("E8 ?? ?? ?? ?? 8B D3 48 8B F8")]
     public partial IExcelRowWrapper* GetRowById(uint rowId, uint* outErrorCode = null);
 
-    [MemberFunction("48 89 5C 24 08 48 89 6C 24 18 56 57 41 56 48 83 EC 20 33 F6 C7 44 24 48 03 00 00 00")]
+    [MemberFunction("E8 ?? ?? ?? ?? 41 80 46")]
     public partial bool AddWaiter(ExcelSheetWaiter* waiter);
 
     [MemberFunction("E8 ?? ?? ?? ?? 8B 53 ?? 44 8B C5")]

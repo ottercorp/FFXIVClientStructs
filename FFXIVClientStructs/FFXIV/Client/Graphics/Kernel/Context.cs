@@ -22,11 +22,16 @@ public unsafe partial struct Context {
     [FieldOffset(0x848)] public ulong AllocationBase;
     [FieldOffset(0x850)] public ulong AllocationUsedSize;
 
+    // TODO: have seen this used to allocate memory that isn't for a command, needs rename
     [MemberFunction("4C 8B D1 4C 8D 42 0F")]
     public partial void* AllocateCommand(ulong size);
 
     [MemberFunction("4C 8B C9 4D 8D 50 0F")]
     public partial void* AllocateSpecificCommand(RenderCommandType commandType, ulong size);
+
+    /// <summary> Copies the entries of command list <paramref name="list"/> to <paramref name="output"/> and merge sorts them by key. </summary>
+    [MemberFunction("48 89 54 24 10 55 41 54 41 56 48 83 EC 30 41 8B C0 4D 8B F1 48 FF C0 C7 02 00 00 00 00")]
+    public partial void* GatherCommands(uint* outCount, uint list, void* output);
 
     [MemberFunction("E8 ?? ?? ?? ?? 8B 6E 6C")]
     public partial void PushBackCommand(void* command);
