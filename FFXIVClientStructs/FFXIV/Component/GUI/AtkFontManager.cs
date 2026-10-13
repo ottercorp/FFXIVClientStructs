@@ -23,49 +23,51 @@ public unsafe partial struct AtkFontManager {
     public Span<FontSet> FontSetSpan => FontSets is null ? Span<FontSet>.Empty : new(FontSets, FontSetCount);
     public Span<Font> FontSpan => Fonts is null ? Span<Font>.Empty : new(Fonts, FontCount);
 
-    [MemberFunction("40 56 48 83 EC 60 66 3B 51 10 0F 83 ?? ?? ?? ?? 0F B7 C2 48 69 F0 F8 00 00 00")]
+    [MemberFunction("40 56 48 83 EC 60 66 3B 51 10 0F 83 ?? ?? ?? ?? 0F B7 C2 48 69 F0 ?? ?? ?? ??")]
     public partial int BuildFont(ushort index);
 
     [MemberFunction("E8 ?? ?? ?? ?? 48 8B CF 4C 89 BF ?? ?? ?? ?? E8")]
     public partial int UnloadFonts();
 
-    [StaticAddress("48 8D 1D ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? 48 0F 45 D8 EB 07 48 8D 1D ?? ?? ?? ??", 23)]
+    // CN's selector loads the high-resolution lobby table before the standard-resolution table.
+    [StaticAddress("48 8D 05 ?? ?? ?? ?? 48 8D 1D ?? ?? ?? ?? 48 0F 45 D8 EB 07 48 8D 1D ?? ?? ?? ??", 23)]
     public static partial FontTableEntry* GameFontTable();
 
-    [StaticAddress("48 8D 1D ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? 48 0F 45 D8 EB 07 48 8D 1D ?? ?? ?? ??", 3)]
+    [StaticAddress("48 8D 05 ?? ?? ?? ?? 48 8D 1D ?? ?? ?? ?? 48 0F 45 D8 EB 07 48 8D 1D ?? ?? ?? ??", 10)]
     public static partial FontTableEntry* LobbyFontTableStandardResolution();
 
-    [StaticAddress("48 8D 1D ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? 48 0F 45 D8 EB 07 48 8D 1D ?? ?? ?? ??", 10)]
+    [StaticAddress("48 8D 05 ?? ?? ?? ?? 48 8D 1D ?? ?? ?? ?? 48 0F 45 D8 EB 07 48 8D 1D ?? ?? ?? ??", 3)]
     public static partial FontTableEntry* LobbyFontTableHighResolution();
 
     [GenerateInterop]
-    [StructLayout(LayoutKind.Explicit, Size = 0xF8)]
+    [StructLayout(LayoutKind.Explicit, Size = 0x1A8)]
     public partial struct Font {
-        public const int MaxTextures = 10;
+        // CN reserves 21 texture slots in each array rather than the global client's 10.
+        public const int MaxTextures = 21;
 
-        [FieldOffset(0x00), FixedSizeArray] internal FixedSizeArray10<Pointer<TextureResourceHandle>> _textureResourceHandles;
-        [FieldOffset(0x50)] public ResourceHandle* FontdataResourceHandle;
-        [FieldOffset(0x58), FixedSizeArray] internal FixedSizeArray10<Pointer<Texture>> _textures;
-        [FieldOffset(0xA8)] public uint GlyphCount;
-        [FieldOffset(0xAC)] public uint KerningCount;
-        [FieldOffset(0xB4)] public ushort TextureWidth;
-        [FieldOffset(0xB6)] public ushort TextureHeight;
-        [FieldOffset(0xB8)] public float Size;
-        [FieldOffset(0xBC)] public int LineHeight;
-        [FieldOffset(0xC0)] public int Ascent;
-        [FieldOffset(0xC8)] public Glyph* Glyphs;
-        [FieldOffset(0xD0)] public StdUnorderedMap<uint, Pointer<Glyph>>* GlyphMap;
-        [FieldOffset(0xD8)] public KerningEntry* Kerning;
-        [FieldOffset(0xE0)] public Font* Secondary;
-        [FieldOffset(0xE8)] public float SecondaryRatio;
-        [FieldOffset(0xF0)] public ushort TextureCount;
-        [FieldOffset(0xF2)] public FontFlags Flags;
+        [FieldOffset(0x00), FixedSizeArray] internal FixedSizeArray21<Pointer<TextureResourceHandle>> _textureResourceHandles;
+        [FieldOffset(0xA8)] public ResourceHandle* FontdataResourceHandle;
+        [FieldOffset(0xB0), FixedSizeArray] internal FixedSizeArray21<Pointer<Texture>> _textures;
+        [FieldOffset(0x158)] public uint GlyphCount;
+        [FieldOffset(0x15C)] public uint KerningCount;
+        [FieldOffset(0x164)] public ushort TextureWidth;
+        [FieldOffset(0x166)] public ushort TextureHeight;
+        [FieldOffset(0x168)] public float Size;
+        [FieldOffset(0x16C)] public int LineHeight;
+        [FieldOffset(0x170)] public int Ascent;
+        [FieldOffset(0x178)] public Glyph* Glyphs;
+        [FieldOffset(0x180)] public StdUnorderedMap<uint, Pointer<Glyph>>* GlyphMap;
+        [FieldOffset(0x188)] public KerningEntry* Kerning;
+        [FieldOffset(0x190)] public Font* Secondary;
+        [FieldOffset(0x198)] public float SecondaryRatio;
+        [FieldOffset(0x1A0)] public ushort TextureCount;
+        [FieldOffset(0x1A2)] public FontFlags Flags;
         /// <summary>The first codepoint of the glyphs looked up by index rather than in <see cref="GlyphMap"/>, up to 0xFF, when <see cref="FontFlags.DirectIndex"/> is set.</summary>
-        [FieldOffset(0xF3)] public byte DirectIndexFirst;
+        [FieldOffset(0x1A3)] public byte DirectIndexFirst;
         /// <summary>How far the glyph after italic text moves right, for the overhang of the sheared glyphs before it.</summary>
-        [FieldOffset(0xF4)] public sbyte ItalicCorrection;
+        [FieldOffset(0x1A4)] public sbyte ItalicCorrection;
         /// <summary>Extra spacing between consecutive CJK glyphs.</summary>
-        [FieldOffset(0xF5)] public sbyte CjkSpacing;
+        [FieldOffset(0x1A5)] public sbyte CjkSpacing;
     }
 
     [Flags]
@@ -92,7 +94,7 @@ public unsafe partial struct AtkFontManager {
 
         /// <summary>Looks a glyph up in a font of the set.</summary>
         /// <returns><c>null</c> if the font has none.</returns>
-        [MemberFunction("89 54 24 10 48 83 EC 38 41 F6 80 F2 00 00 00 04")]
+        [MemberFunction("89 54 24 10 48 83 EC 38 41 F6 80 ?? ?? ?? ?? 04")]
         public partial Glyph* GetGlyph(uint utf8Value, Font* font);
     }
 
